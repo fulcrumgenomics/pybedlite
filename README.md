@@ -60,4 +60,7 @@ export CFLAGS="-stdlib=libc++"
 [conda-link]:  https://docs.conda.io/en/latest/miniconda.html
 
 ## Checking the Build
+### Run all checks with:
+```bash
 ./ci/check.sh
+```
