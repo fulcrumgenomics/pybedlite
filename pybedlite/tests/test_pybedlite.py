@@ -61,6 +61,9 @@ def bed_records() -> List[BedRecord]:
 
 
 SNIPPET_BED = """\
+# Test header, with a line with whitespace below it.
+
+# More header
 1	100	150	test_record1	100	+	100	100	0,0,0	1	50	0
 1	200	300	test_record2	100	-	210	290	0,0,0	1	100	0
 2	200	300	test_record3	.	.	.	.	.	.	.	.

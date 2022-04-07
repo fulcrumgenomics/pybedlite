@@ -58,3 +58,6 @@ export CFLAGS="-stdlib=libc++"
 
 [poetry-link]: https://github.com/python-poetry/poetry
 [conda-link]:  https://docs.conda.io/en/latest/miniconda.html
+
+## Checking the Build
+./ci/check.sh
