@@ -78,7 +78,7 @@ class Interval:
         if self.start < 0:
             raise ValueError(f"start is out of range: {self.start}")
         if self.end <= self.start:
-            raise ValueError(f"end < start: {self.end} < {self.start}")
+            raise ValueError(f"end <= start: {self.end} <= {self.start}")
 
     def overlap(self, other: "Interval") -> int:
         """Returns the overlap between this interval and the other, or zero if there is none.
