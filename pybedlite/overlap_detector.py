@@ -100,7 +100,8 @@ class Interval:
 class OverlapDetector:
     """Detects and returns overlaps between a set of genomic regions and another genomic region.
 
-    If two intervals have the same coordinates, only the first that was added will be kept.
+    If the same interval (including name) is added twice, only one will be kept.  If the name is
+    different but all fields are the same, then both will be kept.
 
     Since :class:`~samwell.overlap_detector.Interval` objects are used both to populate the
     overlap detector and to query it, the coordinate system in use is also 0-based open-ended.
