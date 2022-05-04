@@ -122,6 +122,8 @@ class BedSource(ContextManager, Iterable[BedRecord]):
             # Skip header lines
             if line.startswith("#") or line.startswith("browser") or line.startswith("track"):
                 continue
+            if line.strip() == "":
+                continue
             fields = line.strip().split("\t")
             assert len(fields) >= 3, (
                 "BED records must conform to specifications, which requires at least 3 input "
