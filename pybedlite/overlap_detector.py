@@ -38,16 +38,17 @@ The module contains the following public classes:
         a set of genomic regions and another genomic region
 """
 
+import attr
+import cgranges as cr
 from pathlib import Path
 from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
+from typing import Set
 
-import attr
-from intervaltree import IntervalTree
-from pybedlite.bed_source import BedSource
 from pybedlite.bed_record import BedStrand
+from pybedlite.bed_source import BedSource
 
 
 @attr.s(frozen=True, auto_attribs=True)
@@ -100,26 +101,47 @@ class Interval:
 class OverlapDetector:
     """Detects and returns overlaps between a set of genomic regions and another genomic region.
 
-    If two intervals have the same coordinates, only the first that was added will be kept.
-
     Since :class:`~samwell.overlap_detector.Interval` objects are used both to populate the
     overlap detector and to query it, the coordinate system in use is also 0-based open-ended.
+
+    The same interval may be added multiple times, but only a single instance will be returned
+    when querying for overlaps.  Intervals with the same coordinates but different names are
+    treated as different intervals.
+
+    This detector is the most efficient when all intervals are added ahead of time.
     """
 
     def __init__(self) -> None:
-        self._refname_to_tree: Dict[str, IntervalTree] = {}
+        # A mapping from the contig/chromosome name to the associated interval tree
+        self._refname_to_tree: Dict[str, cr.cgranges] = {}
+        self._refname_to_indexed: Dict[str, bool] = {}
+        self._refname_to_intervals: Dict[str, List[Interval]] = {}
+        super().__init__()
 
     def add(self, interval: Interval) -> None:
-        """Adds a interval to this detector.
+        """Adds an interval to this detector.
 
         Args:
             interval: the interval to add to this detector
         """
         refname = interval.refname
         if refname not in self._refname_to_tree:
-            self._refname_to_tree[refname] = IntervalTree()
-        tree = self._get_tree(refname)
-        tree[interval.start : interval.end] = interval
+            self._refname_to_tree[refname] = cr.cgranges()
+            self._refname_to_indexed[refname] = False
+            self._refname_to_intervals[refname] = []
+
+        # Append the interval to the list of intervals for this tree, keeping the index
+        # of where it was inserted
+        interval_idx: int = len(self._refname_to_intervals[refname])
+        self._refname_to_intervals[refname].append(interval)
+
+        # Add the interval to the tree
+        tree = self._refname_to_tree[refname]
+        tree.add(interval.refname, interval.start, interval.end, interval_idx)
+
+        # Flag this tree as needing to be indexed after adding a new interval, but defer
+        # indexing
+        self._refname_to_indexed[refname] = False
 
     def add_all(self, intervals: Iterable[Interval]) -> None:
         """Adds one or more intervals to this detector.
@@ -140,11 +162,18 @@ class OverlapDetector:
             True if and only if the given interval overlaps with any interval in this
             detector.
         """
-        tree = self._get_tree(interval.refname)
+        tree = self._refname_to_tree.get(interval.refname)
         if tree is None:
             return False
         else:
-            return tree.overlaps(interval.start, interval.end)
+            if not self._refname_to_indexed[interval.refname]:
+                tree.index()
+            try:
+                next(iter(tree.overlap(interval.refname, interval.start, interval.end)))
+            except StopIteration:
+                return False
+            else:
+                return True
 
     def get_overlaps(self, interval: Interval) -> List[Interval]:
         """Returns any intervals in this detector that overlap the given interval.
@@ -156,12 +185,21 @@ class OverlapDetector:
             The list of intervals in this detector that overlap the given interval, or the empty
             list if no overlaps exist.  The intervals will be return in ascending genomic order.
         """
-        tree = self._get_tree(interval.refname)
+        tree = self._refname_to_tree.get(interval.refname)
         if tree is None:
             return []
         else:
-            intervals = [i.data for i in tree.overlap(interval.start, interval.end)]
-            return sorted(intervals, key=lambda intv: (intv.start, intv.end))
+            if not self._refname_to_indexed[interval.refname]:
+                tree.index()
+            ref_intervals: List[Interval] = self._refname_to_intervals[interval.refname]
+            # NB: only return unique instances of intervals
+            intervals: Set[Interval] = {
+                ref_intervals[index]
+                for _, _, index in tree.overlap(interval.refname, interval.start, interval.end)
+            }
+            return sorted(
+                intervals, key=lambda intv: (intv.start, intv.end, intv.negative, intv.name)
+            )
 
     def get_enclosing_intervals(self, interval: Interval) -> List[Interval]:
         """Returns  the set of intervals in this detector that wholly enclose the query interval.
@@ -190,24 +228,11 @@ class OverlapDetector:
         results = self.get_overlaps(interval)
         return [i for i in results if i.start >= interval.start and i.end <= interval.end]
 
-    def _get_tree(self, refname: str) -> Optional[IntervalTree]:
-        """Gets the detector for the given refname
-
-        Args:
-            refname: the refname
-
-        Returns:
-            the detector for the given refname, or None if there are no regions for that refname
-        """
-        return self._refname_to_tree.get(refname)
-
     @classmethod
     def from_bed(cls, path: Path) -> "OverlapDetector":
         """Builds an :class:`~samwell.overlap_detector.OverlapDetector` from a BED file.
-
         Args:
             path: the path to the BED file
-
         Returns:
             An overlap detector for the regions in the BED file.
         """
