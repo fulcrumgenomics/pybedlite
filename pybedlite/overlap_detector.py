@@ -116,7 +116,6 @@ class OverlapDetector:
         self._refname_to_tree: Dict[str, cr.cgranges] = {}
         self._refname_to_indexed: Dict[str, bool] = {}
         self._refname_to_intervals: Dict[str, List[Interval]] = {}
-        super().__init__()
 
     def add(self, interval: Interval) -> None:
         """Adds an interval to this detector.
