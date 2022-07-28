@@ -35,11 +35,22 @@
 
 # pybedlite
 
-`pip install pybedlite`
+```
+conda install pybedlite
+```
+OR
+```
+conda create -n pybedlite pybedlite
+conda activate pybedlite
+```
+
+Note that versions of pybedlite >= 0.0.2 cannot at present be installed via pypi
+because they have dependencies that preclude publishing to pypi. For this reason
+installation via conda is preferred.
 
 **Requires python 3.6+**
 
-# Getting Setup
+# Getting Setup for development work
 
 [Poetry][poetry-link] is used to manage the python development environment. 
 
