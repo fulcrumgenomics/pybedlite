@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pybedlite"
-version = "0.0.2-dev"
+version = "0.0.2"
 description = "Python classes for interfacing with bed intervals"
 authors = ["Nils Homer", "Tim Fennell", "Nathan Roach"]
 license = "MIT"
@@ -31,7 +31,6 @@ typing_extensions = { version = ">=3.7.4", python = "<3.8" }  # Literal support
 typing_inspect = { version = ">=0.3.1", python = "<3.8" }  # inspecting types
 sphinx = {version = "4.3.1", optional = true}
 Cython = "^0.29.30"
-cgranges = {git = "https://github.com/lh3/cgranges.git", rev = "v0.1"}
 
 [tool.poetry.dev-dependencies]
 pytest = ">=5.4.2"
