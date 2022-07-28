@@ -47,7 +47,7 @@ conda activate pybedlite
 Note that while there is a version of pybedlite on pypi versions of pybedlite >=
 0.0.2 cannot at present be installed via pypi because they have dependencies
 that preclude publishing to pypi. For this reason installation via conda is
-preferred.
+required.
 
 **Requires python 3.6+**
 
