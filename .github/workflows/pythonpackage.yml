@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        PYTHON_VERSION: ["3.6.15"]
+        PYTHON_VERSION: ["3.6"]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Set up Python ${{matrix.PYTHON_VERSION}}
       uses: actions/setup-python@v2
