@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        PYTHON_VERSION: ["3.6"]
+        PYTHON_VERSION: ["3.6", "3.7", "3.8", "3.9"]
     steps:
     - uses: actions/checkout@v2
 
