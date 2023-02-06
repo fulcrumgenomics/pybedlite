@@ -63,6 +63,13 @@ conda activate pybedlite
 poetry install
 ```
 
+If the methods listed above do not work try the following:
+```bash
+mamba create -n pybedlite -c conda-forge "python=3.9.16" "poetry=1.1.15"
+mamba activate pybedlite
+poetry install
+```
+
 If, during `poetry install` on Mac OS X errors are encountered running gcc/clang to build `pybedtools` or other packages with native code, try setting the following and re-running `poetry install`:
 ```bash
 export CFLAGS="-stdlib=libc++"

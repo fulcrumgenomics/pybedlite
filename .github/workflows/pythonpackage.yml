@@ -2,19 +2,19 @@ name: Python package
 
 on: [push]
 env:
-  POETRY_VERSION: 1.1
+  POETRY_VERSION: 1.1.15
 
 jobs:
   testing:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
-        PYTHON_VERSION: ["3.6", "3.7"]
+        PYTHON_VERSION: ["3.6", "3.7", "3.8", "3.9"]
     steps:
     - uses: actions/checkout@v2
 
     - name: Set up Python ${{matrix.PYTHON_VERSION}}
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
         python-version: ${{matrix.PYTHON_VERSION}}
 
