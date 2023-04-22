@@ -36,7 +36,7 @@
 # pybedlite
 
 ```
-conda install pybedlite
+conda install -c bioconda pybedlite
 ```
 OR
 ```
