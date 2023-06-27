@@ -134,3 +134,17 @@ def test_get_enclosed() -> None:
     assert detector.get_enclosed(Interval("1", 16, 20)) == [c]
     assert detector.get_enclosed(Interval("1", 15, 19)) == [c]
     assert detector.get_enclosed(Interval("1", 10, 99)) == [b, c, d]
+
+
+def test_iterable() -> None:
+    a = Interval("1", 1, 250)
+    b = Interval("1", 5, 30)
+    c = Interval("1", 10, 99)
+    d = Interval("1", 15, 19)
+    e = Interval("1", 16, 20)
+
+    detector = OverlapDetector()
+    detector.add_all([a])
+    assert list(detector) == [a]
+    detector.add_all([a, b, c, d, e])
+    assert list(detector) == [a, a, b, c, d, e]

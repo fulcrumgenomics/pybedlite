@@ -42,11 +42,12 @@ import attr
 import cgranges as cr
 from pathlib import Path
 from typing import Dict
+from typing import Iterator
 from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Set
-
+import itertools
 from pybedlite.bed_record import BedStrand
 from pybedlite.bed_source import BedSource
 
@@ -98,7 +99,7 @@ class Interval:
         return self.end - self.start
 
 
-class OverlapDetector:
+class OverlapDetector(Iterable[Interval]):
     """Detects and returns overlaps between a set of genomic regions and another genomic region.
 
     Since :class:`~samwell.overlap_detector.Interval` objects are used both to populate the
@@ -116,6 +117,10 @@ class OverlapDetector:
         self._refname_to_tree: Dict[str, cr.cgranges] = {}
         self._refname_to_indexed: Dict[str, bool] = {}
         self._refname_to_intervals: Dict[str, List[Interval]] = {}
+
+    def __iter__(self) -> Iterator[Interval]:
+        """Iterates over the intervals in the overlap detector."""
+        return itertools.chain(*self._refname_to_intervals.values())
 
     def add(self, interval: Interval) -> None:
         """Adds an interval to this detector.
