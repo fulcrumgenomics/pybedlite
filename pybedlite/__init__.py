@@ -23,7 +23,7 @@ Examples of Writing BED files
     >>> from pathlib import Path
     >>> # Get records from somewhere
     >>> records = []
-    >>> with pybed.reader(path=Path("infile.bed)) as in_fh:
+    >>> with pybed.reader(path=Path("infile.bed")) as in_fh:
             for record in in_fh:
                 records.append(record)
     >>> # Write records to somewhere
