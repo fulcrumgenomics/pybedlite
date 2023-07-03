@@ -31,7 +31,7 @@ typing_extensions = { version = ">=3.7.4", python = "<3.8" }  # Literal support
 typing_inspect = { version = ">=0.3.1", python = "<3.8" }  # inspecting types
 sphinx = {version = "4.3.1", optional = true}
 Cython = "^0.29.30"
-cgranges = {git = "https://github.com/lh3/cgranges.git", rev = "v0.1"}
+cgranges = {git = "https://github.com/lh3/cgranges.git", rev = "2fb5a2a8b8876b5328308dcbab5ac54200807709" }
 
 [tool.poetry.dev-dependencies]
 pytest = ">=5.4.2"
