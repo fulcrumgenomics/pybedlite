@@ -49,6 +49,7 @@ jobs:
     - name: Install deps
       shell: bash
       run: |
+        poetry build
         poetry install --extras docs
 
     - name: Run pytest
