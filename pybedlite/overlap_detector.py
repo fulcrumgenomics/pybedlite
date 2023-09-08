@@ -116,7 +116,7 @@ class OverlapDetector(Iterable[Interval]):
 
     def __init__(self) -> None:
         # A mapping from the contig/chromosome name to the associated interval tree
-        self._refname_to_tree: Dict[str, cr.cgranges] = {}
+        self._refname_to_tree: Dict[str, cr.cgranges] = {} # type: ignore
         self._refname_to_indexed: Dict[str, bool] = {}
         self._refname_to_intervals: Dict[str, List[Interval]] = {}
 
@@ -132,7 +132,7 @@ class OverlapDetector(Iterable[Interval]):
         """
         refname = interval.refname
         if refname not in self._refname_to_tree:
-            self._refname_to_tree[refname] = cr.cgranges()
+            self._refname_to_tree[refname] = cr.cgranges() # type: ignore
             self._refname_to_indexed[refname] = False
             self._refname_to_intervals[refname] = []
 

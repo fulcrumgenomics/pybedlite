@@ -53,7 +53,7 @@ required.
 
 [rtd-link]:    http://pybedlite.readthedocs.org/en/stable
 
-**Requires python 3.8+**
+**Requires python 3.8+** (for python < 3.8, please use pybedlite <= 0.0.3)
 
 # Getting Setup for Development Work
 
