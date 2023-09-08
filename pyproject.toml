@@ -32,6 +32,7 @@ python = ">=3.6.0"
 attrs = ">=19.3.0"
 typing_extensions = { version = ">=3.7.4", python = "<3.8" } # Literal support
 typing_inspect = { version = ">=0.3.1", python = "<3.8" }    # inspecting types
+sphinx = { version = "4.3.1", optional = true }
 
 [tool.poetry.dev-dependencies]
 pytest = ">=5.4.2"
@@ -39,7 +40,6 @@ mypy = ">=0.770"
 flake8 = ">=4.0.1"
 black = ">=19.10b0"
 pytest-cov = ">=2.8.1"
-sphinx = { version = "4.3.1", optional = true }
 
 [tool.poetry.extras]
 docs = ["sphinx"]
