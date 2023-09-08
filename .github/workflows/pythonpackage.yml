@@ -29,7 +29,7 @@ jobs:
       shell: bash
       run: |
         # See: https://github.com/python-poetry/poetry/blob/46bf7fd3d1797b75ad9b07adc280039d93414e07/pyproject.toml#L78-L81
-        python -m pip install --upgrade pip urllib3==1.25.10
+        #python -m pip install --upgrade pip urllib3==1.25.10
         pip install poetry==${{env.POETRY_VERSION}}
 
     - name: Configure poetry
@@ -58,7 +58,7 @@ jobs:
     - name: Run pytest
       shell: bash
       run: |
-        poetry run python -m pytest --cov=pybedlite --cov-report=xml --cov-branch 
+        poetry run pytest --cov=pybedlite --cov-report=xml --cov-branch 
 
     - name: Style checking
       shell: bash
