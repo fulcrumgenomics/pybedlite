@@ -1,8 +1,12 @@
 [tool.poetry]
 name = "pybedlite"
-version = "0.0.4-dev"
+version = "0.0.4-dev1"
 description = "Python classes for interfacing with bed intervals"
-authors = ["Nils Homer", "Tim Fennell", "Nathan Roach"]
+authors = [
+	"Nils Homer <nils@fulcrumgenomics.com>",
+	"Tim Fennell <tim@fulcrumgenomics.com>",
+	"John Didion <john@fulcrumgenomics.com>",
+]
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/fulcrumgenomics/pybedlite"
@@ -10,39 +14,38 @@ repository = "https://github.com/fulcrumgenomics/pybedlite"
 keywords = ["bioinformatics"]
 classifiers = [
 	"Development Status :: 3 - Alpha",
-    "Environment :: Console",
+	"Environment :: Console",
 	"Intended Audience :: Developers",
 	"Intended Audience :: Science/Research",
 	"License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+	"Operating System :: OS Independent",
 	"Programming Language :: Python :: 3",
 	"Topic :: Scientific/Engineering :: Bio-Informatics",
-    "Topic :: Software Development :: Documentation",
-    "Topic :: Software Development :: Libraries :: Python Modules",
+	"Topic :: Software Development :: Documentation",
+	"Topic :: Software Development :: Libraries :: Python Modules",
 ]
-include = [
-    "LICENSE",
-]
+include = ["LICENSE"]
+packages = [{ include = "pybedlite" }, { include = "cgranges" }]
 
 [tool.poetry.dependencies]
-python = ">=3.6.0"
-attrs = ">=19.3.0"
-typing_extensions = { version = ">=3.7.4", python = "<3.8" }  # Literal support
-typing_inspect = { version = ">=0.3.1", python = "<3.8" }  # inspecting types
-sphinx = {version = "4.3.1", optional = true}
-Cython = "^0.29.30"
-cgranges = {git = "https://github.com/lh3/cgranges.git", rev = "v0.1"}
+python = "^3.8.0"
+attrs = "^23.0.0"
+sphinx = { version = "^7.0.0", optional = true }
 
 [tool.poetry.dev-dependencies]
-pytest = ">=5.4.2"
-mypy = ">=0.770"
-flake8 = ">=4.0.1"
-black = ">=19.10b0"
-pytest-cov = ">=2.8.1"
+pytest = "^7.0.0"
+mypy = "^1.5.0"
+flake8 = "^5.0.0"
+black = "^23.0.0"
+pytest-cov = "^4.0.0"
 
 [tool.poetry.extras]
 docs = ["sphinx"]
 
+[tool.poetry.build]
+script = "build.py"
+generate-setup-file = true
+
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry-core", "setuptools", "cython"]
+build-backend = "poetry.core.masonry.api"

@@ -2,16 +2,18 @@ name: Python package
 
 on: [push]
 env:
-  POETRY_VERSION: 1.1.15
+  POETRY_VERSION: 1.6.1
 
 jobs:
   testing:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        PYTHON_VERSION: ["3.6", "3.7", "3.8", "3.9"]
+        PYTHON_VERSION: ["3.8", "3.9", "3.10", "3.11"]
     steps:
     - uses: actions/checkout@v2
+      with:
+        submodules: 'true'
 
     - name: Set up Python ${{matrix.PYTHON_VERSION}}
       uses: actions/setup-python@v4
@@ -26,8 +28,6 @@ jobs:
     - name: Install poetry
       shell: bash
       run: |
-        # See: https://github.com/python-poetry/poetry/blob/46bf7fd3d1797b75ad9b07adc280039d93414e07/pyproject.toml#L78-L81
-        python -m pip install --upgrade pip urllib3==1.25.10
         pip install poetry==${{env.POETRY_VERSION}}
 
     - name: Configure poetry
@@ -49,6 +49,8 @@ jobs:
     - name: Install deps
       shell: bash
       run: |
+        poetry install --only dev
+        poetry build
         poetry install --extras docs
 
     - name: Run pytest

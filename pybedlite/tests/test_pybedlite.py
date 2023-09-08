@@ -2,7 +2,6 @@
 
 import pytest
 from pathlib import Path
-from py._path.local import LocalPath as TmpDir
 from typing import List
 import pybedlite as pybed
 from pybedlite.bed_writer import MAX_BED_FIELDS
@@ -126,9 +125,8 @@ def compare_bed_records(
         12,
     ],
 )
-def test_bed_parsing(tmpdir: TmpDir, bed_field_number: int, bed_records: List[BedRecord]) -> None:
-    tmpdir_path = Path(tmpdir)
-    test_bed = tmpdir_path / "test.bed"
+def test_bed_parsing(tmp_path: Path, bed_field_number: int, bed_records: List[BedRecord]) -> None:
+    test_bed = tmp_path / "test.bed"
 
     with BedWriter(test_bed, num_fields=bed_field_number) as test_out:
         test_out.write_all(bed_records, truncate=True, add_missing=True)
@@ -157,10 +155,9 @@ def test_bed_parsing(tmpdir: TmpDir, bed_field_number: int, bed_records: List[Be
     ],
 )
 def test_preopened_bed_parsing(
-    tmpdir: TmpDir, bed_field_number: int, bed_records: List[BedRecord]
+    tmp_path: Path, bed_field_number: int, bed_records: List[BedRecord]
 ) -> None:
-    tmpdir_path = Path(tmpdir)
-    test_bed = tmpdir_path / "test.bed"
+    test_bed = tmp_path / "test.bed"
 
     with BedWriter(test_bed, num_fields=bed_field_number) as test_out:
         test_out.write_all(bed_records, truncate=True, add_missing=True)
@@ -190,10 +187,9 @@ def test_preopened_bed_parsing(
         12,
     ],
 )
-def test_bed_writing(tmpdir: TmpDir, bed_field_number: int, bed_records: List[BedRecord]) -> None:
-    tmpdir_path = Path(tmpdir)
-    test_written_bed = tmpdir_path / "test_written.bed"
-    test_premade_bed = tmpdir_path / "test_premade.bed"
+def test_bed_writing(tmp_path: Path, bed_field_number: int, bed_records: List[BedRecord]) -> None:
+    test_written_bed = tmp_path / "test_written.bed"
+    test_premade_bed = tmp_path / "test_premade.bed"
 
     with BedWriter(test_written_bed, num_fields=bed_field_number) as test_out:
         test_out.write_all(bed_records, truncate=True, add_missing=True)
@@ -228,11 +224,10 @@ def test_bed_writing(tmpdir: TmpDir, bed_field_number: int, bed_records: List[Be
     ],
 )
 def test_preopened_bed_writing(
-    tmpdir: TmpDir, bed_field_number: int, bed_records: List[BedRecord]
+    tmp_path: Path, bed_field_number: int, bed_records: List[BedRecord]
 ) -> None:
-    tmpdir_path = Path(tmpdir)
-    test_written_bed = tmpdir_path / "test_written.bed"
-    test_premade_bed = tmpdir_path / "test_premade.bed"
+    test_written_bed = tmp_path / "test_written.bed"
+    test_premade_bed = tmp_path / "test_premade.bed"
 
     test_written_bed_fh = test_written_bed.open("w")
 

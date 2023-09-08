@@ -53,7 +53,7 @@ required.
 
 [rtd-link]:    http://pybedlite.readthedocs.org/en/stable
 
-**Requires python 3.6+**
+**Requires python 3.8+** (for python < 3.8, please use pybedlite <= 0.0.3)
 
 # Getting Setup for Development Work
 
@@ -62,14 +62,14 @@ required.
 A simple way to create an environment with the desired version of python and poetry is to use [conda][conda-link].  E.g.:
 
 ```bash
-conda create -n pybedlite python=3.6 poetry
+conda create -n pybedlite python=3.8 poetry
 conda activate pybedlite
 poetry install
 ```
 
 If the methods listed above do not work try the following:
 ```bash
-mamba create -n pybedlite -c conda-forge "python=3.9.16" "poetry=1.1.15"
+mamba create -n pybedlite -c conda-forge "python=3.9.16" "poetry=1.6.1"
 mamba activate pybedlite
 poetry install
 ```
