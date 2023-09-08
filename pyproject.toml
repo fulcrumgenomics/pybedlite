@@ -2,7 +2,11 @@
 name = "pybedlite"
 version = "0.0.4-dev"
 description = "Python classes for interfacing with bed intervals"
-authors = ["Nils Homer", "Tim Fennell", "Nathan Roach"]
+authors = [
+	"Nils Homer <nils@fulcrumgenomics.com>",
+	"Tim Fennell <tim@fulcrumgenomics.com>",
+	"Nathan Roach <todo@unknown.com>",
+]
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/fulcrumgenomics/pybedlite"
@@ -21,10 +25,7 @@ classifiers = [
 	"Topic :: Software Development :: Libraries :: Python Modules",
 ]
 include = ["LICENSE"]
-packages = [
-  {include = "pybedlite"},
-  {include = "cgranges"}
-]
+packages = [{ include = "pybedlite" }, { include = "cgranges" }]
 
 [tool.poetry.dependencies]
 python = ">=3.6.0"
