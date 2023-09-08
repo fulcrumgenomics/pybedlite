@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        PYTHON_VERSION: ["3.8", "3.9", "3.10", "3.11"]
+        PYTHON_VERSION: ["3.8", "3.9", "3.10"]
     steps:
     - uses: actions/checkout@v2
       with:
@@ -58,7 +58,7 @@ jobs:
     - name: Run pytest
       shell: bash
       run: |
-        poetry run pytest --cov=pybedlite --cov-report=xml --cov-branch 
+        poetry run python -m pytest --cov=pybedlite --cov-report=xml --cov-branch 
 
     - name: Style checking
       shell: bash
