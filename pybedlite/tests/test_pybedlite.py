@@ -125,7 +125,7 @@ def compare_bed_records(
         12,
     ],
 )
-def test_bed_parsing(tmp_path, bed_field_number: int, bed_records: List[BedRecord]) -> None:
+def test_bed_parsing(tmp_path: Path, bed_field_number: int, bed_records: List[BedRecord]) -> None:
     test_bed = tmp_path / "test.bed"
 
     with BedWriter(test_bed, num_fields=bed_field_number) as test_out:
@@ -155,7 +155,7 @@ def test_bed_parsing(tmp_path, bed_field_number: int, bed_records: List[BedRecor
     ],
 )
 def test_preopened_bed_parsing(
-    tmp_path, bed_field_number: int, bed_records: List[BedRecord]
+    tmp_path: Path, bed_field_number: int, bed_records: List[BedRecord]
 ) -> None:
     test_bed = tmp_path / "test.bed"
 
@@ -187,7 +187,7 @@ def test_preopened_bed_parsing(
         12,
     ],
 )
-def test_bed_writing(tmp_path, bed_field_number: int, bed_records: List[BedRecord]) -> None:
+def test_bed_writing(tmp_path: Path, bed_field_number: int, bed_records: List[BedRecord]) -> None:
     test_written_bed = tmp_path / "test_written.bed"
     test_premade_bed = tmp_path / "test_premade.bed"
 
@@ -224,7 +224,7 @@ def test_bed_writing(tmp_path, bed_field_number: int, bed_records: List[BedRecor
     ],
 )
 def test_preopened_bed_writing(
-    tmp_path, bed_field_number: int, bed_records: List[BedRecord]
+    tmp_path: Path, bed_field_number: int, bed_records: List[BedRecord]
 ) -> None:
     test_written_bed = tmp_path / "test_written.bed"
     test_premade_bed = tmp_path / "test_premade.bed"
