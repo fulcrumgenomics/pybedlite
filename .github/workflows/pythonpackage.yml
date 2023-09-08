@@ -2,7 +2,7 @@ name: Python package
 
 on: [push]
 env:
-  POETRY_VERSION: 1.6.1
+  POETRY_VERSION: 1.1.15
 
 jobs:
   testing:
@@ -51,7 +51,7 @@ jobs:
     - name: Install deps
       shell: bash
       run: |
-        poetry install --only dev
+        poetry install
         poetry build
         poetry install --extras docs
 
