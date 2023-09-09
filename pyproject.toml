@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "pybedlite"
-version = "0.0.4-dev"
+version = "0.0.4-dev1"
 description = "Python classes for interfacing with bed intervals"
 authors = [
 	"Nils Homer <nils@fulcrumgenomics.com>",
 	"Tim Fennell <tim@fulcrumgenomics.com>",
-	"Nathan Roach <todo@unknown.com>",
+	"John Didion <john@fulcrumgenomics.com>",
 ]
 license = "MIT"
 readme = "README.md"
