@@ -38,6 +38,10 @@
 See documentation on [pybedlite.readthedocs.org][rtd-link].
 
 ```
+pip install pybedlite
+```
+OR
+```
 conda install -c bioconda pybedlite
 ```
 OR
@@ -46,18 +50,18 @@ conda create -n pybedlite pybedlite
 conda activate pybedlite
 ```
 
-Note that while there is a version of pybedlite on pypi versions of pybedlite >=
-0.0.2 cannot at present be installed via pypi because they have dependencies
-that preclude publishing to pypi. For this reason installation via conda is
-required.
-
 [rtd-link]:    http://pybedlite.readthedocs.org/en/stable
 
 **Requires python 3.8+** (for python < 3.8, please use pybedlite <= 0.0.3)
 
 # Getting Setup for Development Work
 
-[Poetry][poetry-link] is used to manage the python development environment. 
+Clone the repository to your local machine. Note that pybedlite >= 0.0.4 includes [cgranges][cgranges-link] as a submodule, so you must use the `--recurse-submodules` option:
+```
+git clone --recurse-submodules https://github.com/fulcrumgenomics/pybedlite.git
+```
+
+[Poetry][poetry-link] is used to manage the python development environment.
 
 A simple way to create an environment with the desired version of python and poetry is to use [conda][conda-link].  E.g.:
 
@@ -81,6 +85,7 @@ export CFLAGS="-stdlib=libc++"
 
 [poetry-link]: https://github.com/python-poetry/poetry
 [conda-link]:  https://docs.conda.io/en/latest/miniconda.html
+[cgranges-link]: https://github.com/lh3/cgranges
 
 ## Checking the Build
 ### Run all checks with:
