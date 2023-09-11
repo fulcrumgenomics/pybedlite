@@ -3,6 +3,7 @@ name: Build wheels for multiple platforms
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   build_wheels:
