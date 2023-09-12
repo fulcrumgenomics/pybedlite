@@ -19,12 +19,15 @@ jobs:
           - os: ubuntu-latest
             target: musllinux
             arch: x86_64
-          - os: ubuntu-latest
-            target: manylinux
-            arch: aarch64
-          - os: ubuntu-latest
-            target: musllinux
-            arch: aarch64
+          # These don't work right now - they just hang while pulling the build image from quay.
+          # If this doesn't resolve itself, we could try to configure different images:
+          # https://cibuildwheel.readthedocs.io/en/stable/options/.
+          #- os: ubuntu-latest
+          #  target: manylinux
+          #  arch: aarch64
+          #- os: ubuntu-latest
+          #  target: musllinux
+          #  arch: aarch64
           - os: macos-latest
             target: macosx
             arch: x86_64
