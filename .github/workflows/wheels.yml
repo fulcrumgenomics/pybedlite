@@ -7,12 +7,12 @@ on:
 
 jobs:
   build_wheels:
-    name: Build wheels for ${{ matrix.python }}-${{ matrix.target }}-${{ matrix.arch }} on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Build wheels for ${{ matrix.python }}-${{ matrix.platform.target }}_${{ matrix.platform.arch }} on ${{ matrix.platform.os }}
+    runs-on: ${{ matrix.platform.os }}
     strategy:
       matrix:
-        python: ["cp38", "cp39", "cp310", "cp311"]
-        include:
+        python: [cp38, cp39, cp310, cp311]
+        platform:
           - os: ubuntu-latest
             target: manylinux
             arch: x86_64
@@ -30,7 +30,7 @@ jobs:
             arch: x86_64
           - os: macos-latest
             target: macosx
-            cibw_archs: arm64
+            arch: arm64
 
     steps:
       - uses: actions/checkout@v4
@@ -48,10 +48,12 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_ARCHS: ${{ matrix.arch }}
-          CIBW_BUILD: ${{ matrix.python }}-${{ matrix.target }}_${{ matrix.arch }}
+          CIBW_ARCHS: ${{ matrix.platform.arch }}
+          CIBW_BUILD: ${{ matrix.python }}-${{ matrix.platform.target }}_${{ matrix.platform.arch }}
           CIBW_BUILD_VERBOSITY: 1
 
       - uses: actions/upload-artifact@v3
         with:
+          name: wheels
           path: ./wheelhouse/*.whl
+          if-no-files-found: error
