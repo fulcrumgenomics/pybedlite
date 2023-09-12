@@ -7,47 +7,30 @@ on:
 
 jobs:
   build_wheels:
-    name: Build wheels for ${{ matrix.cibw_build }}
+    name: Build wheels for ${{ matrix.python }}-${{ matrix.target }}-${{ matrix.arch }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        python: ["cp38", "cp39", "cp310", "cp311"]
         include:
           - os: ubuntu-latest
-            cibw_archs: x86_64
-            cibw_build:
-              - cp38-manylinux_x86_64
-              - cp38-musllinux_x86_64
-              - cp39-manylinux_x86_64
-              - cp39-musllinux_x86_64
-              - cp310-manylinux_x86_64
-              - cp310-musllinux_x86_64
-              - cp311-manylinux_x86_64
-              - cp311-musllinux_x86_64
+            target: manylinux
+            arch: x86_64
           - os: ubuntu-latest
-            cibw_archs: aarch64
-            cibw_build:
-              - cp38-manylinux_aarch64
-              - cp38-musllinux_aarch64
-              - cp39-manylinux_aarch64
-              - cp39-musllinux_aarch64
-              - cp310-manylinux_aarch64
-              - cp310-musllinux_aarch64
-              - cp311-manylinux_aarch64
-              - cp311-musllinux_aarch64
+            target: musllinux
+            arch: x86_64
+          - os: ubuntu-latest
+            target: manylinux
+            arch: aarch64
+          - os: ubuntu-latest
+            target: musllinux
+            arch: aarch64
           - os: macos-latest
-            cibw_archs: x86_64
-            cibw_build:
-              - cp38-macosx_x86_64
-              - cp39-macosx_x86_64
-              - cp310-macosx_x86_64
-              - cp311-macosx_x86_64
+            target: macosx
+            arch: x86_64
           - os: macos-latest
+            target: macosx
             cibw_archs: arm64
-            cibw_build:
-              - cp38-macosx_arm64
-              - cp39-macosx_arm64
-              - cp310-macosx_arm64
-              - cp311-macosx_arm64
 
     steps:
       - uses: actions/checkout@v4
@@ -65,8 +48,8 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          CIBW_BUILD: ${{ matrix.cibw_build }}
+          CIBW_ARCHS: ${{ matrix.arch }}
+          CIBW_BUILD: ${{ matrix.python }}-${{ matrix.target }}_${{ matrix.arch }}
           CIBW_BUILD_VERBOSITY: 1
 
       - uses: actions/upload-artifact@v3
