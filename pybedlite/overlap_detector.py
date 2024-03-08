@@ -281,20 +281,15 @@ class OverlapDetector(Iterable[Interval]):
 
     @classmethod
     def from_bed(cls, path: Path) -> "OverlapDetector":
-        """Builds an :class:`~samwell.overlap_detector.OverlapDetector` from a BED file.
+        """Builds an :class:`~pybedlite.overlap_detector.OverlapDetector` from a BED file.
         Args:
             path: the path to the BED file
         Returns:
             An overlap detector for the regions in the BED file.
         """
         detector = OverlapDetector()
+
         for region in BedSource(path):
-            locatable = Interval(
-                refname=region.chrom,
-                start=region.start,
-                end=region.end,
-                negative=region.strand == BedStrand.Negative,
-                name=region.name,
-            )
-            detector.add(locatable)
+            detector.add(Interval.from_bedrecord(region))
+
         return detector
