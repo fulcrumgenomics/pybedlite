@@ -4,6 +4,8 @@ from typing import List
 
 from pybedlite.overlap_detector import Interval
 from pybedlite.overlap_detector import OverlapDetector
+from pybedlite.bed_record import BedStrand
+from pybedlite.bed_record import BedRecord
 
 
 def run_test(targets: List[Interval], query: Interval, results: List[Interval]) -> None:
@@ -148,3 +150,41 @@ def test_iterable() -> None:
     assert list(detector) == [a]
     detector.add_all([a, b, c, d, e])
     assert list(detector) == [a, a, b, c, d, e]
+
+
+def test_conversion_to_interval(bed_records: List[BedRecord]) -> None:
+    """
+    Test that we can convert a BedRecord to an Interval.
+    """
+
+    # I don't think pytest.mark.parametrize can accept a fixture and expand over its values.
+    # For loop it is.
+    for record in bed_records:
+        interval = Interval.from_bedrecord(record)
+
+        assert interval.refname == record.chrom
+        assert interval.start == record.start
+        assert interval.end == record.end
+        assert interval.negative is (record.strand is BedStrand.Negative)
+        assert interval.name == record.name
+
+
+def test_construction_from_interval(bed_records: List[BedRecord]) -> None:
+    """
+    Test that we can convert a BedRecord to an Interval and back.
+    """
+
+    # I don't think pytest.mark.parametrize can accept a fixture and expand over its values.
+    # For loop it is.
+    for record in bed_records:
+        new_record = Interval.from_bedrecord(record).to_bedrecord()
+
+        assert new_record.chrom == record.chrom
+        assert new_record.start == record.start
+        assert new_record.end == record.end
+        assert new_record.name == record.name
+
+        if record.strand is None:
+            assert new_record.strand is BedStrand.Positive
+        else:
+            assert new_record.strand is record.strand

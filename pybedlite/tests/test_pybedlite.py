@@ -8,55 +8,6 @@ from pybedlite.bed_writer import MAX_BED_FIELDS
 from pybedlite.bed_writer import BedWriter
 from pybedlite.bed_source import BedSource
 from pybedlite.bed_record import BedRecord
-from pybedlite.bed_record import BedStrand
-
-
-@pytest.fixture
-def bed_records() -> List[BedRecord]:
-    return [
-        BedRecord(
-            chrom="1",
-            start=100,
-            end=150,
-            name="test_record1",
-            score=100,
-            strand=BedStrand.Positive,
-            thick_start=100,
-            thick_end=100,
-            item_rgb=(0, 0, 0),
-            block_count=1,
-            block_sizes=[50],
-            block_starts=[0],
-        ),
-        BedRecord(
-            chrom="1",
-            start=200,
-            end=300,
-            name="test_record2",
-            score=100,
-            strand=BedStrand.Negative,
-            thick_start=210,
-            thick_end=290,
-            item_rgb=(0, 0, 0),
-            block_count=1,
-            block_sizes=[100],
-            block_starts=[0],
-        ),
-        BedRecord(
-            chrom="2",
-            start=200,
-            end=300,
-            name="test_record3",
-            score=None,
-            strand=None,
-            thick_start=None,
-            thick_end=None,
-            item_rgb=None,
-            block_count=None,
-            block_sizes=None,
-            block_starts=None,
-        ),
-    ]
 
 
 SNIPPET_BED = """\
@@ -252,35 +203,3 @@ def test_preopened_bed_writing(
                 record_number=i,
                 num_fields=bed_field_number,
             )
-
-
-@pytest.mark.parametrize("record", bed_records())
-def test_conversion_to_interval(record: BedRecord) -> None:
-    """
-    Test that we can convert a BedRecord to an Interval.
-    """
-    interval = record.to_interval()
-
-    assert interval.refname == record.chrom
-    assert interval.start == record.start
-    assert interval.end == record.end
-    assert interval.negative is (record.strand is BedStrand.Negative)
-    assert interval.name == record.name
-
-
-@pytest.mark.parametrize("record", bed_records())
-def test_construction_from_interval(record: BedRecord) -> None:
-    """
-    Test that we can convert a BedRecord to an Interval and back.
-    """
-    new_record = BedRecord.from_interval(record.to_interval())
-
-    assert new_record == record.chrom
-    assert new_record.start == record.start
-    assert new_record.end == record.end
-    assert new_record.name == record.name
-
-    if record.strand is None:
-        assert new_record.strand is BedStrand.Positive
-    else:
-        assert new_record.strand is record.strand

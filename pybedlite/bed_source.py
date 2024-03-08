@@ -10,6 +10,7 @@ The module contains the following public classes:
     - :class:`~pybedtools.bed_source.BedSource` -- Reader class for parsing BED files and iterate
         over their contained records
 """
+
 import io
 from typing import IO
 from typing import Optional

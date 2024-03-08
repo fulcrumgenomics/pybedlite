@@ -46,12 +46,14 @@ from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Set
+from typing import Type
 
 import attr
 import cgranges as cr
 
 from pybedlite.bed_record import BedStrand
 from pybedlite.bed_source import BedSource
+from pybedlite.bed_record import BedRecord
 
 
 @attr.s(frozen=True, auto_attribs=True)
@@ -99,6 +101,49 @@ class Interval:
     def length(self) -> int:
         """Returns the length of the interval."""
         return self.end - self.start
+
+    def to_bedrecord(self) -> BedRecord:
+        """
+        Convert an `Interval` to a `BedRecord` instance.
+
+        **Note that `Interval` cannot represent a `BedRecord` with a missing strand.**
+        Converting a record with no strand to `Interval` and then back to `BedRecord` will result in
+        a record with **positive strand**.
+
+        Returns:
+            An `Interval` corresponding to the same region specified in the record.
+        """
+
+        return BedRecord(
+            chrom=self.refname,
+            start=self.start,
+            end=self.end,
+            strand=BedStrand.Negative if self.negative else BedStrand.Positive,
+            name=self.name,
+        )
+
+    @classmethod
+    def from_bedrecord(cls: Type["Interval"], record: BedRecord) -> "Interval":
+        """
+        Construct an `Interval` from a `BedRecord` instance.
+
+        Note that when the `BedRecord` does not have a specified strand, the `Interval`'s negative
+        attribute is set to False. This mimics the behavior of `OverlapDetector.from_bed()` when
+        reading a record that does not have a specified strand.
+
+        Args:
+            interval: The `Interval` instance to convert.
+
+        Returns:
+            A `BedRecord` corresponding to the same region specified in the interval.
+        """
+        return cls(
+            refname=record.chrom,
+            start=record.start,
+            end=record.end,
+            negative=record.strand is BedStrand.Negative,
+            name=record.name,
+        )
 
 
 class OverlapDetector(Iterable[Interval]):
