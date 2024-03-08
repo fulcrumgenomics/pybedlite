@@ -252,3 +252,35 @@ def test_preopened_bed_writing(
                 record_number=i,
                 num_fields=bed_field_number,
             )
+
+
+@pytest.mark.parametrize("record", bed_records())
+def test_conversion_to_interval(record: BedRecord) -> None:
+    """
+    Test that we can convert a BedRecord to an Interval.
+    """
+    interval = record.to_interval()
+
+    assert interval.refname == record.chrom
+    assert interval.start == record.start
+    assert interval.end == record.end
+    assert interval.negative is (record.strand is BedStrand.Negative)
+    assert interval.name == record.name
+
+
+@pytest.mark.parametrize("record", bed_records())
+def test_construction_from_interval(record: BedRecord) -> None:
+    """
+    Test that we can convert a BedRecord to an Interval and back.
+    """
+    new_record = BedRecord.from_interval(record.to_interval())
+
+    assert new_record == record.chrom
+    assert new_record.start == record.start
+    assert new_record.end == record.end
+    assert new_record.name == record.name
+
+    if record.strand is None:
+        assert new_record.strand is BedStrand.Positive
+    else:
+        assert new_record.strand is record.strand
