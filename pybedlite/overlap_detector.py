@@ -102,26 +102,6 @@ class Interval:
         """Returns the length of the interval."""
         return self.end - self.start
 
-    def to_bedrecord(self) -> BedRecord:
-        """
-        Convert an `Interval` to a `BedRecord` instance.
-
-        **Note that `Interval` cannot represent a `BedRecord` with a missing strand.**
-        Converting a record with no strand to `Interval` and then back to `BedRecord` will result in
-        a record with **positive strand**.
-
-        Returns:
-            An `Interval` corresponding to the same region specified in the record.
-        """
-
-        return BedRecord(
-            chrom=self.refname,
-            start=self.start,
-            end=self.end,
-            strand=BedStrand.Negative if self.negative else BedStrand.Positive,
-            name=self.name,
-        )
-
     @classmethod
     def from_bedrecord(cls: Type["Interval"], record: BedRecord) -> "Interval":
         """

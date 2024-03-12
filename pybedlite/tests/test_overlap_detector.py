@@ -177,7 +177,7 @@ def test_construction_from_interval(bed_records: List[BedRecord]) -> None:
     # I don't think pytest.mark.parametrize can accept a fixture and expand over its values.
     # For loop it is.
     for record in bed_records:
-        new_record = Interval.from_bedrecord(record).to_bedrecord()
+        new_record = BedRecord.from_interval(Interval.from_bedrecord(record))
 
         assert new_record.chrom == record.chrom
         assert new_record.start == record.start
