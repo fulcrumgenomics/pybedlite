@@ -112,10 +112,10 @@ class Interval:
         reading a record that does not have a specified strand.
 
         Args:
-            interval: The `Interval` instance to convert.
+            record: The `BedRecord` instance to convert.
 
         Returns:
-            A `BedRecord` corresponding to the same region specified in the interval.
+            An `Interval` corresponding to the same region specified in the record.
         """
         return cls(
             refname=record.chrom,
