@@ -129,7 +129,7 @@ class Interval:
 class OverlapDetector(Iterable[Interval]):
     """Detects and returns overlaps between a set of genomic regions and another genomic region.
 
-    Since :class:`~samwell.overlap_detector.Interval` objects are used both to populate the
+    Since :class:`~pybedlite.overlap_detector.Interval` objects are used both to populate the
     overlap detector and to query it, the coordinate system in use is also 0-based open-ended.
 
     The same interval may be added multiple times, but only a single instance will be returned
@@ -261,7 +261,7 @@ class OverlapDetector(Iterable[Interval]):
 
     @classmethod
     def from_bed(cls, path: Path) -> "OverlapDetector":
-        """Builds an :class:`~pybedlite.overlap_detector.OverlapDetector` from a BED file.
+        """Builds a :class:`~pybedlite.overlap_detector.OverlapDetector` from a BED file.
         Args:
             path: the path to the BED file
         Returns:
