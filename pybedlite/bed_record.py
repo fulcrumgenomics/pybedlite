@@ -14,14 +14,15 @@ The module contains the following public classes:
 
 from __future__ import annotations
 
-import attr
 import enum
+from typing import TYPE_CHECKING
+from typing import ClassVar
+from typing import List
 from typing import Optional
 from typing import Tuple
-from typing import List
-from typing import ClassVar
 from typing import Type
-from typing import TYPE_CHECKING
+
+import attr
 
 if TYPE_CHECKING:
     from pybedlite.overlap_detector import Interval

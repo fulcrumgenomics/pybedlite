@@ -39,8 +39,10 @@ parent=$(cd $(dirname $0) && pwd -P)
 
 # If the script is invoked with --check only have black check, otherwise have it fix!
 black_extra_args=""
+isort_extra_args=""
 if [[ "$1" == "--check" ]]; then
     black_extra_args="--check"
+    isort_extra_args="--check"
 fi
 
 banner "Executing in conda environment ${CONDA_DEFAULT_ENV} in directory ${root}"
@@ -48,6 +50,7 @@ run "Unit Tests"     "python -m pytest -vv -r sx pybedlite"
 run "Style Checking" "black --line-length 99 $black_extra_args pybedlite"
 run "Linting"        "flake8 --config=$parent/flake8.cfg pybedlite"
 run "Type Checking"  "mypy -p pybedlite --config $parent/mypy.ini"
+run "Import sorting" "isort --force-single-line-imports --profile black ${isort_extra_args} pybedlite"
 
 if [ -z "$failures" ]; then
     banner "Checks Passed"

@@ -53,11 +53,11 @@ The module contains the following methods:
 
 from typing import Optional
 
-from pybedlite.bed_writer import BedWriter
-from pybedlite.bed_source import BedSource
-from pybedlite.bed_source import BedPath
 from pybedlite.bed_record import BedRecord
 from pybedlite.bed_record import BedStrand
+from pybedlite.bed_source import BedPath
+from pybedlite.bed_source import BedSource
+from pybedlite.bed_writer import BedWriter
 
 
 def reader(path: BedPath) -> "BedSource":

@@ -10,18 +10,17 @@ The module contains the following public classes:
     - :class:`~pybedtools.bed_source.BedWriter` -- Writer class for writing BED files
 """
 
-from typing import IO
-from typing import Optional
-from typing import Type
 from pathlib import Path
 from types import TracebackType
+from typing import IO
 from typing import ContextManager
 from typing import Iterable
+from typing import Optional
+from typing import Type
 
 from pybedlite.bed_record import BedRecord
 from pybedlite.bed_source import BedPath
 from pybedlite.bed_source import _IOClasses
-
 
 """Maximum BED fields that can be present in a well formed BED file written to specification"""
 MAX_BED_FIELDS: int = 12
