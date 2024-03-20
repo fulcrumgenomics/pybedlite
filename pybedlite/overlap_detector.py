@@ -46,12 +46,14 @@ from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Set
+from typing import Type
 
 import attr
 import cgranges as cr
 
 from pybedlite.bed_record import BedStrand
 from pybedlite.bed_source import BedSource
+from pybedlite.bed_record import BedRecord
 
 
 @attr.s(frozen=True, auto_attribs=True)
@@ -100,11 +102,34 @@ class Interval:
         """Returns the length of the interval."""
         return self.end - self.start
 
+    @classmethod
+    def from_bedrecord(cls: Type["Interval"], record: BedRecord) -> "Interval":
+        """
+        Construct an `Interval` from a `BedRecord` instance.
+
+        Note that when the `BedRecord` does not have a specified strand, the `Interval`'s negative
+        attribute is set to False. This mimics the behavior of `OverlapDetector.from_bed()` when
+        reading a record that does not have a specified strand.
+
+        Args:
+            record: The `BedRecord` instance to convert.
+
+        Returns:
+            An `Interval` corresponding to the same region specified in the record.
+        """
+        return cls(
+            refname=record.chrom,
+            start=record.start,
+            end=record.end,
+            negative=record.strand is BedStrand.Negative,
+            name=record.name,
+        )
+
 
 class OverlapDetector(Iterable[Interval]):
     """Detects and returns overlaps between a set of genomic regions and another genomic region.
 
-    Since :class:`~samwell.overlap_detector.Interval` objects are used both to populate the
+    Since :class:`~pybedlite.overlap_detector.Interval` objects are used both to populate the
     overlap detector and to query it, the coordinate system in use is also 0-based open-ended.
 
     The same interval may be added multiple times, but only a single instance will be returned
@@ -236,20 +261,15 @@ class OverlapDetector(Iterable[Interval]):
 
     @classmethod
     def from_bed(cls, path: Path) -> "OverlapDetector":
-        """Builds an :class:`~samwell.overlap_detector.OverlapDetector` from a BED file.
+        """Builds a :class:`~pybedlite.overlap_detector.OverlapDetector` from a BED file.
         Args:
             path: the path to the BED file
         Returns:
             An overlap detector for the regions in the BED file.
         """
         detector = OverlapDetector()
+
         for region in BedSource(path):
-            locatable = Interval(
-                refname=region.chrom,
-                start=region.start,
-                end=region.end,
-                negative=region.strand == BedStrand.Negative,
-                name=region.name,
-            )
-            detector.add(locatable)
+            detector.add(Interval.from_bedrecord(region))
+
         return detector

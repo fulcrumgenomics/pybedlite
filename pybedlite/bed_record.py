@@ -11,12 +11,20 @@ The module contains the following public classes:
     - :class:`~pybedtools.bed_record.BedRecord` -- Lightweight class for storing information
         pertaining to a BED record.
 """
+
+from __future__ import annotations
+
 import attr
 import enum
 from typing import Optional
 from typing import Tuple
 from typing import List
 from typing import ClassVar
+from typing import Type
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pybedlite.overlap_detector import Interval
 
 
 """Maximum BED fields that can be present in a well formed BED file written to specification"""
@@ -188,3 +196,27 @@ class BedRecord:
         )
         fields = self.bed_fields[:number_of_output_fields]
         return "\t".join(fields)
+
+    @classmethod
+    def from_interval(cls: Type["BedRecord"], interval: Interval) -> "BedRecord":
+        """
+        Construct a `BedRecord` from a `Interval` instance.
+
+        **Note that `Interval` cannot represent a `BedRecord` with a missing strand.**
+        Converting a record with no strand to `Interval` and then back to `BedRecord` will result in
+        a record with **positive strand**.
+
+        Args:
+            interval: The `Interval` instance to convert.
+
+        Returns:
+            A `BedRecord` corresponding to the same region specified in the interval.
+        """
+
+        return BedRecord(
+            chrom=interval.refname,
+            start=interval.start,
+            end=interval.end,
+            strand=BedStrand.Negative if interval.negative else BedStrand.Positive,
+            name=interval.name,
+        )
