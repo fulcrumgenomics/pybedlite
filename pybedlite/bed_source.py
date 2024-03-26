@@ -125,7 +125,7 @@ class BedSource(ContextManager, Iterable[BedRecord]):
                 continue
             if line.strip() == "":
                 continue
-            fields = line.strip().split("\t")
+            fields = line.strip().split()
             assert len(fields) >= 3, (
                 "BED records must conform to specifications, which requires at least 3 input "
                 + f"fields. On line {i} in {self._path} had only {len(fields)} fields"

@@ -14,9 +14,15 @@ SNIPPET_BED = """\
 # Test header, with a line with whitespace below it.
 
 # More header
+
+# BED record with tabs as a separator
 1	100	150	test_record1	100	+	100	100	0,0,0	1	50	0
-1	200	300	test_record2	100	-	210	290	0,0,0	1	100	0
-2	200	300	test_record3	.	.	.	.	.	.	.	.
+
+# BED record with spaces as a separator
+1 200 300 test_record2 100 - 210 290 0,0,0 1 100	0
+
+# BED record with a mix of spaces and tabs as a separator
+2 	 200 	 300 	 test_record3 	 . 	 . 	 . 	 . 	 . 	 . 	 . 	 .
 """
 
 
