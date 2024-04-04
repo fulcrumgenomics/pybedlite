@@ -6,6 +6,9 @@ from pybedlite.bed_record import BedRecord
 from pybedlite.bed_record import BedStrand
 from pybedlite.overlap_detector import Interval
 from pybedlite.overlap_detector import OverlapDetector
+from pybedlite.bed_record import BedStrand
+from pybedlite.bed_record import BedRecord
+import pytest
 
 
 def run_test(targets: List[Interval], query: Interval, results: List[Interval]) -> None:
@@ -190,20 +193,25 @@ def test_construction_from_interval(bed_records: List[BedRecord]) -> None:
             assert new_record.strand is record.strand
 
 
-def test_construction_from_ucsc_position() -> None:
+def test_construction_from_ucsc() -> None:
     """
     Test that we can convert a UCSC position to an Interval and back.
     """
 
-    assert Interval.from_ucsc_position("chr1:101-200") == Interval("chr1", 100, 200)
-    assert Interval.from_ucsc_position("chr10_GL383545v1_alt:101-200") == Interval(
+    assert Interval.from_ucsc("chr1:101-200") == Interval("chr1", 100, 200)
+    assert Interval.from_ucsc("chr10_GL383545v1_alt:101-200") == Interval(
         "chr10_GL383545v1_alt", 100, 200
     )
 
     # Check strand
-    assert Interval.from_ucsc_position("chr1:101-200(+)") == Interval(
-        "chr1", 100, 200, negative=False
-    )
-    assert Interval.from_ucsc_position("chr1:101-200(-)") == Interval(
-        "chr1", 100, 200, negative=True
-    )
+    assert Interval.from_ucsc("chr1:101-200(+)") == Interval("chr1", 100, 200, negative=False)
+    assert Interval.from_ucsc("chr1:101-200(-)") == Interval("chr1", 100, 200, negative=True)
+
+
+@pytest.mark.parametrize("contig", ["chrUn_JTFH01001499v1_decoy", "HLA-DRB1*15:01:01:02"])
+def test_construction_from_ucsc_other_contigs(contig: str) -> None:
+    """
+    Test that we can construct an interval with non-human/decoy/custom/other contig names
+    """
+
+    assert Interval.from_ucsc(f"{contig}:101-200") == Interval(contig, 100, 200)

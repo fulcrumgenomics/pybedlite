@@ -56,6 +56,24 @@ from pybedlite.bed_record import BedRecord
 from pybedlite.bed_record import BedStrand
 from pybedlite.bed_source import BedSource
 
+UCSC_STRAND_REGEX = re.compile(r".*\((\+|-)\)$")
+"""
+Match a parenthetically enclosed strand at the end of a position-formatted interval.
+
+Groups:
+    1: the strand ("+" or "-")
+"""
+
+UCSC_INTERVAL_REGEX = re.compile(r"^(.*):(\d+)-(\d+)$")
+"""
+Match a position-formatted interval.
+
+Groups:
+    1: the refname (or chromosome)
+    2: the 1-based start position
+    3: the 1-based closed end position
+"""
+
 
 @attr.s(frozen=True, auto_attribs=True)
 class Interval:
@@ -127,10 +145,10 @@ class Interval:
         )
 
     @classmethod
-    def from_ucsc_position(
+    def from_ucsc(
         cls: Type["Interval"],
-        position: str,
-        name: str | None = None,
+        ucsc: str,
+        name: Optional[str] = None,
     ) -> "Interval":
         """
         Construct an `Interval` from a UCSC "position"-formatted string.
@@ -164,25 +182,21 @@ class Interval:
         """
 
         # First, check to see if the strand is specified, and remove it from the string.
-        strand_re = re.compile(r".*\((\+|-)\)$")
-        strand_match = strand_re.match(position)
-
+        strand_match = UCSC_STRAND_REGEX.match(ucsc)
         if strand_match is not None:
             negative = strand_match.group(1) == "-"
-            position = position[:-3]
+            ucsc = ucsc[:-3]
         else:
             negative = False
 
         # Then parse the location
-        position_re = re.compile(r"^(chr(\d+|X|Y|M|MT)(?:_[A-Za-z0-9]+_alt)?):(\d+)-(\d+)$")
+        interval_match = UCSC_INTERVAL_REGEX.match(ucsc)
+        if interval_match is None:
+            raise ValueError(f"Not a valid UCSC position-formatted string: {ucsc}")
 
-        match = position_re.match(position)
-        if match is None:
-            raise ValueError(f"Not a valid UCSC position-formatted string: {position}")
-
-        refname = match.group(1)
-        start = int(match.group(3)) - 1
-        end = int(match.group(4))
+        refname = interval_match.group(1)
+        start = int(interval_match.group(2)) - 1
+        end = int(interval_match.group(3))
 
         return cls(refname=refname, start=start, end=end, negative=negative, name=name)
 
