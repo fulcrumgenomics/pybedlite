@@ -147,7 +147,7 @@ class Interval:
     @classmethod
     def from_ucsc(
         cls: Type["Interval"],
-        ucsc: str,
+        value: str,
         name: Optional[str] = None,
     ) -> "Interval":
         """
@@ -170,7 +170,7 @@ class Interval:
         reading a record that does not have a specified strand.
 
         Args:
-            position: The UCSC "position"-formatted string.
+            value: The UCSC "position"-formatted string.
             name: An optional name for the interval.
 
         Returns:
@@ -181,18 +181,17 @@ class Interval:
             ValueError: If the string is not a valid UCSC position-formatted string.
         """
 
-        # First, check to see if the strand is specified, and remove it from the string.
-        strand_match = UCSC_STRAND_REGEX.match(ucsc)
-        if strand_match is not None:
-            negative = strand_match.group(1) == "-"
-            ucsc = ucsc[:-3]
-        else:
-            negative = False
+        # First, check to see if the strand is specified, and remove it from the string if so.
+        strand_match = UCSC_STRAND_REGEX.match(value)
+        value = value if strand_match is None else value[:-3]
+
+        # Intervals are positive by default if no strand is specified
+        negative = strand_match is not None and strand_match.group(1) == "-"
 
         # Then parse the location
-        interval_match = UCSC_INTERVAL_REGEX.match(ucsc)
+        interval_match = UCSC_INTERVAL_REGEX.match(value)
         if interval_match is None:
-            raise ValueError(f"Not a valid UCSC position-formatted string: {ucsc}")
+            raise ValueError(f"Not a valid UCSC position-formatted string: {value}")
 
         refname = interval_match.group(1)
         start = int(interval_match.group(2)) - 1
