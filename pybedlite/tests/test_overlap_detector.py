@@ -188,3 +188,14 @@ def test_construction_from_interval(bed_records: List[BedRecord]) -> None:
             assert new_record.strand is BedStrand.Positive
         else:
             assert new_record.strand is record.strand
+
+
+def test_construction_from_ucsc_position() -> None:
+    """
+    Test that we can convert a UCSC position to an Interval and back.
+    """
+
+    assert Interval.from_ucsc_position("chr1:101-200") == Interval("chr1", 100, 200)
+    assert Interval.from_ucsc_position("chr10_GL383545v1_alt:101-200") == Interval(
+        "chr10_GL383545v1_alt", 100, 200
+    )  # noqa: E501
