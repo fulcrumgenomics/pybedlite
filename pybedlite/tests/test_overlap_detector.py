@@ -198,4 +198,12 @@ def test_construction_from_ucsc_position() -> None:
     assert Interval.from_ucsc_position("chr1:101-200") == Interval("chr1", 100, 200)
     assert Interval.from_ucsc_position("chr10_GL383545v1_alt:101-200") == Interval(
         "chr10_GL383545v1_alt", 100, 200
-    )  # noqa: E501
+    )
+
+    # Check strand
+    assert Interval.from_ucsc_position("chr1:101-200(+)") == Interval(
+        "chr1", 100, 200, negative=False
+    )
+    assert Interval.from_ucsc_position("chr1:101-200(-)") == Interval(
+        "chr1", 100, 200, negative=True
+    )
