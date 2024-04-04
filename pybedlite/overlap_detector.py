@@ -39,6 +39,7 @@ The module contains the following public classes:
 """
 
 import itertools
+import re
 from pathlib import Path
 from typing import Dict
 from typing import Iterable
@@ -124,6 +125,49 @@ class Interval:
             negative=record.strand is BedStrand.Negative,
             name=record.name,
         )
+
+    @classmethod
+    def from_ucsc_position(
+        cls: Type["Interval"],
+        position: str,
+        name: str | None = None,
+    ) -> "Interval":
+        """
+        Construct an `Interval` from a UCSC "position"-formatted string.
+
+        The "Position" format (referring to the "1-start, fully-closed" system as coordinates are
+        "positioned" in the browser)
+            * Written as: chr1:127140001-127140001
+            * No spaces.
+            * Includes punctuation: a colon after the chromosome, and a dash between the start and
+              end coordinates.
+            * When in this format, the assumption is that the coordinate is **1-start,
+              fully-closed.**
+        https://genome-blog.gi.ucsc.edu/blog/2016/12/12/the-ucsc-genome-browser-coordinate-counting-systems/  # noqa: E501
+
+        Args:
+            position: The UCSC "position"-formatted string.
+            name: An optional name for the interval.
+
+        Returns:
+            An `Interval` corresponding to the same region specified in the string.
+            Note that the `Interval` is **zero-based open-ended**.
+
+        Raises:
+            ValueError: If the string is not a valid UCSC position-formatted string.
+        """
+
+        position_re = re.compile(r"^(chr(\d+|X|Y|M|MT)(?:_[A-Za-z0-9]+_alt)?):(\d+)-(\d+)$")
+
+        match = position_re.match(position)
+        if match is None:
+            raise ValueError(f"Not a valid UCSC position-formatted string: {position}")
+
+        refname = match.group(1)
+        start = int(match.group(3)) - 1
+        end = int(match.group(4))
+
+        return cls(refname=refname, start=start, end=end, negative=False, name=name)
 
 
 class OverlapDetector(Iterable[Interval]):
