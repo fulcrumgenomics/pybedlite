@@ -138,12 +138,18 @@ class Interval:
         The "Position" format (referring to the "1-start, fully-closed" system as coordinates are
         "positioned" in the browser)
             * Written as: chr1:127140001-127140001
+            * The location may optionally be followed by a parenthetically enclosed strand, e.g.
+              chr1:127140001-127140001(+).
             * No spaces.
             * Includes punctuation: a colon after the chromosome, and a dash between the start and
               end coordinates.
             * When in this format, the assumption is that the coordinate is **1-start,
               fully-closed.**
         https://genome-blog.gi.ucsc.edu/blog/2016/12/12/the-ucsc-genome-browser-coordinate-counting-systems/  # noqa: E501
+
+        Note that when the string does not have a specified strand, the `Interval`'s negative
+        attribute is set to False. This mimics the behavior of `OverlapDetector.from_bed()` when
+        reading a record that does not have a specified strand.
 
         Args:
             position: The UCSC "position"-formatted string.
@@ -157,6 +163,17 @@ class Interval:
             ValueError: If the string is not a valid UCSC position-formatted string.
         """
 
+        # First, check to see if the strand is specified, and remove it from the string.
+        strand_re = re.compile(r".*\((\+|-)\)$")
+        strand_match = strand_re.match(position)
+
+        if strand_match is not None:
+            negative = strand_match.group(1) == "-"
+            position = position[:-3]
+        else:
+            negative = False
+
+        # Then parse the location
         position_re = re.compile(r"^(chr(\d+|X|Y|M|MT)(?:_[A-Za-z0-9]+_alt)?):(\d+)-(\d+)$")
 
         match = position_re.match(position)
@@ -167,7 +184,7 @@ class Interval:
         start = int(match.group(3)) - 1
         end = int(match.group(4))
 
-        return cls(refname=refname, start=start, end=end, negative=False, name=name)
+        return cls(refname=refname, start=start, end=end, negative=negative, name=name)
 
 
 class OverlapDetector(Iterable[Interval]):
