@@ -206,8 +206,8 @@ def test_preopened_bed_writing(
             )
 
 
-def test_bedstrand_reversed() -> None:
+def test_bedstrand_opposite() -> None:
     """Test that we can reverse a BedStrand."""
 
-    assert BedStrand.Positive.reversed is BedStrand.Negative
-    assert BedStrand.Negative.reversed is BedStrand.Positive
+    assert BedStrand.Positive.opposite is BedStrand.Negative
+    assert BedStrand.Negative.opposite is BedStrand.Positive

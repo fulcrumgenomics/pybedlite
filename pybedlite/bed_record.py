@@ -37,7 +37,7 @@ class BedStrand(enum.Enum):
     Negative = "-"
 
     @property
-    def reversed(self) -> BedStrand:
+    def opposite(self) -> BedStrand:
         """Return the opposite strand of the current strand."""
         return BedStrand.Positive if self is BedStrand.Negative else BedStrand.Negative
 
