@@ -63,6 +63,11 @@ jobs:
       run: |
         poetry run black --line-length 99 --check pybedlite
 
+    - name: Import sorting
+      shell: bash
+      run: |
+        poetry run isort --force-single-line-imports --profile black --check pybedlite
+
     - name: Run lint
       shell: bash
       run: |

@@ -46,6 +46,7 @@ fi
 banner "Executing in conda environment ${CONDA_DEFAULT_ENV} in directory ${root}"
 run "Unit Tests"     "python -m pytest -vv -r sx pybedlite"
 run "Style Checking" "black --line-length 99 $black_extra_args pybedlite"
+run "Import sorting" "isort --force-single-line-imports --profile black pybedlite"
 run "Linting"        "flake8 --config=$parent/flake8.cfg pybedlite"
 run "Type Checking"  "mypy -p pybedlite --config $parent/mypy.ini"
 

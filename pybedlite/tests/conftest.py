@@ -1,5 +1,7 @@
-import pytest
 from typing import List
+
+import pytest
+
 from pybedlite.bed_record import BedRecord
 from pybedlite.bed_record import BedStrand
 

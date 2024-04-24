@@ -12,24 +12,24 @@ The module contains the following public classes:
 """
 
 import io
-from typing import IO
-from typing import Optional
-from typing import TypeVar
-from typing import Union
-from typing import Type
-from typing import Tuple
-from typing import List
 from pathlib import Path
 from types import TracebackType
+from typing import IO
+from typing import Any
 from typing import Callable
 from typing import ContextManager
+from typing import Dict
 from typing import Iterable
 from typing import Iterator
-from typing import Dict
-from typing import Any
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Type
+from typing import TypeVar
+from typing import Union
 
-from pybedlite.bed_record import BedStrand
 from pybedlite.bed_record import BedRecord
+from pybedlite.bed_record import BedStrand
 
 """The classes that should be treated as file-like classes"""
 _IOClasses = (io.TextIOBase, io.BufferedIOBase, io.RawIOBase, io.IOBase)

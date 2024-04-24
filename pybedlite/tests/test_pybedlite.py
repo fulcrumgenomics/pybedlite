@@ -1,15 +1,16 @@
 """Tests for :py:mod:`~pybedlite.__init__.py`"""
 
-import pytest
 from pathlib import Path
 from typing import List
+
+import pytest
+
 import pybedlite as pybed
-from pybedlite.bed_writer import MAX_BED_FIELDS
-from pybedlite.bed_writer import BedWriter
-from pybedlite.bed_source import BedSource
 from pybedlite.bed_record import BedRecord
 from pybedlite.bed_record import BedStrand
-
+from pybedlite.bed_source import BedSource
+from pybedlite.bed_writer import MAX_BED_FIELDS
+from pybedlite.bed_writer import BedWriter
 
 SNIPPET_BED = """\
 # Test header, with a line with whitespace below it.
