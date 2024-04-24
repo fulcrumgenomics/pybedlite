@@ -39,6 +39,7 @@ The module contains the following public classes:
 """
 
 import itertools
+import re
 from pathlib import Path
 from typing import Dict
 from typing import Iterable
@@ -54,6 +55,24 @@ import cgranges as cr
 from pybedlite.bed_record import BedStrand
 from pybedlite.bed_source import BedSource
 from pybedlite.bed_record import BedRecord
+
+UCSC_STRAND_REGEX = re.compile(r".*\((\+|-)\)$")
+"""
+Match a parenthetically enclosed strand at the end of a position-formatted interval.
+
+Groups:
+    1: the strand ("+" or "-")
+"""
+
+UCSC_INTERVAL_REGEX = re.compile(r"^(.*):(\d+)-(\d+)$")
+"""
+Match a position-formatted interval.
+
+Groups:
+    1: the refname (or chromosome)
+    2: the 1-based start position
+    3: the 1-based closed end position
+"""
 
 
 @attr.s(frozen=True, auto_attribs=True)
@@ -124,6 +143,61 @@ class Interval:
             negative=record.strand is BedStrand.Negative,
             name=record.name,
         )
+
+    @classmethod
+    def from_ucsc(
+        cls: Type["Interval"],
+        value: str,
+        name: Optional[str] = None,
+    ) -> "Interval":
+        """
+        Construct an `Interval` from a UCSC "position"-formatted string.
+
+        The "Position" format (referring to the "1-start, fully-closed" system as coordinates are
+        "positioned" in the browser)
+            * Written as: chr1:127140001-127140001
+            * The location may optionally be followed by a parenthetically enclosed strand, e.g.
+              chr1:127140001-127140001(+).
+            * No spaces.
+            * Includes punctuation: a colon after the chromosome, and a dash between the start and
+              end coordinates.
+            * When in this format, the assumption is that the coordinate is **1-start,
+              fully-closed.**
+        https://genome-blog.gi.ucsc.edu/blog/2016/12/12/the-ucsc-genome-browser-coordinate-counting-systems/  # noqa: E501
+
+        Note that when the string does not have a specified strand, the `Interval`'s negative
+        attribute is set to False. This mimics the behavior of `OverlapDetector.from_bed()` when
+        reading a record that does not have a specified strand.
+
+        Args:
+            value: The UCSC "position"-formatted string.
+            name: An optional name for the interval.
+
+        Returns:
+            An `Interval` corresponding to the same region specified in the string.
+            Note that the `Interval` is **zero-based open-ended**.
+
+        Raises:
+            ValueError: If the string is not a valid UCSC position-formatted string.
+        """
+
+        # First, check to see if the strand is specified, and remove it from the string if so.
+        strand_match = UCSC_STRAND_REGEX.match(value)
+        value = value if strand_match is None else value[:-3]
+
+        # Intervals are positive by default if no strand is specified
+        negative = strand_match is not None and strand_match.group(1) == "-"
+
+        # Then parse the location
+        interval_match = UCSC_INTERVAL_REGEX.match(value)
+        if interval_match is None:
+            raise ValueError(f"Not a valid UCSC position-formatted string: {value}")
+
+        refname = interval_match.group(1)
+        start = int(interval_match.group(2)) - 1
+        end = int(interval_match.group(3))
+
+        return cls(refname=refname, start=start, end=end, negative=negative, name=name)
 
 
 class OverlapDetector(Iterable[Interval]):
