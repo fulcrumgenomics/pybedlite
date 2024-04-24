@@ -36,6 +36,11 @@ class BedStrand(enum.Enum):
     Positive = "+"
     Negative = "-"
 
+    @property
+    def reversed(self) -> BedStrand:
+        """Return the opposite strand of the current strand."""
+        return BedStrand.Positive if self is BedStrand.Negative else BedStrand.Negative
+
 
 @attr.s(frozen=True, auto_attribs=True, kw_only=True, slots=True)
 class BedRecord:
