@@ -8,6 +8,7 @@ from pybedlite.bed_writer import MAX_BED_FIELDS
 from pybedlite.bed_writer import BedWriter
 from pybedlite.bed_source import BedSource
 from pybedlite.bed_record import BedRecord
+from pybedlite.bed_record import BedStrand
 
 
 SNIPPET_BED = """\
@@ -203,3 +204,10 @@ def test_preopened_bed_writing(
                 record_number=i,
                 num_fields=bed_field_number,
             )
+
+
+def test_bedstrand_opposite() -> None:
+    """Test that we can reverse a BedStrand."""
+
+    assert BedStrand.Positive.opposite is BedStrand.Negative
+    assert BedStrand.Negative.opposite is BedStrand.Positive
