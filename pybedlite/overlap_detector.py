@@ -49,11 +49,11 @@ from typing import Set
 from typing import Type
 
 import attr
-import cgranges as cr
 
+import cgranges as cr
+from pybedlite.bed_record import BedRecord
 from pybedlite.bed_record import BedStrand
 from pybedlite.bed_source import BedSource
-from pybedlite.bed_record import BedRecord
 
 
 @attr.s(frozen=True, auto_attribs=True)
