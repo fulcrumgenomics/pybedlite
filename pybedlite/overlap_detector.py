@@ -233,7 +233,7 @@ class OverlapDetector(Iterable[Interval]):
             )
 
     def get_enclosing_intervals(self, interval: Interval) -> List[Interval]:
-        """Returns  the set of intervals in this detector that wholly enclose the query interval.
+        """Returns the set of intervals in this detector that wholly enclose the query interval.
         i.e. query.start >= target.start and query.end <= target.end.
 
           Args:
