@@ -7,6 +7,7 @@ env:
 jobs:
   testing:
     runs-on: ubuntu-20.04
+    environment: github-action-ci
     strategy:
       matrix:
         PYTHON_VERSION: ["3.8", "3.9", "3.10", "3.11"]
