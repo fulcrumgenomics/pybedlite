@@ -1,6 +1,11 @@
 """Tests for :py:mod:`~pybedlite.overlap_detector`"""
 
+from dataclasses import dataclass
 from typing import List
+from typing import Union
+
+import pytest
+from typing_extensions import TypeAlias
 
 from pybedlite.bed_record import BedRecord
 from pybedlite.bed_record import BedStrand
@@ -9,7 +14,7 @@ from pybedlite.overlap_detector import OverlapDetector
 
 
 def run_test(targets: List[Interval], query: Interval, results: List[Interval]) -> None:
-    detector = OverlapDetector()
+    detector: OverlapDetector[Interval] = OverlapDetector()
     # Use add_all() to covert itself and add()
     detector.add_all(intervals=targets)
     # Test overlaps_any()
@@ -113,7 +118,7 @@ def test_get_enclosing_intervals() -> None:
     d = Interval("1", 15, 19)
     e = Interval("1", 16, 20)
 
-    detector = OverlapDetector()
+    detector: OverlapDetector[Interval] = OverlapDetector()
     detector.add_all([a, b, c, d, e])
 
     assert detector.get_enclosing_intervals(Interval("1", 10, 100)) == [a]
@@ -128,7 +133,7 @@ def test_get_enclosed() -> None:
     c = Interval("1", 18, 19)
     d = Interval("1", 50, 99)
 
-    detector = OverlapDetector()
+    detector: OverlapDetector[Interval] = OverlapDetector()
     detector.add_all([a, b, c, d])
 
     assert detector.get_enclosed(Interval("1", 1, 250)) == [a, b, c, d]
@@ -145,7 +150,7 @@ def test_iterable() -> None:
     d = Interval("1", 15, 19)
     e = Interval("1", 16, 20)
 
-    detector = OverlapDetector()
+    detector: OverlapDetector[Interval] = OverlapDetector()
     detector.add_all([a])
     assert list(detector) == [a]
     detector.add_all([a, b, c, d, e])
@@ -188,3 +193,61 @@ def test_construction_from_interval(bed_records: List[BedRecord]) -> None:
             assert new_record.strand is BedStrand.Positive
         else:
             assert new_record.strand is record.strand
+
+
+def test_arbitrary_interval_types() -> None:
+    """
+    Test that an overlap detector can receive different interval-like objects and query them too.
+    """
+
+    @dataclass(eq=True, frozen=True)
+    class ChromFeature:
+        chrom: str
+        start: int
+        end: int
+
+    @dataclass(eq=True, frozen=True)
+    class ContigFeature:
+        contig: str
+        start: int
+        end: int
+
+    @dataclass(eq=True, frozen=True)
+    class RefnameFeature:
+        refname: str
+        start: int
+        end: int
+
+    # Create minimal features of all supported structural types
+    chrom_feature = ChromFeature(chrom="chr1", start=0, end=30)
+    contig_feature = ContigFeature(contig="chr1", start=10, end=40)
+    refname_feature = RefnameFeature(refname="chr1", start=20, end=50)
+
+    # Setup an overlap detector to hold all the features we care about
+    AllKinds: TypeAlias = Union[ChromFeature, ContigFeature, RefnameFeature]
+    features: List[AllKinds] = [chrom_feature, contig_feature, refname_feature]
+    detector: OverlapDetector[AllKinds] = OverlapDetector(features)
+
+    # Query the overlap detector with yet another type
+    assert detector.get_overlaps(Interval("chr1", 0, 1)) == [chrom_feature]
+    assert detector.get_overlaps(Interval("chr1", 25, 26)) == [
+        chrom_feature,
+        contig_feature,
+        refname_feature,
+    ]
+    assert detector.get_overlaps(Interval("chr1", 45, 46)) == [refname_feature]
+
+
+def test_the_overlap_detector_wont_accept_a_non_hashable_feature() -> None:
+    """
+    Test that an overlap detector will not accept a non-hashable feature.
+    """
+
+    @dataclass  # A dataclass missing both `eq` and `frozen` does not implement __hash__.
+    class ChromFeature:
+        chrom: str
+        start: int
+        end: int
+
+    with pytest.raises(ValueError):
+        OverlapDetector([ChromFeature(chrom="chr1", start=0, end=30)])
