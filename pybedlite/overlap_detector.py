@@ -5,10 +5,10 @@ Utility Classes for Querying Overlaps with Genomic Regions
 Examples of Detecting Overlaps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: python
+. code-block:: python
 
     >>> from pybedlite.overlap_detector import Interval, OverlapDetector
-    >>> detector = OverlapDetector()
+    >>> detector = OverlapDetector[Interval]()
     >>> query = Interval("chr1", 2, 20)
     >>> detector.overlaps_any(query)
     False
@@ -27,6 +27,36 @@ Examples of Detecting Overlaps
     >>> detector.get_overlaps(query)
     [Interval("chr1", 1, 1), interval("chr1", 3, 10)]
 
+
+In many cases, other data types would like to be queried using an overlap detector.  In this case,
+the :class:`~pybedlite.overlap_detector.ItemizedInterval` can be used as follows:
+
+. code-block:: python
+
+    >>> from pybedlite.overlap_detector import Interval, ItemizedInterval, OverlapDetector
+    >>> from typing import cast, List
+    >>> import attr
+    >>> @attr.s(frozen=True, auto_attribs=True)
+        class Gene:
+            id: str
+            count: int
+    >>> detector = OverlapDetector[ItemizedInterval[Gene]]()
+    >>> query = Interval("chr1", 2, 20)
+    >>> detector.add(ItemizedInterval("chr1", 1, 100, item=Gene(id="PTEN", count=12)))
+    >>> detector.overlaps_any(query)
+    True
+    >>> intervals: List[ItemizedInterval[Gene]] = detector.get_overlaps(query)
+    >>> intervals
+    [ItemizedInterval(
+        refname='chr1',
+        start=1, end=100,
+        item=Gene(id='PTEN', count=12),
+        negative=False,
+        name=None
+    )]
+    >>> intervals[0].item
+    Gene(id='PTEN', count=12)
+
 Module Contents
 ~~~~~~~~~~~~~~~
 
@@ -41,12 +71,14 @@ The module contains the following public classes:
 import itertools
 from pathlib import Path
 from typing import Dict
+from typing import Generic
 from typing import Iterable
 from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Set
 from typing import Type
+from typing import TypeVar
 
 import attr
 
@@ -178,7 +210,38 @@ class Interval:
             ) from exception
 
 
-class OverlapDetector(Iterable[Interval]):
+IntervalType = TypeVar("IntervalType", bound=Interval)
+"""Type for intervals stored in an OverlapDetector.  Must be Interval or a sub-class of Interval."""
+
+
+Item = TypeVar("Item")
+"""Type of the item that is carried along with an `ItemizedInterval`"""
+
+
+@attr.s(frozen=True, auto_attribs=True)
+class ItemizedInterval(Interval, Generic[Item]):
+    """A region mapping to the genome that is 0-based and open-ended.  It has the `item` attribute
+    in addition to the `Interval` attributes, such that non-interval objects may be associated
+    (and stored alongside) `Interval`s in an `OverlapDetector`.
+
+    Attributes:
+        refname (str): the refname (or chromosome)
+        start (int): the 0-based start position
+        end (int): the 0-based end position (exclusive)
+        item (Item): The item to store
+        negative (bool): true if the interval is on the negative strand, false otherwise
+        name (Optional[str]): an optional name assigned to the interval
+    """
+
+    refname: str = attr.ib()
+    start: int = attr.ib()
+    end: int = attr.ib()
+    item: Optional[Item] = None
+    negative: bool = False
+    name: Optional[str] = None
+
+
+class OverlapDetector(Iterable[IntervalType], Generic[IntervalType]):
     """Detects and returns overlaps between a set of genomic regions and another genomic region.
 
     Since :class:`~pybedlite.overlap_detector.Interval` objects are used both to populate the
@@ -195,13 +258,13 @@ class OverlapDetector(Iterable[Interval]):
         # A mapping from the contig/chromosome name to the associated interval tree
         self._refname_to_tree: Dict[str, cr.cgranges] = {}  # type: ignore
         self._refname_to_indexed: Dict[str, bool] = {}
-        self._refname_to_intervals: Dict[str, List[Interval]] = {}
+        self._refname_to_intervals: Dict[str, List[IntervalType]] = {}
 
-    def __iter__(self) -> Iterator[Interval]:
+    def __iter__(self) -> Iterator[IntervalType]:
         """Iterates over the intervals in the overlap detector."""
         return itertools.chain(*self._refname_to_intervals.values())
 
-    def add(self, interval: Interval) -> None:
+    def add(self, interval: IntervalType) -> None:
         """Adds an interval to this detector.
 
         Args:
@@ -226,7 +289,7 @@ class OverlapDetector(Iterable[Interval]):
         # indexing
         self._refname_to_indexed[refname] = False
 
-    def add_all(self, intervals: Iterable[Interval]) -> None:
+    def add_all(self, intervals: Iterable[IntervalType]) -> None:
         """Adds one or more intervals to this detector.
 
         Args:
@@ -258,7 +321,7 @@ class OverlapDetector(Iterable[Interval]):
             else:
                 return True
 
-    def get_overlaps(self, interval: Interval) -> List[Interval]:
+    def get_overlaps(self, interval: Interval) -> List[IntervalType]:
         """Returns any intervals in this detector that overlap the given interval.
 
         Args:
@@ -274,9 +337,9 @@ class OverlapDetector(Iterable[Interval]):
         else:
             if not self._refname_to_indexed[interval.refname]:
                 tree.index()
-            ref_intervals: List[Interval] = self._refname_to_intervals[interval.refname]
+            ref_intervals: List[IntervalType] = self._refname_to_intervals[interval.refname]
             # NB: only return unique instances of intervals
-            intervals: Set[Interval] = {
+            intervals: Set[IntervalType] = {
                 ref_intervals[index]
                 for _, _, index in tree.overlap(interval.refname, interval.start, interval.end)
             }
@@ -284,9 +347,9 @@ class OverlapDetector(Iterable[Interval]):
                 intervals, key=lambda intv: (intv.start, intv.end, intv.negative, intv.name)
             )
 
-    def get_enclosing_intervals(self, interval: Interval) -> List[Interval]:
+    def get_enclosing_intervals(self, interval: Interval) -> List[IntervalType]:
         """Returns the set of intervals in this detector that wholly enclose the query interval.
-        i.e. query.start >= target.start and query.end <= target.end.
+        i.e. `query.start >= target.start and query.end <= target.end`.
 
           Args:
               interval: the query interval
@@ -297,9 +360,9 @@ class OverlapDetector(Iterable[Interval]):
         results = self.get_overlaps(interval)
         return [i for i in results if interval.start >= i.start and interval.end <= i.end]
 
-    def get_enclosed(self, interval: Interval) -> List[Interval]:
+    def get_enclosed(self, interval: Interval) -> List[IntervalType]:
         """Returns the set of intervals in this detector that are enclosed by the query
-        interval.  I.e. target.start >= query.start and target.end <= query.end.
+        interval.  I.e. `target.start >= query.start and target.end <= query.end`.
 
           Args:
               interval: the query interval
@@ -312,14 +375,14 @@ class OverlapDetector(Iterable[Interval]):
         return [i for i in results if i.start >= interval.start and i.end <= interval.end]
 
     @classmethod
-    def from_bed(cls, path: Path) -> "OverlapDetector":
+    def from_bed(cls, path: Path) -> "OverlapDetector[Interval]":
         """Builds a :class:`~pybedlite.overlap_detector.OverlapDetector` from a BED file.
         Args:
             path: the path to the BED file
         Returns:
             An overlap detector for the regions in the BED file.
         """
-        detector = OverlapDetector()
+        detector: OverlapDetector[Interval] = OverlapDetector()
 
         for region in BedSource(path):
             detector.add(Interval.from_bedrecord(region))

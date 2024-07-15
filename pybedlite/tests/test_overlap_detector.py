@@ -2,16 +2,18 @@
 
 from typing import List
 
+import attr
 import pytest
 
 from pybedlite.bed_record import BedRecord
 from pybedlite.bed_record import BedStrand
 from pybedlite.overlap_detector import Interval
+from pybedlite.overlap_detector import ItemizedInterval
 from pybedlite.overlap_detector import OverlapDetector
 
 
 def run_test(targets: List[Interval], query: Interval, results: List[Interval]) -> None:
-    detector = OverlapDetector()
+    detector = OverlapDetector[Interval]()
     # Use add_all() to covert itself and add()
     detector.add_all(intervals=targets)
     # Test overlaps_any()
@@ -115,7 +117,7 @@ def test_get_enclosing_intervals() -> None:
     d = Interval("1", 15, 19)
     e = Interval("1", 16, 20)
 
-    detector = OverlapDetector()
+    detector = OverlapDetector[Interval]()
     detector.add_all([a, b, c, d, e])
 
     assert detector.get_enclosing_intervals(Interval("1", 10, 100)) == [a]
@@ -130,7 +132,7 @@ def test_get_enclosed() -> None:
     c = Interval("1", 18, 19)
     d = Interval("1", 50, 99)
 
-    detector = OverlapDetector()
+    detector = OverlapDetector[Interval]()
     detector.add_all([a, b, c, d])
 
     assert detector.get_enclosed(Interval("1", 1, 250)) == [a, b, c, d]
@@ -147,7 +149,7 @@ def test_iterable() -> None:
     d = Interval("1", 15, 19)
     e = Interval("1", 16, 20)
 
-    detector = OverlapDetector()
+    detector = OverlapDetector[Interval]()
     detector.add_all([a])
     assert list(detector) == [a]
     detector.add_all([a, b, c, d, e])
@@ -208,7 +210,7 @@ def test_construction_from_ucsc_with_strand(strand: str) -> None:
     `Interval.from_ucsc()` should correctly parse UCSC position-formatted strings with strands.
     """
     expected_interval = Interval("chr1", 100, 200, negative=(strand == "-"))
-    assert Interval.from_ucsc(f"chr1:101-200({strand})") == expected_interval
+    assert Interval.from_ucsc(f"chr1:101-200({strand})") == expected_interval  # noqa: E231
 
 
 @pytest.mark.parametrize(
@@ -218,4 +220,20 @@ def test_construction_from_ucsc_other_contigs(contig: str) -> None:
     """
     `Interval.from_ucsc()` should accomodate non-human, decoy, custom, and other contig names.
     """
-    assert Interval.from_ucsc(f"{contig}:101-200") == Interval(contig, 100, 200)
+    assert Interval.from_ucsc(f"{contig}:101-200") == Interval(contig, 100, 200)  # noqa: E231
+
+
+@attr.s(frozen=True, auto_attribs=True)
+class Gene:
+    id: str
+    count: int
+
+
+def test_itemized_interval() -> None:
+    detector = OverlapDetector[ItemizedInterval[Gene]]()
+    query = Interval("chr1", 2, 20)
+    detector.add(ItemizedInterval("chr1", 1, 100, item=Gene(id="PTEN", count=12)))
+    print(detector.overlaps_any(query))
+    intervals: List[ItemizedInterval[Gene]] = detector.get_overlaps(query)
+    print(intervals)
+    print(intervals[0].item)
