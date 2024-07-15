@@ -2,13 +2,12 @@
 
 from typing import List
 
+import pytest
+
 from pybedlite.bed_record import BedRecord
 from pybedlite.bed_record import BedStrand
 from pybedlite.overlap_detector import Interval
 from pybedlite.overlap_detector import OverlapDetector
-from pybedlite.bed_record import BedStrand
-from pybedlite.bed_record import BedRecord
-import pytest
 
 
 def run_test(targets: List[Interval], query: Interval, results: List[Interval]) -> None:

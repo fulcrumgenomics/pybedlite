@@ -170,7 +170,8 @@ class Interval:
             contig, span = interval.rsplit(":", 1)
             start, end = span.split("-")
 
-            return Interval(contig, int(start) - 1, int(end), negative=strand == "-", name=name)
+            return Interval(contig, int(start) - 1, int(end), negative=(strand == "-"), name=name)
+
         except Exception as exception:
             raise ValueError(
                 f"Not a valid UCSC position-formatted string: {string}"
