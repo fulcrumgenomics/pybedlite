@@ -39,7 +39,6 @@ The module contains the following public classes:
 """
 
 import itertools
-import re
 from pathlib import Path
 from typing import Dict
 from typing import Iterable
@@ -55,24 +54,6 @@ import cgranges as cr
 from pybedlite.bed_record import BedRecord
 from pybedlite.bed_record import BedStrand
 from pybedlite.bed_source import BedSource
-
-UCSC_STRAND_REGEX = re.compile(r".*\((\+|-)\)$")
-"""
-Match a parenthetically enclosed strand at the end of a position-formatted interval.
-
-Groups:
-    1: the strand ("+" or "-")
-"""
-
-UCSC_INTERVAL_REGEX = re.compile(r"^(.*):(\d+)-(\d+)$")
-"""
-Match a position-formatted interval.
-
-Groups:
-    1: the refname (or chromosome)
-    2: the 1-based start position
-    3: the 1-based closed end position
-"""
 
 
 @attr.s(frozen=True, auto_attribs=True)
@@ -147,7 +128,7 @@ class Interval:
     @classmethod
     def from_ucsc(
         cls: Type["Interval"],
-        value: str,
+        string: str,
         name: Optional[str] = None,
     ) -> "Interval":
         """
@@ -166,11 +147,11 @@ class Interval:
         https://genome-blog.gi.ucsc.edu/blog/2016/12/12/the-ucsc-genome-browser-coordinate-counting-systems/  # noqa: E501
 
         Note that when the string does not have a specified strand, the `Interval`'s negative
-        attribute is set to False. This mimics the behavior of `OverlapDetector.from_bed()` when
+        attribute is set to `False`. This mimics the behavior of `OverlapDetector.from_bed()` when
         reading a record that does not have a specified strand.
 
         Args:
-            value: The UCSC "position"-formatted string.
+            string: The UCSC "position"-formatted string.
             name: An optional name for the interval.
 
         Returns:
@@ -180,24 +161,20 @@ class Interval:
         Raises:
             ValueError: If the string is not a valid UCSC position-formatted string.
         """
+        try:
+            if string[-1] == ")":
+                interval, strand = string.rstrip(")").rsplit("(", 1)
+            else:
+                interval, strand = string, "+"
 
-        # First, check to see if the strand is specified, and remove it from the string if so.
-        strand_match = UCSC_STRAND_REGEX.match(value)
-        value = value if strand_match is None else value[:-3]
+            contig, span = interval.rsplit(":", 1)
+            start, end = span.split("-")
 
-        # Intervals are positive by default if no strand is specified
-        negative = strand_match is not None and strand_match.group(1) == "-"
-
-        # Then parse the location
-        interval_match = UCSC_INTERVAL_REGEX.match(value)
-        if interval_match is None:
-            raise ValueError(f"Not a valid UCSC position-formatted string: {value}")
-
-        refname = interval_match.group(1)
-        start = int(interval_match.group(2)) - 1
-        end = int(interval_match.group(3))
-
-        return cls(refname=refname, start=start, end=end, negative=negative, name=name)
+            return Interval(contig, int(start) - 1, int(end), negative=strand == "-", name=name)
+        except Exception as exception:
+            raise ValueError(
+                f"Not a valid UCSC position-formatted string: {string}"
+            ) from exception
 
 
 class OverlapDetector(Iterable[Interval]):
