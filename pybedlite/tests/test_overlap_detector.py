@@ -2,6 +2,8 @@
 
 from typing import List
 
+import pytest
+
 from pybedlite.bed_record import BedRecord
 from pybedlite.bed_record import BedStrand
 from pybedlite.overlap_detector import Interval
@@ -188,3 +190,32 @@ def test_construction_from_interval(bed_records: List[BedRecord]) -> None:
             assert new_record.strand is BedStrand.Positive
         else:
             assert new_record.strand is record.strand
+
+
+def test_construction_from_ucsc() -> None:
+    """
+    `Interval.from_ucsc()` should convert a UCSC position-formatted string to an `Interval`.
+
+    The position-formatted string should be one-based fully-closed, and the `Interval` should be
+    zero-based half-open.
+    """
+    assert Interval.from_ucsc("chr1:101-200") == Interval("chr1", 100, 200)
+
+
+@pytest.mark.parametrize("strand", ["+", "-"])
+def test_construction_from_ucsc_with_strand(strand: str) -> None:
+    """
+    `Interval.from_ucsc()` should correctly parse UCSC position-formatted strings with strands.
+    """
+    expected_interval = Interval("chr1", 100, 200, negative=(strand == "-"))
+    assert Interval.from_ucsc(f"chr1:101-200({strand})") == expected_interval
+
+
+@pytest.mark.parametrize(
+    "contig", ["chrUn_JTFH01001499v1_decoy", "HLA-DRB1*15:01:01:02", "chr10_GL383545v1_alt"]
+)
+def test_construction_from_ucsc_other_contigs(contig: str) -> None:
+    """
+    `Interval.from_ucsc()` should accomodate non-human, decoy, custom, and other contig names.
+    """
+    assert Interval.from_ucsc(f"{contig}:101-200") == Interval(contig, 100, 200)
