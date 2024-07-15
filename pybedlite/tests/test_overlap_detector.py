@@ -195,8 +195,10 @@ def test_construction_from_interval(bed_records: List[BedRecord]) -> None:
 def test_construction_from_ucsc() -> None:
     """
     `Interval.from_ucsc()` should convert a UCSC position-formatted string to an `Interval`.
-    """
 
+    The position-formatted string should be one-based fully-closed, and the `Interval` should be
+    zero-based half-open.
+    """
     assert Interval.from_ucsc("chr1:101-200") == Interval("chr1", 100, 200)
 
 
@@ -216,5 +218,4 @@ def test_construction_from_ucsc_other_contigs(contig: str) -> None:
     """
     `Interval.from_ucsc()` should accomodate non-human, decoy, custom, and other contig names.
     """
-
     assert Interval.from_ucsc(f"{contig}:101-200") == Interval(contig, 100, 200)
