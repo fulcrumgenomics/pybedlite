@@ -195,23 +195,27 @@ def test_construction_from_interval(bed_records: List[BedRecord]) -> None:
 
 def test_construction_from_ucsc() -> None:
     """
-    Test that we can convert a UCSC position to an Interval and back.
+    `Interval.from_ucsc()` should convert a UCSC position-formatted string to an `Interval`.
     """
 
     assert Interval.from_ucsc("chr1:101-200") == Interval("chr1", 100, 200)
-    assert Interval.from_ucsc("chr10_GL383545v1_alt:101-200") == Interval(
-        "chr10_GL383545v1_alt", 100, 200
-    )
-
-    # Check strand
-    assert Interval.from_ucsc("chr1:101-200(+)") == Interval("chr1", 100, 200, negative=False)
-    assert Interval.from_ucsc("chr1:101-200(-)") == Interval("chr1", 100, 200, negative=True)
 
 
-@pytest.mark.parametrize("contig", ["chrUn_JTFH01001499v1_decoy", "HLA-DRB1*15:01:01:02"])
+@pytest.mark.parametrize("strand", ["+", "-"])
+def test_construction_from_ucsc_with_strand(strand: str) -> None:
+    """
+    `Interval.from_ucsc()` should correctly parse UCSC position-formatted strings with strands.
+    """
+    expected_interval = Interval("chr1", 100, 200, negative=(strand == "-"))
+    assert Interval.from_ucsc(f"chr1:101-200({strand})") == expected_interval
+
+
+@pytest.mark.parametrize(
+    "contig", ["chrUn_JTFH01001499v1_decoy", "HLA-DRB1*15:01:01:02", "chr10_GL383545v1_alt"]
+)
 def test_construction_from_ucsc_other_contigs(contig: str) -> None:
     """
-    Test that we can construct an interval with non-human/decoy/custom/other contig names
+    `Interval.from_ucsc()` should accomodate non-human, decoy, custom, and other contig names.
     """
 
     assert Interval.from_ucsc(f"{contig}:101-200") == Interval(contig, 100, 200)
