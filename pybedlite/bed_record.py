@@ -27,7 +27,6 @@ import attr
 if TYPE_CHECKING:
     from pybedlite.overlap_detector import Interval
 
-
 """Maximum BED fields that can be present in a well formed BED file written to specification"""
 MAX_BED_FIELDS: int = 12
 
@@ -182,6 +181,26 @@ class BedRecord:
                 else ",".join([f"{x}" for x in self.block_starts])
             ),
         ]
+
+    @property
+    def reference_name(self) -> str:
+        """A reference sequence name."""
+        return self.chrom
+
+    @property
+    def zero_based_start(self) -> int:
+        """A 0-based start position."""
+        return self.start
+
+    @property
+    def zero_based_open_end(self) -> int:
+        """A 0-based open-ended position."""
+        return self.end
+
+    @property
+    def is_negative(self) -> bool:
+        """True if the interval is on the negative strand, False otherwise"""
+        return self.strand is not None and self.strand == BedStrand.Positive
 
     def as_bed_line(self, number_of_output_fields: Optional[int] = None) -> str:
         """

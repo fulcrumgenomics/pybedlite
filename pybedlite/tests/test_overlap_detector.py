@@ -201,41 +201,110 @@ def test_arbitrary_interval_types() -> None:
     """
 
     @dataclass(eq=True, frozen=True)
-    class ChromFeature:
-        chrom: str
-        start: int
-        end: int
+    class ZeroBasedOpenEndedProtocol:
+        reference_name: str
+        zero_based_start: int
+        zero_based_open_end: int
+
+        @property
+        def is_negative(self) -> bool:
+            return False
 
     @dataclass(eq=True, frozen=True)
-    class ContigFeature:
+    class OneBasedProtocol:
         contig: str
         start: int
         end: int
 
+        @property
+        def reference_name(self) -> str:
+            return self.contig
+
+        @property
+        def zero_based_start(self) -> int:
+            """A 0-based start position."""
+            return self.start - 1
+
+        @property
+        def zero_based_open_end(self) -> int:
+            """A 0-based open-ended position."""
+            return self.end
+
+        @property
+        def is_negative(self) -> bool:
+            """True if the interval is on the negative strand, False otherwise"""
+            return False
+
     @dataclass(eq=True, frozen=True)
-    class RefnameFeature:
-        refname: str
-        start: int
-        end: int
+    class ZeroBasedUnstranded:
+        reference_name: str
+        zero_based_start: int
+        zero_based_open_end: int
+
+    @dataclass(eq=True, frozen=True)
+    class ZeroBasedStranded:
+        reference_name: str
+        zero_based_start: int
+        zero_based_open_end: int
+        is_negative: bool
 
     # Create minimal features of all supported structural types
-    chrom_feature = ChromFeature(chrom="chr1", start=0, end=30)
-    contig_feature = ContigFeature(contig="chr1", start=10, end=40)
-    refname_feature = RefnameFeature(refname="chr1", start=20, end=50)
-
-    # Setup an overlap detector to hold all the features we care about
-    AllKinds: TypeAlias = Union[ChromFeature, ContigFeature, RefnameFeature]
-    features: List[AllKinds] = [chrom_feature, contig_feature, refname_feature]
+    zero_based_protocol = ZeroBasedOpenEndedProtocol(
+        reference_name="chr1", zero_based_start=1, zero_based_open_end=50
+    )
+    one_based_protocol = OneBasedProtocol(contig="chr1", start=10, end=60)
+    zero_based_unstranded = ZeroBasedUnstranded(
+        reference_name="chr1", zero_based_start=20, zero_based_open_end=70
+    )
+    zero_based_stranded = ZeroBasedStranded(
+        reference_name="chr1", zero_based_start=30, zero_based_open_end=80, is_negative=True
+    )
+    # Set up an overlap detector to hold all the features we care about
+    AllKinds: TypeAlias = Union[
+        ZeroBasedOpenEndedProtocol, OneBasedProtocol, ZeroBasedUnstranded, ZeroBasedStranded
+    ]
+    features: List[AllKinds] = [
+        zero_based_protocol,
+        one_based_protocol,
+        zero_based_unstranded,
+        zero_based_stranded,
+    ]
     detector: OverlapDetector[AllKinds] = OverlapDetector(features)
 
+    assert OverlapDetector._is_negative(zero_based_protocol) is False
+    assert OverlapDetector._is_negative(one_based_protocol) is False
+    assert OverlapDetector._is_negative(zero_based_unstranded) is False
+    assert OverlapDetector._is_negative(zero_based_stranded) is True
+
     # Query the overlap detector with yet another type
-    assert detector.get_overlaps(Interval("chr1", 0, 1)) == [chrom_feature]
-    assert detector.get_overlaps(Interval("chr1", 25, 26)) == [
-        chrom_feature,
-        contig_feature,
-        refname_feature,
+    assert detector.get_overlaps(Interval("chr1", 0, 1)) == []
+    assert detector.get_overlaps(Interval("chr1", 0, 9)) == [zero_based_protocol]
+    assert detector.get_overlaps(Interval("chr1", 11, 12)) == [
+        zero_based_protocol,
+        one_based_protocol,
     ]
-    assert detector.get_overlaps(Interval("chr1", 45, 46)) == [refname_feature]
+    assert detector.get_overlaps(Interval("chr1", 21, 27)) == [
+        zero_based_protocol,
+        one_based_protocol,
+        zero_based_unstranded,
+    ]
+    assert detector.get_overlaps(Interval("chr1", 32, 35)) == [
+        zero_based_protocol,
+        one_based_protocol,
+        zero_based_unstranded,
+        zero_based_stranded,
+    ]
+    assert detector.get_overlaps(Interval("chr1", 54, 55)) == [
+        one_based_protocol,
+        zero_based_unstranded,
+        zero_based_stranded,
+    ]
+    assert detector.get_overlaps(Interval("chr1", 61, 62)) == [
+        zero_based_unstranded,
+        zero_based_stranded,
+    ]
+    assert detector.get_overlaps(Interval("chr1", 78, 79)) == [zero_based_stranded]
+    assert detector.get_overlaps(Interval("chr1", 80, 81)) == []
 
 
 def test_the_overlap_detector_wont_accept_a_non_hashable_feature() -> None:
@@ -245,9 +314,11 @@ def test_the_overlap_detector_wont_accept_a_non_hashable_feature() -> None:
 
     @dataclass  # A dataclass missing both `eq` and `frozen` does not implement __hash__.
     class ChromFeature:
-        chrom: str
-        start: int
-        end: int
+        reference_name: str
+        zero_based_start: int
+        zero_based_open_end: int
 
     with pytest.raises(ValueError):
-        OverlapDetector([ChromFeature(chrom="chr1", start=0, end=30)])
+        OverlapDetector(
+            [ChromFeature(reference_name="chr1", zero_based_start=0, zero_based_open_end=30)]
+        )
