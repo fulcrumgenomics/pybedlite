@@ -7,9 +7,9 @@ The :class:`~pybedlite.overlap_detector.OverlapDetector` class detects and retur
 a set of genomic regions and another genomic region.  The overlap detector may contain any
 interval-like Python objects that have the following properties:
 
-  * `reference_name` (str): The reference sequence name
-  * `zero_based_start` (int): A 0-based start position
-  * `zero_based_end` (int): A 0-based exclusive end position
+  * `refname` (str): The reference sequence name
+  * `start` (int): A 0-based start position
+  * `end` (int): A 0-based exclusive end position
 
 This is encapsulated in the :class:`~pybedlite.overlap_detector.GenomicSpan` protocol.
 
@@ -87,15 +87,15 @@ class GenomicSpan(Protocol):
     """
 
     @property
-    def reference_name(self) -> str:
+    def refname(self) -> str:
         """A reference sequence name."""
 
     @property
-    def zero_based_start(self) -> int:
+    def start(self) -> int:
         """A 0-based start position."""
 
     @property
-    def zero_based_open_end(self) -> int:
+    def end(self) -> int:
         """A 0-based open-ended position."""
 
 
@@ -134,6 +134,11 @@ class Interval:
             raise ValueError(f"start is out of range: {self.start}")
         if self.end <= self.start:
             raise ValueError(f"end <= start: {self.end} <= {self.start}")
+
+    @property
+    def is_negative(self) -> bool:
+        """True if the interval is on the negative strand, False otherwise"""
+        return self.negative
 
     def overlap(self, other: "Interval") -> int:
         """Returns the overlap between this interval and the other, or zero if there is none.
@@ -174,25 +179,6 @@ class Interval:
             name=record.name,
         )
 
-    @property
-    def reference_name(self) -> str:
-        return self.refname
-
-    @property
-    def zero_based_start(self) -> int:
-        """A 0-based start position."""
-        return self.start
-
-    @property
-    def zero_based_open_end(self) -> int:
-        """A 0-based open-ended position."""
-        return self.end
-
-    @property
-    def is_negative(self) -> bool:
-        """True if the interval is on the negative strand, False otherwise"""
-        return self.negative
-
 
 GenericGenomicsSpan = TypeVar("GenericGenomicsSpan", bound=Union[GenomicSpan, StrandedGenomicSpan])
 """
@@ -231,7 +217,7 @@ class OverlapDetector(Generic[GenericGenomicsSpan], Iterable[GenericGenomicsSpan
         if not isinstance(interval, Hashable):
             raise ValueError(f"Interval feature is not hashable but should be: {interval}")
 
-        refname = interval.reference_name
+        refname = interval.refname
         if refname not in self._refname_to_tree:
             self._refname_to_tree[refname] = cr.cgranges()  # type: ignore
             self._refname_to_indexed[refname] = False
@@ -244,7 +230,7 @@ class OverlapDetector(Generic[GenericGenomicsSpan], Iterable[GenericGenomicsSpan
 
         # Add the interval to the tree
         tree = self._refname_to_tree[refname]
-        tree.add(refname, interval.zero_based_start, interval.zero_based_open_end, interval_idx)
+        tree.add(refname, interval.start, interval.end, interval_idx)
 
         # Flag this tree as needing to be indexed after adding a new interval, but defer
         # indexing
@@ -269,7 +255,7 @@ class OverlapDetector(Generic[GenericGenomicsSpan], Iterable[GenericGenomicsSpan
             True if and only if the given interval overlaps with any interval in this
             detector.
         """
-        refname = interval.reference_name
+        refname = interval.refname
         tree = self._refname_to_tree.get(refname)
         if tree is None:
             return False
@@ -277,13 +263,7 @@ class OverlapDetector(Generic[GenericGenomicsSpan], Iterable[GenericGenomicsSpan
             if not self._refname_to_indexed[refname]:
                 tree.index()
             try:
-                next(
-                    iter(
-                        tree.overlap(
-                            refname, interval.zero_based_start, interval.zero_based_open_end
-                        )
-                    )
-                )
+                next(iter(tree.overlap(refname, interval.start, interval.end)))
             except StopIteration:
                 return False
             else:
@@ -299,7 +279,7 @@ class OverlapDetector(Generic[GenericGenomicsSpan], Iterable[GenericGenomicsSpan
             The list of intervals in this detector that overlap the given interval, or the empty
             list if no overlaps exist.  The intervals will be return in ascending genomic order.
         """
-        refname = interval.reference_name
+        refname = interval.refname
         tree = self._refname_to_tree.get(refname)
         if tree is None:
             return []
@@ -310,17 +290,15 @@ class OverlapDetector(Generic[GenericGenomicsSpan], Iterable[GenericGenomicsSpan
             # NB: only return unique instances of intervals
             intervals: Set[GenericGenomicsSpan] = {
                 ref_intervals[index]
-                for _, _, index in tree.overlap(
-                    refname, interval.zero_based_start, interval.zero_based_open_end
-                )
+                for _, _, index in tree.overlap(refname, interval.start, interval.end)
             }
             return sorted(
                 intervals,
                 key=lambda intv: (
-                    intv.zero_based_start,
-                    intv.zero_based_open_end,
+                    intv.start,
+                    intv.end,
                     self._is_negative(intv),
-                    intv.reference_name,
+                    intv.refname,
                 ),
             )
 
@@ -330,7 +308,7 @@ class OverlapDetector(Generic[GenericGenomicsSpan], Iterable[GenericGenomicsSpan
 
     def get_enclosing_intervals(self, interval: GenomicSpan) -> List[GenericGenomicsSpan]:
         """Returns the set of intervals in this detector that wholly enclose the query interval.
-        i.e. query.start >= target.start and query.end <= target.end.
+        i.e. `query.start >= target.start` and `query.end <= target.end`.
 
           Args:
               interval: the query interval
@@ -339,12 +317,7 @@ class OverlapDetector(Generic[GenericGenomicsSpan], Iterable[GenericGenomicsSpan
               The intervals will be returned in ascending genomic order.
         """
         results = self.get_overlaps(interval)
-        return [
-            i
-            for i in results
-            if interval.zero_based_start >= i.zero_based_start
-            and interval.zero_based_open_end <= i.zero_based_open_end
-        ]
+        return [i for i in results if interval.start >= i.start and interval.end <= i.end]
 
     def get_enclosed(self, interval: GenomicSpan) -> List[GenericGenomicsSpan]:
         """Returns the set of intervals in this detector that are enclosed by the query
@@ -358,12 +331,7 @@ class OverlapDetector(Generic[GenericGenomicsSpan], Iterable[GenericGenomicsSpan
               The intervals will be return in ascending genomic order.
         """
         results = self.get_overlaps(interval)
-        return [
-            i
-            for i in results
-            if i.zero_based_start >= interval.zero_based_start
-            and i.zero_based_open_end <= interval.zero_based_open_end
-        ]
+        return [i for i in results if i.start >= interval.start and i.end <= interval.end]
 
     @classmethod
     def from_bed(cls, path: Path) -> "OverlapDetector":

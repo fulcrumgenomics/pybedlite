@@ -202,9 +202,9 @@ def test_arbitrary_interval_types() -> None:
 
     @dataclass(eq=True, frozen=True)
     class ZeroBasedOpenEndedProtocol:
-        reference_name: str
-        zero_based_start: int
-        zero_based_open_end: int
+        refname: str
+        start: int
+        end: int
 
         @property
         def is_negative(self) -> bool:
@@ -213,22 +213,17 @@ def test_arbitrary_interval_types() -> None:
     @dataclass(eq=True, frozen=True)
     class OneBasedProtocol:
         contig: str
-        start: int
+        one_based_start: int
         end: int
 
         @property
-        def reference_name(self) -> str:
+        def refname(self) -> str:
             return self.contig
 
         @property
-        def zero_based_start(self) -> int:
+        def start(self) -> int:
             """A 0-based start position."""
-            return self.start - 1
-
-        @property
-        def zero_based_open_end(self) -> int:
-            """A 0-based open-ended position."""
-            return self.end
+            return self.one_based_start - 1
 
         @property
         def is_negative(self) -> bool:
@@ -237,27 +232,33 @@ def test_arbitrary_interval_types() -> None:
 
     @dataclass(eq=True, frozen=True)
     class ZeroBasedUnstranded:
-        reference_name: str
+        refname: str
         zero_based_start: int
-        zero_based_open_end: int
+        end: int
+
+        @property
+        def start(self) -> int:
+            """A 0-based start position."""
+            return self.zero_based_start
 
     @dataclass(eq=True, frozen=True)
     class ZeroBasedStranded:
-        reference_name: str
+        refname: str
         zero_based_start: int
-        zero_based_open_end: int
+        end: int
         is_negative: bool
 
+        @property
+        def start(self) -> int:
+            """A 0-based start position."""
+            return self.zero_based_start
+
     # Create minimal features of all supported structural types
-    zero_based_protocol = ZeroBasedOpenEndedProtocol(
-        reference_name="chr1", zero_based_start=1, zero_based_open_end=50
-    )
-    one_based_protocol = OneBasedProtocol(contig="chr1", start=10, end=60)
-    zero_based_unstranded = ZeroBasedUnstranded(
-        reference_name="chr1", zero_based_start=20, zero_based_open_end=70
-    )
+    zero_based_protocol = ZeroBasedOpenEndedProtocol(refname="chr1", start=1, end=50)
+    one_based_protocol = OneBasedProtocol(contig="chr1", one_based_start=10, end=60)
+    zero_based_unstranded = ZeroBasedUnstranded(refname="chr1", zero_based_start=20, end=70)
     zero_based_stranded = ZeroBasedStranded(
-        reference_name="chr1", zero_based_start=30, zero_based_open_end=80, is_negative=True
+        refname="chr1", zero_based_start=30, end=80, is_negative=True
     )
     # Set up an overlap detector to hold all the features we care about
     AllKinds: TypeAlias = Union[
@@ -314,11 +315,19 @@ def test_the_overlap_detector_wont_accept_a_non_hashable_feature() -> None:
 
     @dataclass  # A dataclass missing both `eq` and `frozen` does not implement __hash__.
     class ChromFeature:
-        reference_name: str
+        refname: str
         zero_based_start: int
-        zero_based_open_end: int
+        end: int
+
+        @property
+        def start(self) -> int:
+            """A 0-based start position."""
+            return self.zero_based_start
+
+        @property
+        def is_negative(self) -> bool:
+            """True if the interval is on the negative strand, False otherwise"""
+            return False
 
     with pytest.raises(ValueError):
-        OverlapDetector(
-            [ChromFeature(reference_name="chr1", zero_based_start=0, zero_based_open_end=30)]
-        )
+        OverlapDetector([ChromFeature(refname="chr1", zero_based_start=0, end=30)])

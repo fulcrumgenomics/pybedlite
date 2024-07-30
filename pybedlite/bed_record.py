@@ -183,19 +183,9 @@ class BedRecord:
         ]
 
     @property
-    def reference_name(self) -> str:
+    def refname(self) -> str:
         """A reference sequence name."""
         return self.chrom
-
-    @property
-    def zero_based_start(self) -> int:
-        """A 0-based start position."""
-        return self.start
-
-    @property
-    def zero_based_open_end(self) -> int:
-        """A 0-based open-ended position."""
-        return self.end
 
     @property
     def is_negative(self) -> bool:
