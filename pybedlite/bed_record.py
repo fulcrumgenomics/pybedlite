@@ -188,7 +188,7 @@ class BedRecord:
         return self.chrom
 
     @property
-    def is_negative(self) -> bool:
+    def negative(self) -> bool:
         """True if the interval is on the negative strand, False otherwise"""
         return self.strand is not None and self.strand == BedStrand.Positive
 

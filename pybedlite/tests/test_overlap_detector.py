@@ -207,7 +207,7 @@ def test_arbitrary_interval_types() -> None:
         end: int
 
         @property
-        def is_negative(self) -> bool:
+        def negative(self) -> bool:
             return False
 
     @dataclass(eq=True, frozen=True)
@@ -226,7 +226,7 @@ def test_arbitrary_interval_types() -> None:
             return self.one_based_start - 1
 
         @property
-        def is_negative(self) -> bool:
+        def negative(self) -> bool:
             """True if the interval is on the negative strand, False otherwise"""
             return False
 
@@ -246,7 +246,7 @@ def test_arbitrary_interval_types() -> None:
         refname: str
         zero_based_start: int
         end: int
-        is_negative: bool
+        negative: bool
 
         @property
         def start(self) -> int:
@@ -258,7 +258,7 @@ def test_arbitrary_interval_types() -> None:
     one_based_protocol = OneBasedProtocol(contig="chr1", one_based_start=10, end=60)
     zero_based_unstranded = ZeroBasedUnstranded(refname="chr1", zero_based_start=20, end=70)
     zero_based_stranded = ZeroBasedStranded(
-        refname="chr1", zero_based_start=30, end=80, is_negative=True
+        refname="chr1", zero_based_start=30, end=80, negative=True
     )
     # Set up an overlap detector to hold all the features we care about
     AllKinds: TypeAlias = Union[
@@ -272,10 +272,10 @@ def test_arbitrary_interval_types() -> None:
     ]
     detector: OverlapDetector[AllKinds] = OverlapDetector(features)
 
-    assert OverlapDetector._is_negative(zero_based_protocol) is False
-    assert OverlapDetector._is_negative(one_based_protocol) is False
-    assert OverlapDetector._is_negative(zero_based_unstranded) is False
-    assert OverlapDetector._is_negative(zero_based_stranded) is True
+    assert OverlapDetector._negative(zero_based_protocol) is False
+    assert OverlapDetector._negative(one_based_protocol) is False
+    assert OverlapDetector._negative(zero_based_unstranded) is False
+    assert OverlapDetector._negative(zero_based_stranded) is True
 
     # Query the overlap detector with yet another type
     assert detector.get_overlaps(Interval("chr1", 0, 1)) == []
@@ -325,7 +325,7 @@ def test_the_overlap_detector_wont_accept_a_non_hashable_feature() -> None:
             return self.zero_based_start
 
         @property
-        def is_negative(self) -> bool:
+        def negative(self) -> bool:
             """True if the interval is on the negative strand, False otherwise"""
             return False
 

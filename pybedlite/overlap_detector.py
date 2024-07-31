@@ -17,7 +17,7 @@ Interval-like Python objects may also contain strandedness information which wil
 for sorting them in :func:`~pybedlite.overlap_detector.OverlapDetector.get_overlaps` using
 the following property if it is present, otherwise assumed to be positive stranded:
 
-  * `is_negative (bool)`: Whether the feature is negative stranded or not
+  * `negative (bool)`: Whether the feature is negative stranded or not
 
 This is encapsulated in the :class:`~pybedlite.overlap_detector.StrandedGenomicSpan` protocol.
 
@@ -101,7 +101,7 @@ class GenomicSpan(Protocol):
 
 class StrandedGenomicSpan(GenomicSpan, Protocol):
     @property
-    def is_negative(self) -> bool:
+    def negative(self) -> bool:
         """True if the interval is on the negative strand, False otherwise"""
 
 
@@ -134,11 +134,6 @@ class Interval:
             raise ValueError(f"start is out of range: {self.start}")
         if self.end <= self.start:
             raise ValueError(f"end <= start: {self.end} <= {self.start}")
-
-    @property
-    def is_negative(self) -> bool:
-        """True if the interval is on the negative strand, False otherwise"""
-        return self.negative
 
     def overlap(self, other: "Interval") -> int:
         """Returns the overlap between this interval and the other, or zero if there is none.
@@ -297,14 +292,14 @@ class OverlapDetector(Generic[GenericGenomicsSpan], Iterable[GenericGenomicsSpan
                 key=lambda intv: (
                     intv.start,
                     intv.end,
-                    self._is_negative(intv),
+                    self._negative(intv),
                     intv.refname,
                 ),
             )
 
     @staticmethod
-    def _is_negative(interval: GenomicSpan) -> bool:
-        return getattr(interval, "is_negative", False)
+    def _negative(interval: GenomicSpan) -> bool:
+        return getattr(interval, "negative", False)
 
     def get_enclosing_intervals(self, interval: GenomicSpan) -> List[GenericGenomicsSpan]:
         """Returns the set of intervals in this detector that wholly enclose the query interval.
