@@ -17,7 +17,8 @@ Interval-like Python objects may also contain strandedness information which wil
 for sorting them in :func:`~pybedlite.overlap_detector.OverlapDetector.get_overlaps` using
 the following property if it is present, otherwise assumed to be positive stranded:
 
-  * `negative (bool)`: Whether the feature is negative stranded or not
+  * `negative (bool)`: True if the span is negatively stranded, False if the interval is
+    unstranded or positively stranded
 
 This is encapsulated in the :class:`~pybedlite.overlap_detector.StrandedGenomicSpan` protocol.
 
@@ -106,7 +107,10 @@ class StrandedGenomicSpan(GenomicSpan, Protocol):
 
     @property
     def negative(self) -> bool:
-        """True if the interval is on the negative strand, False otherwise"""
+        """
+        True if the span is negatively stranded, False if the interval is unstranded or
+        positively stranded.
+        """
 
 
 @attr.s(frozen=True, auto_attribs=True)
@@ -117,7 +121,8 @@ class Interval:
         refname (str): the refname (or chromosome)
         start (int): the 0-based start position
         end (int): the 0-based end position (exclusive)
-        negative (bool): true if the interval is on the negative strand, false otherwise
+        negative (bool): true if the span is negatively stranded, False if the interval is
+            unstranded or positively stranded
         name (Optional[str]): an optional name assigned to the interval
     """
 
@@ -188,7 +193,8 @@ class Interval:
         Construct an `Interval` from a UCSC "position"-formatted string.
 
         The "Position" format (referring to the "1-start, fully-closed" system as coordinates are
-        "positioned" in the browser)
+        "positioned" in the browser):
+
             * Written as: chr1:127140001-127140001
             * The location may optionally be followed by a parenthetically enclosed strand, e.g.
               chr1:127140001-127140001(+).
@@ -197,6 +203,7 @@ class Interval:
               end coordinates.
             * When in this format, the assumption is that the coordinate is **1-start,
               fully-closed.**
+
         https://genome-blog.gi.ucsc.edu/blog/2016/12/12/the-ucsc-genome-browser-coordinate-counting-systems/  # noqa: E501
 
         Note that when the string does not have a specified strand, the `Interval`'s negative
@@ -249,8 +256,9 @@ class OverlapDetector(Generic[GenericGenomicSpan], Iterable[GenericGenomicSpan])
       * `end`: A 0-based exclusive end position
 
     Interval-like Python objects may also contain strandedness information which will be used
-    for sorting them in :func:`~pybedlite.overlap_detector.OverlapDetector.get_overlaps` using
-    the following property if it is present:
+    for sorting the return of :func:`~pybedlite.overlap_detector.OverlapDetector.get_overlaps`. This
+    additional sort key will only be used if the following property on the interval-like object is
+    present:
 
       * `negative (bool)`: Whether or not the feature is negative stranded or not
 
@@ -339,7 +347,13 @@ class OverlapDetector(Generic[GenericGenomicSpan], Iterable[GenericGenomicSpan])
 
         Returns:
             The list of intervals in this detector that overlap the given interval, or the empty
-            list if no overlaps exist.  The intervals will be return in ascending genomic order.
+            list if no overlaps exist. The intervals will be returned sorted using the following
+            sort keys:
+
+                * The interval's start
+                * The interval's end
+                * The interval's strand (if defined)
+                * The interval's reference sequence name
         """
         tree = self._refname_to_tree.get(interval.refname)
         if tree is None:
@@ -365,17 +379,27 @@ class OverlapDetector(Generic[GenericGenomicSpan], Iterable[GenericGenomicSpan])
 
     @staticmethod
     def _negative(interval: GenomicSpan) -> bool:
+        """
+        True if the span is negatively stranded, False if the interval is unstranded or positively
+        stranded.
+        """
         return getattr(interval, "negative", False)
 
     def get_enclosing_intervals(self, interval: GenomicSpan) -> List[GenericGenomicSpan]:
         """Returns the set of intervals in this detector that wholly enclose the query interval.
         i.e. `query.start >= target.start` and `query.end <= target.end`.
 
-          Args:
-              interval: the query interval
-          Returns:
-              The list of intervals in this  detector that enclose the query interval.
-              The intervals will be returned in ascending genomic order.
+        Args:
+            interval: the query interval
+
+        Returns:
+            The list of intervals in this detector that enclose the query interval. The intervals
+            will be returned sorted using the following sort keys:
+
+                * The interval's start
+                * The interval's end
+                * The interval's strand (if defined)
+                * The interval's reference sequence name
         """
         results = self.get_overlaps(interval)
         return [i for i in results if interval.start >= i.start and interval.end <= i.end]
@@ -384,12 +408,17 @@ class OverlapDetector(Generic[GenericGenomicSpan], Iterable[GenericGenomicSpan])
         """Returns the set of intervals in this detector that are enclosed by the query
         interval.  I.e. target.start >= query.start and target.end <= query.end.
 
-          Args:
-              interval: the query interval
+        Args:
+            interval: the query interval
 
-          Returns:
-              The list of intervals in this detector that are enclosed within the query interval.
-              The intervals will be return in ascending genomic order.
+        Returns:
+            The list of intervals in this detector that are enclosed within the query interval.
+            The intervals will be returned sorted using the following sort keys:
+
+                * The interval's start
+                * The interval's end
+                * The interval's strand (if defined)
+                * The interval's reference sequence name
         """
         results = self.get_overlaps(interval)
         return [i for i in results if i.start >= interval.start and i.end <= interval.end]
