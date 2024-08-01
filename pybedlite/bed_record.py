@@ -184,7 +184,7 @@ class BedRecord:
 
     @property
     def refname(self) -> str:
-        """A reference sequence name."""
+        """The reference name of the interval described by the record."""
         return self.chrom
 
     @property

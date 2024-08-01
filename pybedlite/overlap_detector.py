@@ -80,10 +80,9 @@ from pybedlite.bed_record import BedStrand
 from pybedlite.bed_source import BedSource
 
 
-class GenomicSpan(Protocol):
+class GenomicSpan(Hashable, Protocol):
     """
-    A genomic span which has protected methods that must be implemented by all subclasses to give
-    a zero-based open-ended genomic span.
+    A structural type for a span on a reference sequence with zero-based open-ended coordinates.
     """
 
     @property
@@ -100,6 +99,11 @@ class GenomicSpan(Protocol):
 
 
 class StrandedGenomicSpan(GenomicSpan, Protocol):
+    """
+    A structural type for a stranded span on a reference sequence with zero-based open-ended
+    coordinates.
+    """
+
     @property
     def negative(self) -> bool:
         """True if the interval is on the negative strand, False otherwise"""
@@ -177,8 +181,8 @@ class Interval:
 
 GenericGenomicSpan = TypeVar("GenericGenomicSpan", bound=Union[GenomicSpan, StrandedGenomicSpan])
 """
-A generic genomic feature. This type variable is used for describing the
-generic type contained within the :class:`~pybedlite.overlap_detector.OverlapDetector`.
+A generic genomic span. This type variable is used for describing the generic type contained within
+the :class:`~pybedlite.overlap_detector.OverlapDetector`.
 """
 
 
@@ -187,16 +191,16 @@ class OverlapDetector(Generic[GenericGenomicSpan], Iterable[GenericGenomicSpan])
 
     The overlap detector may contain any interval-like Python objects that have the following
     properties:
-      * `chrom` or `contig` or `refname`: The reference sequence name
+
+      * `refname`: The reference sequence name
       * `start`: A 0-based start position
       * `end`: A 0-based exclusive end position
 
     Interval-like Python objects may also contain strandedness information which will be used
     for sorting them in :func:`~pybedlite.overlap_detector.OverlapDetector.get_overlaps` using
-    either of the following properties if they are present:
+    the following property if it is present:
+
       * `negative (bool)`: Whether or not the feature is negative stranded or not
-      * `strand (BedStrand)`: The BED strand of the feature
-      * `strand (str)`: The strand of the feature (`"-"` for negative)
 
     The same interval may be added multiple times, but only a single instance will be returned
     when querying for overlaps.
