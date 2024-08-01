@@ -398,7 +398,7 @@ class OverlapDetector(Generic[GenericGenomicSpan], Iterable[GenericGenomicSpan])
         return [i for i in results if i.start >= interval.start and i.end <= interval.end]
 
     @classmethod
-    def from_bed(cls, path: Path) -> "OverlapDetector":
+    def from_bed(cls, path: Path) -> "OverlapDetector[BedRecord]":
         """Builds a :class:`~pybedlite.overlap_detector.OverlapDetector` from a BED file.
         Args:
             path: the path to the BED file
