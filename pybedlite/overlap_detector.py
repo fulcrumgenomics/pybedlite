@@ -17,7 +17,7 @@ Interval-like Python objects may also contain strandedness information which wil
 for sorting them in :func:`~pybedlite.overlap_detector.OverlapDetector.get_overlaps` using
 the following property if it is present, otherwise assumed to be positive stranded:
 
-  * `negative (bool)`: True if the span is negatively stranded, False if the interval is
+  * `negative (bool)`: True if the interval is negatively stranded, False if the interval is
     unstranded or positively stranded
 
 This is encapsulated in the :class:`~pybedlite.overlap_detector.StrandedGenomicSpan` protocol.
@@ -108,7 +108,7 @@ class StrandedGenomicSpan(GenomicSpan, Protocol):
     @property
     def negative(self) -> bool:
         """
-        True if the span is negatively stranded, False if the interval is unstranded or
+        True if the interval is negatively stranded, False if the interval is unstranded or
         positively stranded.
         """
 
@@ -121,7 +121,7 @@ class Interval:
         refname (str): the refname (or chromosome)
         start (int): the 0-based start position
         end (int): the 0-based end position (exclusive)
-        negative (bool): true if the span is negatively stranded, False if the interval is
+        negative (bool): true if the interval is negatively stranded, False if the interval is
             unstranded or positively stranded
         name (Optional[str]): an optional name assigned to the interval
     """
@@ -380,8 +380,8 @@ class OverlapDetector(Generic[GenericGenomicSpan], Iterable[GenericGenomicSpan])
     @staticmethod
     def _negative(interval: GenomicSpan) -> bool:
         """
-        True if the span is negatively stranded, False if the interval is unstranded or positively
-        stranded.
+        True if the interval is negatively stranded, False if the interval is unstranded or
+        positively stranded.
         """
         return getattr(interval, "negative", False)
 
