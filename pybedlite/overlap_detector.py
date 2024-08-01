@@ -281,24 +281,23 @@ class OverlapDetector(Generic[GenericGenomicSpan], Iterable[GenericGenomicSpan])
         if not isinstance(interval, Hashable):
             raise ValueError(f"Interval feature is not hashable but should be: {interval}")
 
-        refname = interval.refname
-        if refname not in self._refname_to_tree:
-            self._refname_to_tree[refname] = cr.cgranges()  # type: ignore
-            self._refname_to_indexed[refname] = False
-            self._refname_to_intervals[refname] = []
+        if interval.refname not in self._refname_to_tree:
+            self._refname_to_tree[interval.refname] = cr.cgranges()  # type: ignore
+            self._refname_to_indexed[interval.refname] = False
+            self._refname_to_intervals[interval.refname] = []
 
         # Append the interval to the list of intervals for this tree, keeping the index
         # of where it was inserted
-        interval_idx: int = len(self._refname_to_intervals[refname])
-        self._refname_to_intervals[refname].append(interval)
+        interval_idx: int = len(self._refname_to_intervals[interval.refname])
+        self._refname_to_intervals[interval.refname].append(interval)
 
         # Add the interval to the tree
-        tree = self._refname_to_tree[refname]
-        tree.add(refname, interval.start, interval.end, interval_idx)
+        tree = self._refname_to_tree[interval.refname]
+        tree.add(interval.refname, interval.start, interval.end, interval_idx)
 
         # Flag this tree as needing to be indexed after adding a new interval, but defer
         # indexing
-        self._refname_to_indexed[refname] = False
+        self._refname_to_indexed[interval.refname] = False
 
     def add_all(self, intervals: Iterable[GenericGenomicSpan]) -> None:
         """Adds one or more intervals to this detector.
@@ -319,15 +318,14 @@ class OverlapDetector(Generic[GenericGenomicSpan], Iterable[GenericGenomicSpan])
             True if and only if the given interval overlaps with any interval in this
             detector.
         """
-        refname = interval.refname
-        tree = self._refname_to_tree.get(refname)
+        tree = self._refname_to_tree.get(interval.refname)
         if tree is None:
             return False
         else:
-            if not self._refname_to_indexed[refname]:
+            if not self._refname_to_indexed[interval.refname]:
                 tree.index()
             try:
-                next(iter(tree.overlap(refname, interval.start, interval.end)))
+                next(iter(tree.overlap(interval.refname, interval.start, interval.end)))
             except StopIteration:
                 return False
             else:
@@ -343,18 +341,17 @@ class OverlapDetector(Generic[GenericGenomicSpan], Iterable[GenericGenomicSpan])
             The list of intervals in this detector that overlap the given interval, or the empty
             list if no overlaps exist.  The intervals will be return in ascending genomic order.
         """
-        refname = interval.refname
-        tree = self._refname_to_tree.get(refname)
+        tree = self._refname_to_tree.get(interval.refname)
         if tree is None:
             return []
         else:
-            if not self._refname_to_indexed[refname]:
+            if not self._refname_to_indexed[interval.refname]:
                 tree.index()
-            ref_intervals: List[GenericGenomicSpan] = self._refname_to_intervals[refname]
+            ref_intervals: List[GenericGenomicSpan] = self._refname_to_intervals[interval.refname]
             # NB: only return unique instances of intervals
             intervals: Set[GenericGenomicSpan] = {
                 ref_intervals[index]
-                for _, _, index in tree.overlap(refname, interval.start, interval.end)
+                for _, _, index in tree.overlap(interval.refname, interval.start, interval.end)
             }
             return sorted(
                 intervals,
