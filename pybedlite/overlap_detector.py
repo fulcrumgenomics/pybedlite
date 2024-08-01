@@ -24,7 +24,7 @@ This is encapsulated in the :class:`~pybedlite.overlap_detector.StrandedGenomicS
 Examples of Detecting Overlaps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-. code-block:: python
+.. code-block:: python
 
     >>> from pybedlite.overlap_detector import Interval, OverlapDetector
     >>> detector = OverlapDetector()
