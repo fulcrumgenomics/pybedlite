@@ -178,6 +178,58 @@ class Interval:
             name=record.name,
         )
 
+    @classmethod
+    def from_ucsc(
+        cls: Type["Interval"],
+        string: str,
+        name: Optional[str] = None,
+    ) -> "Interval":
+        """
+        Construct an `Interval` from a UCSC "position"-formatted string.
+
+        The "Position" format (referring to the "1-start, fully-closed" system as coordinates are
+        "positioned" in the browser)
+            * Written as: chr1:127140001-127140001
+            * The location may optionally be followed by a parenthetically enclosed strand, e.g.
+              chr1:127140001-127140001(+).
+            * No spaces.
+            * Includes punctuation: a colon after the chromosome, and a dash between the start and
+              end coordinates.
+            * When in this format, the assumption is that the coordinate is **1-start,
+              fully-closed.**
+        https://genome-blog.gi.ucsc.edu/blog/2016/12/12/the-ucsc-genome-browser-coordinate-counting-systems/  # noqa: E501
+
+        Note that when the string does not have a specified strand, the `Interval`'s negative
+        attribute is set to `False`. This mimics the behavior of `OverlapDetector.from_bed()` when
+        reading a record that does not have a specified strand.
+
+        Args:
+            string: The UCSC "position"-formatted string.
+            name: An optional name for the interval.
+
+        Returns:
+            An `Interval` corresponding to the same region specified in the string.
+            Note that the `Interval` is **zero-based open-ended**.
+
+        Raises:
+            ValueError: If the string is not a valid UCSC position-formatted string.
+        """
+        try:
+            if string[-1] == ")":
+                interval, strand = string.rstrip(")").rsplit("(", 1)
+            else:
+                interval, strand = string, "+"
+
+            contig, span = interval.rsplit(":", 1)
+            start, end = span.split("-")
+
+            return Interval(contig, int(start) - 1, int(end), negative=(strand == "-"), name=name)
+
+        except Exception as exception:
+            raise ValueError(
+                f"Not a valid UCSC position-formatted string: {string}"
+            ) from exception
+
 
 GenericGenomicSpan = TypeVar("GenericGenomicSpan", bound=Union[GenomicSpan, StrandedGenomicSpan])
 """
