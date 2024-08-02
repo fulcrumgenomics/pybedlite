@@ -2,25 +2,24 @@
 Utility Classes for Querying Overlaps with Genomic Regions
 ----------------------------------------------------------
 
-
 The :class:`~pybedlite.overlap_detector.OverlapDetector` class detects and returns overlaps between
-a set of regions and another region on a reference. The overlap detector may contain any
-interval-like Python objects that have the following properties:
+a set of regions and another region on a reference. The overlap detector may contain a collection
+of interval-like Python objects that have the following properties:
 
   * `refname` (str): The reference sequence name
   * `start` (int): A 0-based start position
   * `end` (int): A 0-based exclusive end position
 
-This is encapsulated in the :class:`~pybedlite.overlap_detector.Span` protocol.
+This contract is described by the :class:`~pybedlite.overlap_detector.Span` protocol.
 
 Interval-like Python objects may also contain strandedness information which will be used
 for sorting them in :func:`~pybedlite.overlap_detector.OverlapDetector.get_overlaps` using
-the following property if it is present, otherwise assumed to be positive stranded:
+the following property if it is present:
 
   * `negative (bool)`: True if the interval is negatively stranded, False if the interval is
     unstranded or positively stranded
 
-This is encapsulated in the :class:`~pybedlite.overlap_detector.StrandedSpan` protocol.
+This contract is described by the :class:`~pybedlite.overlap_detector.StrandedSpan` protocol.
 
 Examples of Detecting Overlaps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
