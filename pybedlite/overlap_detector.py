@@ -8,7 +8,7 @@ of interval-like Python objects that have the following properties:
 
   * `refname` (str): The reference sequence name
   * `start` (int): A 0-based start position
-  * `end` (int): A 0-based exclusive end position
+  * `end` (int): A 0-based half-open end position
 
 This contract is described by the :class:`~pybedlite.overlap_detector.Span` protocol.
 
@@ -95,7 +95,7 @@ class Span(Hashable, Protocol):
 
     @property
     def end(self) -> int:
-        """A 0-based open-ended position."""
+        """A 0-based open-ended end position."""
 
 
 class StrandedSpan(Span, Protocol):
@@ -119,7 +119,7 @@ class Interval:
     Attributes:
         refname (str): the refname (or chromosome)
         start (int): the 0-based start position
-        end (int): the 0-based end position (exclusive)
+        end (int): the 0-based half-open end position
         negative (bool): true if the interval is negatively stranded, False if the interval is
             unstranded or positively stranded
         name (Optional[str]): an optional name assigned to the interval
@@ -247,19 +247,19 @@ contained within the :class:`~pybedlite.overlap_detector.OverlapDetector`.
 class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
     """Detects and returns overlaps between a set of regions and another region on a reference.
 
-    The overlap detector may contain any interval-like Python objects that have the following
-    properties:
+    The overlap detector may contain a collection of interval-like Python objects that have the
+    following properties:
 
-      * `refname`: The reference sequence name
-      * `start`: A 0-based start position
-      * `end`: A 0-based exclusive end position
+        * `refname` (str): The reference sequence name
+        * `start` (int): A 0-based start position
+        * `end` (int): A 0-based half-open end position
 
     Interval-like Python objects may also contain strandedness information which will be used
-    for sorting the return of :func:`~pybedlite.overlap_detector.OverlapDetector.get_overlaps`. This
-    additional sort key will only be used if the following property on the interval-like object is
-    present:
+    for sorting them in :func:`~pybedlite.overlap_detector.OverlapDetector.get_overlaps` using
+    the following property if it is present:
 
-      * `negative (bool)`: Whether or not the feature is negative stranded or not
+        * `negative (bool)`: True if the interval is negatively stranded, False if the interval is
+            unstranded or positively stranded
 
     The same interval may be added multiple times, but only a single instance will be returned
     when querying for overlaps.
