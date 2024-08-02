@@ -1,9 +1,14 @@
 """Tests for :py:mod:`~pybedlite.overlap_detector`"""
 
+from dataclasses import dataclass
+from pathlib import Path
 from typing import List
+from typing import Union
 
 import pytest
+from typing_extensions import TypeAlias
 
+import pybedlite as pybed
 from pybedlite.bed_record import BedRecord
 from pybedlite.bed_record import BedStrand
 from pybedlite.overlap_detector import Interval
@@ -11,7 +16,7 @@ from pybedlite.overlap_detector import OverlapDetector
 
 
 def run_test(targets: List[Interval], query: Interval, results: List[Interval]) -> None:
-    detector = OverlapDetector()
+    detector: OverlapDetector[Interval] = OverlapDetector()
     # Use add_all() to covert itself and add()
     detector.add_all(intervals=targets)
     # Test overlaps_any()
@@ -115,7 +120,7 @@ def test_get_enclosing_intervals() -> None:
     d = Interval("1", 15, 19)
     e = Interval("1", 16, 20)
 
-    detector = OverlapDetector()
+    detector: OverlapDetector[Interval] = OverlapDetector()
     detector.add_all([a, b, c, d, e])
 
     assert detector.get_enclosing_intervals(Interval("1", 10, 100)) == [a]
@@ -130,7 +135,7 @@ def test_get_enclosed() -> None:
     c = Interval("1", 18, 19)
     d = Interval("1", 50, 99)
 
-    detector = OverlapDetector()
+    detector: OverlapDetector[Interval] = OverlapDetector()
     detector.add_all([a, b, c, d])
 
     assert detector.get_enclosed(Interval("1", 1, 250)) == [a, b, c, d]
@@ -147,7 +152,7 @@ def test_iterable() -> None:
     d = Interval("1", 15, 19)
     e = Interval("1", 16, 20)
 
-    detector = OverlapDetector()
+    detector: OverlapDetector[Interval] = OverlapDetector()
     detector.add_all([a])
     assert list(detector) == [a]
     detector.add_all([a, b, c, d, e])
@@ -216,6 +221,166 @@ def test_construction_from_ucsc_with_strand(strand: str) -> None:
 )
 def test_construction_from_ucsc_other_contigs(contig: str) -> None:
     """
-    `Interval.from_ucsc()` should accomodate non-human, decoy, custom, and other contig names.
+    `Interval.from_ucsc()` should accommodate non-human, decoy, custom, and other contig names.
     """
     assert Interval.from_ucsc(f"{contig}:101-200") == Interval(contig, 100, 200)
+
+
+def test_that_overlap_detector_allows_generic_parameterization() -> None:
+    """
+    Test that the overlap detector allows for generic parameterization.
+    """
+    records = [BedRecord(chrom="chr1", start=1, end=2), BedRecord(chrom="chr1", start=4, end=5)]
+    detector: OverlapDetector[BedRecord] = OverlapDetector(records)
+    overlaps: List[BedRecord] = detector.get_overlaps(Interval("chr1", 1, 2))
+    assert overlaps == [BedRecord(chrom="chr1", start=1, end=2)]
+
+
+def test_arbitrary_interval_types() -> None:
+    """
+    Test that an overlap detector can receive different interval-like objects and query them too.
+    """
+
+    @dataclass(eq=True, frozen=True)
+    class ZeroBasedOpenEndedProtocol:
+        refname: str
+        start: int
+        end: int
+
+        @property
+        def negative(self) -> bool:
+            return False
+
+    @dataclass(eq=True, frozen=True)
+    class OneBasedProtocol:
+        contig: str
+        one_based_start: int
+        end: int
+
+        @property
+        def refname(self) -> str:
+            return self.contig
+
+        @property
+        def start(self) -> int:
+            """A 0-based start position."""
+            return self.one_based_start - 1
+
+        @property
+        def negative(self) -> bool:
+            """True if the interval is on the negative strand, False otherwise"""
+            return False
+
+    @dataclass(eq=True, frozen=True)
+    class ZeroBasedUnstranded:
+        refname: str
+        zero_based_start: int
+        end: int
+
+        @property
+        def start(self) -> int:
+            """A 0-based start position."""
+            return self.zero_based_start
+
+    @dataclass(eq=True, frozen=True)
+    class ZeroBasedStranded:
+        refname: str
+        zero_based_start: int
+        end: int
+        negative: bool
+
+        @property
+        def start(self) -> int:
+            """A 0-based start position."""
+            return self.zero_based_start
+
+    # Create minimal features of all supported structural types
+    zero_based_protocol = ZeroBasedOpenEndedProtocol(refname="chr1", start=1, end=50)
+    one_based_protocol = OneBasedProtocol(contig="chr1", one_based_start=10, end=60)
+    zero_based_unstranded = ZeroBasedUnstranded(refname="chr1", zero_based_start=20, end=70)
+    zero_based_stranded = ZeroBasedStranded(
+        refname="chr1", zero_based_start=30, end=80, negative=True
+    )
+    # Set up an overlap detector to hold all the features we care about
+    AllKinds: TypeAlias = Union[
+        ZeroBasedOpenEndedProtocol, OneBasedProtocol, ZeroBasedUnstranded, ZeroBasedStranded
+    ]
+    features: List[AllKinds] = [
+        zero_based_protocol,
+        one_based_protocol,
+        zero_based_unstranded,
+        zero_based_stranded,
+    ]
+    detector: OverlapDetector[AllKinds] = OverlapDetector(features)
+
+    assert OverlapDetector._negative(zero_based_protocol) is False
+    assert OverlapDetector._negative(one_based_protocol) is False
+    assert OverlapDetector._negative(zero_based_unstranded) is False
+    assert OverlapDetector._negative(zero_based_stranded) is True
+
+    # Query the overlap detector with yet another type
+    assert detector.get_overlaps(Interval("chr1", 0, 1)) == []
+    assert detector.get_overlaps(Interval("chr1", 0, 9)) == [zero_based_protocol]
+    assert detector.get_overlaps(Interval("chr1", 11, 12)) == [
+        zero_based_protocol,
+        one_based_protocol,
+    ]
+    assert detector.get_overlaps(Interval("chr1", 21, 27)) == [
+        zero_based_protocol,
+        one_based_protocol,
+        zero_based_unstranded,
+    ]
+    assert detector.get_overlaps(Interval("chr1", 32, 35)) == [
+        zero_based_protocol,
+        one_based_protocol,
+        zero_based_unstranded,
+        zero_based_stranded,
+    ]
+    assert detector.get_overlaps(Interval("chr1", 54, 55)) == [
+        one_based_protocol,
+        zero_based_unstranded,
+        zero_based_stranded,
+    ]
+    assert detector.get_overlaps(Interval("chr1", 61, 62)) == [
+        zero_based_unstranded,
+        zero_based_stranded,
+    ]
+    assert detector.get_overlaps(Interval("chr1", 78, 79)) == [zero_based_stranded]
+    assert detector.get_overlaps(Interval("chr1", 80, 81)) == []
+
+
+def test_the_overlap_detector_wont_accept_a_non_hashable_feature() -> None:
+    """
+    Test that an overlap detector will not accept a non-hashable feature.
+    """
+
+    @dataclass  # A dataclass missing both `eq` and `frozen` does not implement __hash__.
+    class ChromFeature:
+        refname: str
+        zero_based_start: int
+        end: int
+
+        @property
+        def start(self) -> int:
+            """A 0-based start position."""
+            return self.zero_based_start
+
+    with pytest.raises(TypeError):
+        OverlapDetector([ChromFeature(refname="chr1", zero_based_start=0, end=30)]).get_overlaps(
+            Interval("chr1", 0, 30)
+        )
+
+
+def test_the_overlap_detector_can_be_built_from_a_bed_file(tmp_path: Path) -> None:
+    """
+    Test that the overlap detector can be built from a BED file.
+    """
+    records = [BedRecord(chrom="chr1", start=1, end=2), BedRecord(chrom="chr1", start=4, end=5)]
+
+    bed = tmp_path / "test.bed"
+    with pybed.writer(bed, num_fields=3) as writer:
+        writer.write_all(records)
+
+    detector: OverlapDetector[BedRecord] = OverlapDetector.from_bed(bed)
+    overlaps: List[BedRecord] = detector.get_overlaps(Interval("chr1", 1, 2))
+    assert overlaps == [BedRecord(chrom="chr1", start=1, end=2)]
