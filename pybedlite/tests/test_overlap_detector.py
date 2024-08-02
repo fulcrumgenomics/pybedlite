@@ -224,6 +224,16 @@ def test_construction_from_ucsc_other_contigs(contig: str) -> None:
     assert Interval.from_ucsc(f"{contig}:101-200") == Interval(contig, 100, 200)
 
 
+def test_that_overlap_detector_allows_generic_parameterization() -> None:
+    """
+    Test that the overlap detector allows for generic parameterization.
+    """
+    records = [BedRecord(chrom="chr1", start=1, end=2), BedRecord(chrom="chr1", start=4, end=5)]
+    detector: OverlapDetector[BedRecord] = OverlapDetector(records)
+    overlaps: List[BedRecord] = detector.get_overlaps(Interval("chr1", 1, 2))
+    assert overlaps == [BedRecord(chrom="chr1", start=1, end=2)]
+
+
 def test_arbitrary_interval_types() -> None:
     """
     Test that an overlap detector can receive different interval-like objects and query them too.
