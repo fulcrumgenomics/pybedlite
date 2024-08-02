@@ -189,7 +189,10 @@ class BedRecord:
 
     @property
     def negative(self) -> bool:
-        """True if the interval is on the negative strand, False otherwise"""
+        """
+        True if the interval is negatively stranded, False if the interval is unstranded or
+        positively stranded.
+        """
         return self.strand is BedStrand.Negative
 
     def as_bed_line(self, number_of_output_fields: Optional[int] = None) -> str:
