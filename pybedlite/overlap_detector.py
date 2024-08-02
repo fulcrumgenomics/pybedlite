@@ -346,10 +346,10 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
             list if no overlaps exist. The intervals will be returned sorted using the following
             sort keys:
 
-                * The interval's start
-                * The interval's end
-                * The interval's strand (if defined)
-                * The interval's reference sequence name
+                * The interval's start (ascending)
+                * The interval's end (ascending)
+                * The interval's strand, positive or negative (assumed to be positive if undefined)
+                * The interval's reference sequence name (lexicographically)
         """
         tree = self._refname_to_tree.get(interval.refname)
         if tree is None:
@@ -392,10 +392,10 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
             The list of intervals in this detector that enclose the query interval. The intervals
             will be returned sorted using the following sort keys:
 
-                * The interval's start
-                * The interval's end
-                * The interval's strand (if defined)
-                * The interval's reference sequence name
+                * The interval's start (ascending)
+                * The interval's end (ascending)
+                * The interval's strand, positive or negative (assumed to be positive if undefined)
+                * The interval's reference sequence name (lexicographically)
         """
         results = self.get_overlaps(interval)
         return [i for i in results if interval.start >= i.start and interval.end <= i.end]
@@ -411,10 +411,10 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
             The list of intervals in this detector that are enclosed within the query interval.
             The intervals will be returned sorted using the following sort keys:
 
-                * The interval's start
-                * The interval's end
-                * The interval's strand (if defined)
-                * The interval's reference sequence name
+                * The interval's start (ascending)
+                * The interval's end (ascending)
+                * The interval's strand, positive or negative (assumed to be positive if undefined)
+                * The interval's reference sequence name (lexicographically)
         """
         results = self.get_overlaps(interval)
         return [i for i in results if i.start >= interval.start and i.end <= interval.end]
