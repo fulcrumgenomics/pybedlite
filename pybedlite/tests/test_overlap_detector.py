@@ -1,12 +1,14 @@
 """Tests for :py:mod:`~pybedlite.overlap_detector`"""
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import List
 from typing import Union
 
 import pytest
 from typing_extensions import TypeAlias
 
+import pybedlite as pybed
 from pybedlite.bed_record import BedRecord
 from pybedlite.bed_record import BedStrand
 from pybedlite.overlap_detector import Interval
@@ -363,12 +365,22 @@ def test_the_overlap_detector_wont_accept_a_non_hashable_feature() -> None:
             """A 0-based start position."""
             return self.zero_based_start
 
-        @property
-        def negative(self) -> bool:
-            """True if the interval is on the negative strand, False otherwise"""
-            return False
-
     with pytest.raises(TypeError):
         OverlapDetector([ChromFeature(refname="chr1", zero_based_start=0, end=30)]).get_overlaps(
             Interval("chr1", 0, 30)
         )
+
+
+def test_the_overlap_detector_can_be_built_from_a_bed_file(tmp_path: Path) -> None:
+    """
+    Test that the overlap detector can be built from a BED file.
+    """
+    records = [BedRecord(chrom="chr1", start=1, end=2), BedRecord(chrom="chr1", start=4, end=5)]
+
+    bed = tmp_path / "test.bed"
+    with pybed.writer(bed, num_fields=3) as writer:
+        writer.write_all(records)
+
+    detector: OverlapDetector[BedRecord] = OverlapDetector.from_bed(bed)
+    overlaps: List[BedRecord] = detector.get_overlaps(Interval("chr1", 1, 2))
+    assert overlaps == [BedRecord(chrom="chr1", start=1, end=2)]
