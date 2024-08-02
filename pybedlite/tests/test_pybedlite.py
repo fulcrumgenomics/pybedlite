@@ -213,12 +213,14 @@ def test_bedstrand_opposite() -> None:
     assert BedStrand.Positive.opposite is BedStrand.Negative
     assert BedStrand.Negative.opposite is BedStrand.Positive
 
+
 def test_bedrecord_refname() -> None:
     """Test that the alternate property for reference sequence name is correct."""
-    assert BedRecord("chr1", 1, 2).refname == "chr1"
+    assert BedRecord(chrom="chr1", start=1, end=2).refname == "chr1"
+
 
 def test_bedrecord_negative() -> None:
     """Test that the negative property is set correctly."""
-    assert not BedRecord("chr1", 1, 2, strand=None).negative
-    assert not BedRecord("chr1", 1, 2, strand=BedStrand.Positive).negative
-    assert BedRecord("chr1", 1, 2, strand=BedStrand.Negative).negative
+    assert not BedRecord(chrom="chr1", start=1, end=2, strand=None).negative
+    assert not BedRecord(chrom="chr1", start=1, end=2, strand=BedStrand.Positive).negative
+    assert BedRecord(chrom="chr1", start=1, end=2, strand=BedStrand.Negative).negative
