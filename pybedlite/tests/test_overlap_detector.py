@@ -358,5 +358,7 @@ def test_the_overlap_detector_wont_accept_a_non_hashable_feature() -> None:
             """True if the interval is on the negative strand, False otherwise"""
             return False
 
-    with pytest.raises(ValueError):
-        OverlapDetector([ChromFeature(refname="chr1", zero_based_start=0, end=30)])
+    with pytest.raises(TypeError):
+        OverlapDetector([ChromFeature(refname="chr1", zero_based_start=0, end=30)]).get_overlaps(
+            Interval("chr1", 0, 30)
+        )
