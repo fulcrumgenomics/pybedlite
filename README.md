@@ -8,7 +8,8 @@
 
 ---
 
-[![Python package][python-package-badge]][python-package-link]
+[![Unit tests][tests-badge]][tests-link]
+[![Python versions][python-version-badge]](https://github.com/fulcrumgenomics/python-template)
 [![PyPI version][pypi-badge]][pypi-link]
 [![PyPI download total][pypi-downloads-badge]][pypi-downloads-link]
 
@@ -26,12 +27,14 @@
 [code-coverage-link]:   https://codecov.io/gh/fulcrumgenomics/pybedlite
 [license-badge]:        http://img.shields.io/badge/license-MIT-blue.svg
 [license-link]:         https://github.com/fulcrumgenomics/pybedlite/blob/main/LICENSE
-[python-package-badge]: https://github.com/fulcrumgenomics/pybedlite/workflows/Python%20package/badge.svg
-[python-package-link]:  https://github.com/fulcrumgenomics/pybedlite/actions?query=workflow%3A%22Python+package%22
 [pypi-badge]:           https://badge.fury.io/py/pybedlite.svg
 [pypi-link]:            https://pypi.python.org/pypi/pybedlite
 [pypi-downloads-badge]: https://img.shields.io/pypi/dm/pybedlite
 [pypi-downloads-link]:  https://pypi.python.org/pypi/pybedlite
+[python-version-badge]: https://img.shields.io/badge/python-3.8_|_3.9_|_3.10_|_3.11_|_3.12-blue
+[python-version-link]:  https://codecov.io/gh/fulcrumgenomics/pybedlite
+[tests-badge]:          https://github.com/fulcrumgenomics/pybedlite/workflows/tests/badge.svg
+[tests-link]:           https://github.com/fulcrumgenomics/pybedlite/actions/workflows/tests.yml?query=branch%3Amain
 
 # pybedlite
 
