@@ -69,7 +69,6 @@ commit_parsers = [
     { message = "^.+!:*", group = "Breaking"},
     { message = "^feat*", group = "Features"},
     { message = "^fix*", group = "Bug Fixes"},
-    { message = "^[cC]i*", group = "CI/CD"},
     { message = "^docs*", group = "Documentation"},
     { message = "^perf*", group = "Performance"},
     { message = "^refactor*", group = "Refactor"},
