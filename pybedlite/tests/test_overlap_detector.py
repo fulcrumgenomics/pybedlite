@@ -212,10 +212,9 @@ def test_construction_from_ucsc_with_strand(strand: str) -> None:
     """
     `Interval.from_ucsc()` should correctly parse UCSC position-formatted strings with strands.
     """
+    # false positive lint with flake8 below
     expected_interval = Interval("chr1", 100, 200, negative=(strand == "-"))
-    assert (
-        Interval.from_ucsc(f"chr1:101-200({strand})") == expected_interval
-    )  # noqa: E231  # false positive lint with flake8
+    assert Interval.from_ucsc(f"chr1:101-200({strand})") == expected_interval  # noqa: E231
 
 
 @pytest.mark.parametrize(
@@ -225,9 +224,8 @@ def test_construction_from_ucsc_other_contigs(contig: str) -> None:
     """
     `Interval.from_ucsc()` should accommodate non-human, decoy, custom, and other contig names.
     """
-    assert Interval.from_ucsc(f"{contig}:101-200") == Interval(
-        contig, 100, 200
-    )  # noqa: E231  # false positive lint with flake8
+    # false positive lint with flake8 below
+    assert Interval.from_ucsc(f"{contig}:101-200") == Interval(contig, 100, 200)  # noqa: E231
 
 
 def test_that_overlap_detector_allows_generic_parameterization() -> None:
