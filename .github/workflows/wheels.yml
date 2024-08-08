@@ -1,12 +1,12 @@
-name: Build wheels for multiple platforms
+name: build wheels
 
 on:
-  push:
-    branches: [main]
+  pull_request:
+  workflow_call:
   workflow_dispatch:
 
 jobs:
-  build_wheels:
+  build-wheels:
     name: Build wheels for ${{ matrix.python }}-${{ matrix.platform.target }}_${{ matrix.platform.arch }} on ${{ matrix.platform.os }}
     runs-on: ${{ matrix.platform.os }}
     strategy:
@@ -22,12 +22,12 @@ jobs:
           # These don't work right now - they just hang while pulling the build image from quay.
           # If this doesn't resolve itself, we could try to configure different images:
           # https://cibuildwheel.readthedocs.io/en/stable/options/.
-          #- os: ubuntu-latest
-          #  target: manylinux
-          #  arch: aarch64
-          #- os: ubuntu-latest
-          #  target: musllinux
-          #  arch: aarch64
+          # - os: ubuntu-latest
+          #   target: manylinux
+          #   arch: aarch64
+          # - os: ubuntu-latest
+          #   target: musllinux
+          #   arch: aarch64
           - os: macos-latest
             target: macosx
             arch: x86_64
@@ -40,13 +40,12 @@ jobs:
         with:
           submodules: "true"
 
-      # Used to host cibuildwheel
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: 3.12
 
       - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.15.0
+        run: python -m pip install cibuildwheel==2.20.0
 
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
@@ -55,8 +54,8 @@ jobs:
           CIBW_BUILD: ${{ matrix.python }}-${{ matrix.platform.target }}_${{ matrix.platform.arch }}
           CIBW_BUILD_VERBOSITY: 1
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: pybedlite-wheels-${{ matrix.python }}-${{ matrix.platform.target }}_${{ matrix.platform.arch }}
           path: ./wheelhouse/*.whl
           if-no-files-found: error
