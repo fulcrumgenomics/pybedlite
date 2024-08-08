@@ -24,7 +24,7 @@ classifiers = [
 	"Topic :: Software Development :: Documentation",
 	"Topic :: Software Development :: Libraries :: Python Modules",
 ]
-include = ["LICENSE"]
+include = ["LICENSE", "CONTRIBUTING.md"]
 packages = [{ include = "pybedlite" }, { include = "cgranges" }]
 
 [tool.poetry.dependencies]

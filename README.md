@@ -40,58 +40,21 @@
 
 See documentation on [pybedlite.readthedocs.org][rtd-link].
 
-```
+```bash
 pip install pybedlite
 ```
 OR
-```
+```bash
 conda install -c bioconda pybedlite
 ```
 OR
-```
+```bash
 conda create -n pybedlite pybedlite
 conda activate pybedlite
 ```
 
 [rtd-link]:    http://pybedlite.readthedocs.org/en/stable
 
-**Requires python 3.8+** (for python < 3.8, please use pybedlite <= 0.0.3)
+## Development and Testing
 
-# Getting Setup for Development Work
-
-Clone the repository to your local machine. Note that pybedlite >= 0.0.4 includes [cgranges][cgranges-link] as a submodule, so you must use the `--recurse-submodules` option:
-```
-git clone --recurse-submodules https://github.com/fulcrumgenomics/pybedlite.git
-```
-
-[Poetry][poetry-link] is used to manage the python development environment.
-
-A simple way to create an environment with the desired version of python and poetry is to use [conda][conda-link].  E.g.:
-
-```bash
-conda create -n pybedlite python=3.8 poetry
-conda activate pybedlite
-poetry install
-```
-
-If the methods listed above do not work try the following:
-```bash
-mamba create -n pybedlite -c conda-forge "python=3.9.16" "poetry=1.6.1"
-mamba activate pybedlite
-poetry install
-```
-
-If, during `poetry install` on Mac OS X errors are encountered running gcc/clang to build `pybedtools` or other packages with native code, try setting the following and re-running `poetry install`:
-```bash
-export CFLAGS="-stdlib=libc++"
-``` 
-
-[poetry-link]: https://github.com/python-poetry/poetry
-[conda-link]:  https://docs.conda.io/en/latest/miniconda.html
-[cgranges-link]: https://github.com/lh3/cgranges
-
-## Checking the Build
-### Run all checks with:
-```bash
-./ci/check.sh
-```
+See the [contributing guide](./CONTRIBUTING.md) for more information.
