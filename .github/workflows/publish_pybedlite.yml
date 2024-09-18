@@ -1,4 +1,4 @@
-name: publish
+name: publish pybedlite
 
 on:
   push:
@@ -124,7 +124,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           name: ${{ github.ref_name }}
-          body: |
-            ${{ needs.draft-changelog.outputs.release_body }}
+          body: ${{ needs.make-changelog.outputs.release_body }}
           draft: false
           prerelease: false
