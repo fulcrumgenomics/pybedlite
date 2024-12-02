@@ -8,7 +8,8 @@
 
 ---
 
-[![Python package][python-package-badge]][python-package-link]
+[![Unit tests][tests-badge]][tests-link]
+[![Python versions][python-version-badge]](https://github.com/fulcrumgenomics/python-template)
 [![PyPI version][pypi-badge]][pypi-link]
 [![PyPI download total][pypi-downloads-badge]][pypi-downloads-link]
 
@@ -26,69 +27,34 @@
 [code-coverage-link]:   https://codecov.io/gh/fulcrumgenomics/pybedlite
 [license-badge]:        http://img.shields.io/badge/license-MIT-blue.svg
 [license-link]:         https://github.com/fulcrumgenomics/pybedlite/blob/main/LICENSE
-[python-package-badge]: https://github.com/fulcrumgenomics/pybedlite/workflows/Python%20package/badge.svg
-[python-package-link]:  https://github.com/fulcrumgenomics/pybedlite/actions?query=workflow%3A%22Python+package%22
 [pypi-badge]:           https://badge.fury.io/py/pybedlite.svg
 [pypi-link]:            https://pypi.python.org/pypi/pybedlite
 [pypi-downloads-badge]: https://img.shields.io/pypi/dm/pybedlite
 [pypi-downloads-link]:  https://pypi.python.org/pypi/pybedlite
+[python-version-badge]: https://img.shields.io/badge/python-3.8_|_3.9_|_3.10_|_3.11_|_3.12-blue
+[python-version-link]:  https://codecov.io/gh/fulcrumgenomics/pybedlite
+[tests-badge]:          https://github.com/fulcrumgenomics/pybedlite/workflows/tests/badge.svg
+[tests-link]:           https://github.com/fulcrumgenomics/pybedlite/actions/workflows/tests.yml?query=branch%3Amain
 
 # pybedlite
 
 See documentation on [pybedlite.readthedocs.org][rtd-link].
 
-```
+```bash
 pip install pybedlite
 ```
 OR
-```
+```bash
 conda install -c bioconda pybedlite
 ```
 OR
-```
+```bash
 conda create -n pybedlite pybedlite
 conda activate pybedlite
 ```
 
 [rtd-link]:    http://pybedlite.readthedocs.org/en/stable
 
-**Requires python 3.8+** (for python < 3.8, please use pybedlite <= 0.0.3)
+## Development and Testing
 
-# Getting Setup for Development Work
-
-Clone the repository to your local machine. Note that pybedlite >= 0.0.4 includes [cgranges][cgranges-link] as a submodule, so you must use the `--recurse-submodules` option:
-```
-git clone --recurse-submodules https://github.com/fulcrumgenomics/pybedlite.git
-```
-
-[Poetry][poetry-link] is used to manage the python development environment.
-
-A simple way to create an environment with the desired version of python and poetry is to use [conda][conda-link].  E.g.:
-
-```bash
-conda create -n pybedlite python=3.8 poetry
-conda activate pybedlite
-poetry install
-```
-
-If the methods listed above do not work try the following:
-```bash
-mamba create -n pybedlite -c conda-forge "python=3.9.16" "poetry=1.6.1"
-mamba activate pybedlite
-poetry install
-```
-
-If, during `poetry install` on Mac OS X errors are encountered running gcc/clang to build `pybedtools` or other packages with native code, try setting the following and re-running `poetry install`:
-```bash
-export CFLAGS="-stdlib=libc++"
-``` 
-
-[poetry-link]: https://github.com/python-poetry/poetry
-[conda-link]:  https://docs.conda.io/en/latest/miniconda.html
-[cgranges-link]: https://github.com/lh3/cgranges
-
-## Checking the Build
-### Run all checks with:
-```bash
-./ci/check.sh
-```
+See the [contributing guide](./CONTRIBUTING.md) for more information.

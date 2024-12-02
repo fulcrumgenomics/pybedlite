@@ -24,7 +24,7 @@ classifiers = [
 	"Topic :: Software Development :: Documentation",
 	"Topic :: Software Development :: Libraries :: Python Modules",
 ]
-include = ["LICENSE"]
+include = ["LICENSE", "CONTRIBUTING.md"]
 packages = [{ include = "pybedlite" }, { include = "cgranges" }]
 
 [tool.poetry.dependencies]
@@ -50,3 +50,32 @@ generate-setup-file = true
 [build-system]
 requires = ["poetry-core", "setuptools", "cython"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.git-cliff.changelog]
+header = ""
+trim = true
+body = """
+{% for group, commits in commits | group_by(attribute="group") %}
+    ## {{ group | upper_first }}
+    {% for commit in commits %}
+        - {{ commit.message | upper_first }} ({{ commit.id | truncate(length=8, end="") }})\
+    {% endfor %}
+{% endfor %}\n
+"""
+
+[tool.git-cliff.git]
+conventional_commits = true
+commit_parsers = [
+    { message = "^.+!:*", group = "Breaking"},
+    { message = "^feat*", group = "Features"},
+    { message = "^fix*", group = "Bug Fixes"},
+    { message = "^docs*", group = "Documentation"},
+    { message = "^perf*", group = "Performance"},
+    { message = "^refactor*", group = "Refactor"},
+    { message = "^style*", group = "Styling"},
+    { message = "^test*", group = "Testing"},
+    { message = "^chore\\(release\\):*", skip = true},
+    { message = "^chore*", group = "Miscellaneous Tasks"},
+    { body = ".*security", group = "Security"}
+]
+filter_commits = false
