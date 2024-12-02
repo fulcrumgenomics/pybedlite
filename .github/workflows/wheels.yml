@@ -55,7 +55,7 @@ jobs:
           CIBW_BUILD: ${{ matrix.python }}-${{ matrix.platform.target }}_${{ matrix.platform.arch }}
           CIBW_BUILD_VERBOSITY: 1
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: ./wheelhouse/*.whl
