@@ -44,9 +44,6 @@ pytest-cov = "^4.0.0"
 [tool.poetry.extras]
 docs = ["sphinx"]
 
-[tool.poetry.build]
-generate-setup-file = true
-
 [build-system]
-requires = ["poetry-core", "setuptools", "cython"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
