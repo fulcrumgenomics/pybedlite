@@ -31,6 +31,7 @@ packages = [{ include = "pybedlite" }, { include = "cgranges" }]
 python = "^3.9.0"
 attrs = "^23.0.0"
 sphinx = { version = "^7.0.0", optional = true }
+superintervals = "0.2.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.0.0"

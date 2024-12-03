@@ -67,14 +67,13 @@ from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Protocol
-from typing import Set
 from typing import Type
 from typing import TypeVar
 from typing import Union
 
 import attr
+from superintervals import IntervalSet
 
-import cgranges as cr
 from pybedlite.bed_record import BedRecord
 from pybedlite.bed_record import BedStrand
 from pybedlite.bed_source import BedSource
@@ -269,7 +268,7 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
 
     def __init__(self, intervals: Optional[Iterable[SpanType]] = None) -> None:
         # A mapping from the contig/chromosome name to the associated interval tree
-        self._refname_to_tree: Dict[str, cr.cgranges] = {}  # type: ignore
+        self._refname_to_tree: Dict[str, IntervalSet] = {}
         self._refname_to_indexed: Dict[str, bool] = {}
         self._refname_to_intervals: Dict[str, List[SpanType]] = {}
         if intervals is not None:
@@ -286,7 +285,7 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
             interval: the interval to add to this detector
         """
         if interval.refname not in self._refname_to_tree:
-            self._refname_to_tree[interval.refname] = cr.cgranges()  # type: ignore
+            self._refname_to_tree[interval.refname] = IntervalSet()
             self._refname_to_indexed[interval.refname] = False
             self._refname_to_intervals[interval.refname] = []
 
@@ -295,9 +294,10 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
         interval_idx: int = len(self._refname_to_intervals[interval.refname])
         self._refname_to_intervals[interval.refname].append(interval)
 
-        # Add the interval to the tree
+        # Add the interval to the tree. Note that IntervalSet uses closed intervals whereas we are
+        # using half-open intervals, so add 1 to start
         tree = self._refname_to_tree[interval.refname]
-        tree.add(interval.refname, interval.start, interval.end, interval_idx)
+        tree.add(interval.start + 1, interval.end, interval_idx)
 
         # Flag this tree as needing to be indexed after adding a new interval, but defer
         # indexing
@@ -322,18 +322,38 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
             True if and only if the given interval overlaps with any interval in this
             detector.
         """
-        tree = self._refname_to_tree.get(interval.refname)
+        tree = self._refname_to_tree.get(interval.refname, None)
         if tree is None:
             return False
         else:
             if not self._refname_to_indexed[interval.refname]:
                 tree.index()
-            try:
-                next(iter(tree.overlap(interval.refname, interval.start, interval.end)))
-            except StopIteration:
-                return False
-            else:
-                return True
+                self._refname_to_indexed[interval.refname] = True
+            # IntervalSet uses closed intervals whereas we are using half-open intervals, so add 1
+            # to start
+            return tree.any_overlaps(interval.start + 1, interval.end)
+
+    def iter_overlaps(self, interval: Span) -> Iterator[SpanType]:
+        """Yields any intervals in this detector that overlap the given interval
+
+        Args:
+            interval: the interval to check
+
+        Yields:
+            Intervals in this detector that overlap the given interval, in insertion order.
+        """
+        tree = self._refname_to_tree.get(interval.refname, None)
+        if tree is not None:
+            if not self._refname_to_indexed[interval.refname]:
+                tree.index()
+                self._refname_to_indexed[interval.refname] = True
+            ref_intervals: List[SpanType] = self._refname_to_intervals[interval.refname]
+            # IntervalSet uses closed intervals whereas we are using half-open intervals, so add 1
+            # to start.
+            # Also IntervalSet yields indices in reverse insertion order, so yield intervals in
+            # reverse of indices list.
+            for index in reversed(tree.find_overlaps(interval.start + 1, interval.end)):
+                yield ref_intervals[index]
 
     def get_overlaps(self, interval: Span) -> List[SpanType]:
         """Returns any intervals in this detector that overlap the given interval.
@@ -351,27 +371,15 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
                 * The interval's strand, positive or negative (assumed to be positive if undefined)
                 * The interval's reference sequence name (lexicographically)
         """
-        tree = self._refname_to_tree.get(interval.refname)
-        if tree is None:
-            return []
-        else:
-            if not self._refname_to_indexed[interval.refname]:
-                tree.index()
-            ref_intervals: List[SpanType] = self._refname_to_intervals[interval.refname]
-            # NB: only return unique instances of intervals
-            intervals: Set[SpanType] = {
-                ref_intervals[index]
-                for _, _, index in tree.overlap(interval.refname, interval.start, interval.end)
-            }
-            return sorted(
-                intervals,
-                key=lambda intv: (
-                    intv.start,
-                    intv.end,
-                    self._negative(intv),
-                    intv.refname,
-                ),
-            )
+        return sorted(
+            set(self.iter_overlaps(interval)),
+            key=lambda intv: (
+                intv.start,
+                intv.end,
+                self._negative(intv),
+                intv.refname,
+            ),
+        )
 
     @staticmethod
     def _negative(interval: Span) -> bool:
