@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: "true"
+          submodules: "false"
 
       # Used to host cibuildwheel
       - uses: actions/setup-python@v4

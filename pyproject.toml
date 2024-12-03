@@ -25,7 +25,7 @@ classifiers = [
 	"Topic :: Software Development :: Libraries :: Python Modules",
 ]
 include = ["LICENSE"]
-packages = [{ include = "pybedlite" }, { include = "cgranges" }]
+packages = [{ include = "pybedlite" }]
 
 [tool.poetry.dependencies]
 python = "^3.9.0"
@@ -45,7 +45,6 @@ pytest-cov = "^4.0.0"
 docs = ["sphinx"]
 
 [tool.poetry.build]
-script = "build.py"
 generate-setup-file = true
 
 [build-system]

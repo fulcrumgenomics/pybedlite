@@ -70,9 +70,9 @@ conda activate pybedlite
 
 # Getting Setup for Development Work
 
-Clone the repository to your local machine. Note that pybedlite >= 0.0.4 includes [cgranges][cgranges-link] as a submodule, so you must use the `--recurse-submodules` option:
+Clone the repository to your local machine.
 ```
-git clone --recurse-submodules https://github.com/fulcrumgenomics/pybedlite.git
+git clone https://github.com/fulcrumgenomics/pybedlite.git
 ```
 
 [Poetry][poetry-link] is used to manage the python development environment.
@@ -99,7 +99,6 @@ export CFLAGS="-stdlib=libc++"
 
 [poetry-link]: https://github.com/python-poetry/poetry
 [conda-link]:  https://docs.conda.io/en/latest/miniconda.html
-[cgranges-link]: https://github.com/lh3/cgranges
 
 ## Checking the Build
 ### Run all checks with:
