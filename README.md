@@ -63,7 +63,7 @@ conda activate pybedlite
 
 [rtd-link]:    http://pybedlite.readthedocs.org/en/stable
 
-**Requires python 3.8+** (for python < 3.8, please use pybedlite <= 0.0.3)
+**Requires python 3.9+** 
 
 # Getting Setup for Development Work
 
@@ -77,7 +77,7 @@ git clone --recurse-submodules https://github.com/fulcrumgenomics/pybedlite.git
 A simple way to create an environment with the desired version of python and poetry is to use [conda][conda-link].  E.g.:
 
 ```bash
-conda create -n pybedlite python=3.8 poetry
+conda create -n pybedlite python=3.9 poetry
 conda activate pybedlite
 poetry install
 ```
