@@ -12,7 +12,7 @@ jobs:
       matrix:
         PYTHON_VERSION: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         submodules: 'true'
 
@@ -36,7 +36,7 @@ jobs:
       run: poetry config virtualenvs.in-project true
 
     - name: Set up cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       id: cache
       with:
         path: .venv
