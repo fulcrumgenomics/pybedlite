@@ -2,7 +2,7 @@
 Installation
 ============
 
-**Requires python 3.8+**
+**Requires python 3.9+**
 
 Install with::
 
@@ -17,7 +17,7 @@ Getting Setup
 A simple way to create an environment with the desired version of python and poetry is to use `conda <https://docs.conda.io/en/latest/miniconda.html>`_.
 E.g.::
 
-    conda create -n pybedlite python=3.8 poetry
+    conda create -n pybedlite python=3.9 poetry
     conda activate pybedlite
     poetry install
 
