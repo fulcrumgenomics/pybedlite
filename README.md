@@ -11,6 +11,8 @@
 [![Python package][python-package-badge]][python-package-link]
 [![PyPI version][pypi-badge]][pypi-link]
 [![PyPI download total][pypi-downloads-badge]][pypi-downloads-link]
+[![DOI](https://zenodo.org/badge/442541029.svg)](https://doi.org/10.5281/zenodo.11223166)
+
 
 ---
 
@@ -32,6 +34,8 @@
 [pypi-link]:            https://pypi.python.org/pypi/pybedlite
 [pypi-downloads-badge]: https://img.shields.io/pypi/dm/pybedlite
 [pypi-downloads-link]:  https://pypi.python.org/pypi/pybedlite
+[zenodo-badge]:         https://zenodo.org/badge/442541029.svg
+[zenodo-link]:          https://doi.org/10.5281/zenodo.11223166
 
 # pybedlite
 
