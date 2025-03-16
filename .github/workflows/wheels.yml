@@ -25,10 +25,10 @@ jobs:
           - os: ubuntu-24.04-arm
             target: musllinux
             arch: aarch64
-          - os: macos-latest
+          - os: macos-13
             target: macosx
             arch: x86_64
-          - os: macos-latest
+          - os: macos-15
             target: macosx
             arch: arm64
 
