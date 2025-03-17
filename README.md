@@ -13,7 +13,6 @@
 [![PyPI download total][pypi-downloads-badge]][pypi-downloads-link]
 [![DOI][zenodo-badge]][zenodo-link]
 
-
 ---
 
 [language-badge]:       http://img.shields.io/badge/language-python-brightgreen.svg
