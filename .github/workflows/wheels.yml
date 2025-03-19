@@ -54,6 +54,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: pybedlite-${{ matrix.python }}-${{ matrix.platform.target }}_${{ matrix.platform.arch }}
+          name: pybedlite-${{ matrix.python }}-${{ matrix.platform.target }}_${{ matrix.platform.arch }}.whl
           path: ./wheelhouse/*.whl
           if-no-files-found: error
