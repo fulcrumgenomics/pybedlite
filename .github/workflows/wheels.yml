@@ -1,8 +1,8 @@
 name: Build wheels for multiple platforms
 
 on:
-  push:
-    branches: [main]
+  pull_request:
+  workflow_call:
   workflow_dispatch:
 
 jobs:
@@ -19,19 +19,16 @@ jobs:
           - os: ubuntu-24.04
             target: musllinux
             arch: x86_64
-          # These don't work right now - they just hang while pulling the build image from quay.
-          # If this doesn't resolve itself, we could try to configure different images:
-          # https://cibuildwheel.readthedocs.io/en/stable/options/.
-          #- os: ubuntu-24.04
-          #  target: manylinux
-          #  arch: aarch64
-          #- os: ubuntu-24.04
-          #  target: musllinux
-          #  arch: aarch64
-          - os: macos-latest
+          - os: ubuntu-24.04-arm
+            target: manylinux
+            arch: aarch64
+          - os: ubuntu-24.04-arm
+            target: musllinux
+            arch: aarch64
+          - os: macos-13
             target: macosx
             arch: x86_64
-          - os: macos-latest
+          - os: macos-15
             target: macosx
             arch: arm64
 
@@ -46,7 +43,7 @@ jobs:
           python-version: 3.9
 
       - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.15.0
+        run: python -m pip install cibuildwheel==2.23.1
 
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
@@ -57,6 +54,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: pybedlite-${{ matrix.python }}-${{ matrix.platform.target }}_${{ matrix.platform.arch }}.whl
           path: ./wheelhouse/*.whl
           if-no-files-found: error
