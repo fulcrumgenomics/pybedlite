@@ -333,17 +333,20 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
             # to start
             return tree.any_overlaps(interval.start + 1, interval.end)
 
-    def iter_overlaps(self, interval: Span) -> Iterator[SpanType]:
-        """Yields any intervals in this detector that overlap the given interval
+    def get_raw_overlaps(self, interval: Span) -> list[SpanType]:
+        """Returns any intervals in this detector that overlap the given interval, with no sorting
+        or tests for uniqueness.
 
         Args:
             interval: the interval to check
 
-        Yields:
+        Returns:
             Intervals in this detector that overlap the given interval, in insertion order.
         """
         tree = self._refname_to_tree.get(interval.refname, None)
-        if tree is not None:
+        if tree is None:
+            return []
+        else:
             if not self._refname_to_indexed[interval.refname]:
                 tree.index()
                 self._refname_to_indexed[interval.refname] = True
@@ -352,8 +355,10 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
             # to start.
             # Also IntervalSet yields indices in reverse insertion order, so yield intervals in
             # reverse of indices list.
-            for index in reversed(tree.find_overlaps(interval.start + 1, interval.end)):
-                yield ref_intervals[index]
+            return [
+                ref_intervals[index]
+                for index in reversed(tree.find_overlaps(interval.start + 1, interval.end))
+            ]
 
     def get_overlaps(self, interval: Span) -> List[SpanType]:
         """Returns any intervals in this detector that overlap the given interval.
@@ -362,7 +367,7 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
             interval: the interval to check
 
         Returns:
-            The list of intervals in this detector that overlap the given interval, or the empty
+            The list of intervals in this detector that overlap the given interval, or an empty
             list if no overlaps exist. The intervals will be returned sorted using the following
             sort keys:
 
@@ -372,7 +377,7 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
                 * The interval's reference sequence name (lexicographically)
         """
         return sorted(
-            set(self.iter_overlaps(interval)),
+            set(self.get_raw_overlaps(interval)),
             key=lambda intv: (
                 intv.start,
                 intv.end,
