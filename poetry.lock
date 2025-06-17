@@ -953,12 +953,12 @@ test = ["pytest"]
 
 [[package]]
 name = "superintervals"
-version = "0.2.2"
+version = "0.2.10"
 description = "Rapid interval intersections"
 optional = false
 python-versions = "*"
 files = [
-    {file = "superintervals-0.2.2.tar.gz", hash = "sha256:0810b16eb810171e8869acd364f5e9e8b931f9922eb413de377b13015f9b69b1"},
+    {file = "superintervals-0.2.10.tar.gz", hash = "sha256:a34e3bdfa999c34d912f78a6d4b0842331e809ccbf97554e98480d631e7ce0bf"},
 ]
 
 [package.dependencies]
@@ -1058,4 +1058,4 @@ docs = ["sphinx"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9.0"
-content-hash = "7825862a73c57be8963bc8927bee4eba8be07ba73d067a03ec05047818a3d22c"
+content-hash = "d18b294c8a5fad2af1cdb46a0af7291f7e151c436cb706a841d1a57999a2711d"
