@@ -92,11 +92,6 @@ mamba activate pybedlite
 poetry install
 ```
 
-If, during `poetry install` on Mac OS X errors are encountered running gcc/clang to build `pybedtools` or other packages with native code, try setting the following and re-running `poetry install`:
-```bash
-export CFLAGS="-stdlib=libc++"
-``` 
-
 [poetry-link]: https://github.com/python-poetry/poetry
 [conda-link]:  https://docs.conda.io/en/latest/miniconda.html
 
@@ -104,4 +99,14 @@ export CFLAGS="-stdlib=libc++"
 ### Run all checks with:
 ```bash
 ./ci/check.sh
+```
+
+### Running the exome benchmark
+
+A benchmark is included which loads all known genes from hg38 into the `OverlapDetector`.
+Each gene is then tested against the detector.
+To run the benchmark:
+
+```bash
+poetry run pytest benchmarks --benchmark-only
 ```
