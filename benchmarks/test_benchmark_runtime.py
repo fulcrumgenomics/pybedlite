@@ -1,8 +1,11 @@
 from pathlib import Path
+
 from pytest_benchmark.fixture import BenchmarkFixture
 
-from pybedlite import BedSource, BedRecord
+from pybedlite import BedRecord
+from pybedlite import BedSource
 from pybedlite.overlap_detector import OverlapDetector
+
 
 def test_query_exon_against_exome(benchmark: BenchmarkFixture, known_genes_hg38: Path) -> None:
     detector = OverlapDetector[BedRecord]()

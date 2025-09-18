@@ -1103,6 +1103,21 @@ files = [
 markers = {main = "extra == \"docs\" and python_version < \"3.11\"", dev = "python_full_version <= \"3.11.0a6\""}
 
 [[package]]
+name = "types-requests"
+version = "2.32.4.20250913"
+description = "Typing stubs for requests"
+optional = false
+python-versions = ">=3.9"
+groups = ["dev"]
+files = [
+    {file = "types_requests-2.32.4.20250913-py3-none-any.whl", hash = "sha256:78c9c1fffebbe0fa487a418e0fa5252017e9c60d1a2da394077f1780f655d7e1"},
+    {file = "types_requests-2.32.4.20250913.tar.gz", hash = "sha256:abd6d4f9ce3a9383f269775a9835a4c24e5cd6b9f647d64f88aa4613c33def5d"},
+]
+
+[package.dependencies]
+urllib3 = ">=2"
+
+[[package]]
 name = "typing-extensions"
 version = "4.14.0"
 description = "Backported and Experimental Type Hints for Python 3.9+"
@@ -1159,4 +1174,4 @@ docs = ["sphinx"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9.0"
-content-hash = "4ee05b66ea2db5d4ac77355bb9a3469418aba94c3afb45e909fc2b88b683412d"
+content-hash = "0e1f12d5ccd8d848ba6ac083d3f13571ba111c57275eaa0bf4a8b61809e655c6"
