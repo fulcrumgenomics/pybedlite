@@ -67,6 +67,7 @@ from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Protocol
+from typing import Sized
 from typing import Type
 from typing import TypeVar
 from typing import Union
@@ -243,7 +244,7 @@ contained within the :class:`~pybedlite.overlap_detector.OverlapDetector`.
 """
 
 
-class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
+class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
     """Detects and returns overlaps between a set of regions and another region on a reference.
 
     The overlap detector may contain a collection of interval-like Python objects that have the
@@ -277,6 +278,10 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
     def __iter__(self) -> Iterator[SpanType]:
         """Iterates over the intervals in the overlap detector."""
         return itertools.chain(*self._refname_to_intervals.values())
+
+    def __len__(self) -> int:
+        """Returns the number of intervals in the overlap detector."""
+        return sum(len(spans) for _, spans in self._refname_to_intervals.items())
 
     def add(self, interval: SpanType) -> None:
         """Adds an interval to this detector.
@@ -333,33 +338,6 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
             # to start
             return tree.any_overlaps(interval.start + 1, interval.end)
 
-    def get_raw_overlaps(self, interval: Span) -> list[SpanType]:
-        """Returns any intervals in this detector that overlap the given interval, with no sorting
-        or tests for uniqueness.
-
-        Args:
-            interval: the interval to check
-
-        Returns:
-            Intervals in this detector that overlap the given interval, in insertion order.
-        """
-        tree = self._refname_to_tree.get(interval.refname, None)
-        if tree is None:
-            return []
-        else:
-            if not self._refname_to_indexed[interval.refname]:
-                tree.index()
-                self._refname_to_indexed[interval.refname] = True
-            ref_intervals: List[SpanType] = self._refname_to_intervals[interval.refname]
-            # IntervalSet uses closed intervals whereas we are using half-open intervals, so add 1
-            # to start.
-            # Also IntervalSet yields indices in reverse insertion order, so yield intervals in
-            # reverse of indices list.
-            return [
-                ref_intervals[index]
-                for index in reversed(tree.find_overlaps(interval.start + 1, interval.end))
-            ]
-
     def get_overlaps(self, interval: Span) -> List[SpanType]:
         """Returns any intervals in this detector that overlap the given interval.
 
@@ -376,15 +354,30 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
                 * The interval's strand, positive or negative (assumed to be positive if undefined)
                 * The interval's reference sequence name (lexicographically)
         """
-        return sorted(
-            set(self.get_raw_overlaps(interval)),
-            key=lambda intv: (
-                intv.start,
-                intv.end,
-                self._negative(intv),
-                intv.refname,
-            ),
-        )
+        tree = self._refname_to_tree.get(interval.refname, None)
+        if tree is None:
+            return []
+        else:
+            if not self._refname_to_indexed[interval.refname]:
+                tree.index()
+                self._refname_to_indexed[interval.refname] = True
+            ref_intervals: List[SpanType] = self._refname_to_intervals[interval.refname]
+            # IntervalSet uses closed intervals whereas we are using half-open intervals, so add 1
+            # to start. Also IntervalSet yields indices in reverse insertion order, so yield
+            # intervals in reverse of indices list.
+            overlaps = [
+                ref_intervals[index]
+                for index in reversed(tree.find_overlaps(interval.start + 1, interval.end))
+            ]
+            return sorted(
+                set(overlaps),
+                key=lambda intv: (
+                    intv.start,
+                    intv.end,
+                    self._negative(intv),
+                    intv.refname,
+                ),
+            )
 
     @staticmethod
     def _negative(interval: Span) -> bool:
