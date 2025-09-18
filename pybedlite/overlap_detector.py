@@ -68,6 +68,7 @@ from typing import List
 from typing import Optional
 from typing import Protocol
 from typing import Set
+from typing import Sized
 from typing import Type
 from typing import TypeVar
 from typing import Union
@@ -244,7 +245,7 @@ contained within the :class:`~pybedlite.overlap_detector.OverlapDetector`.
 """
 
 
-class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
+class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
     """Detects and returns overlaps between a set of regions and another region on a reference.
 
     The overlap detector may contain a collection of interval-like Python objects that have the
@@ -278,6 +279,10 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType]):
     def __iter__(self) -> Iterator[SpanType]:
         """Iterates over the intervals in the overlap detector."""
         return itertools.chain(*self._refname_to_intervals.values())
+
+    def __len__(self) -> int:
+        """Returns the number of intervals in the overlap detector."""
+        return sum(len(spans) for _, spans in self._refname_to_intervals.items())
 
     def add(self, interval: SpanType) -> None:
         """Adds an interval to this detector.
