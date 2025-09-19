@@ -384,3 +384,17 @@ def test_the_overlap_detector_can_be_built_from_a_bed_file(tmp_path: Path) -> No
     detector: OverlapDetector[BedRecord] = OverlapDetector.from_bed(bed)
     overlaps: List[BedRecord] = detector.get_overlaps(Interval("chr1", 1, 2))
     assert overlaps == [BedRecord(chrom="chr1", start=1, end=2)]
+
+
+def test_alternating_query_and_adding_intervals() -> None:
+    """Test that we can add intervals and query them in an alternating fashion."""
+    detector: OverlapDetector[Interval] = OverlapDetector()
+
+    query = Interval("1", 10, 15)
+    target1 = Interval("1", 10, 100, name="target1")
+    detector.add(target1)
+    assert detector.get_overlaps(query) == [target1]
+
+    target2 = Interval("1", 11, 101, name="target2")
+    detector.add(target2)
+    assert detector.get_overlaps(query) == [target1, target2]
