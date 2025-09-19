@@ -6,7 +6,7 @@ env:
 
 jobs:
   testing:
-    runs-on: latest
+    runs-on: ubuntu-latest
     environment: github-action-ci
     strategy:
       matrix:
