@@ -34,12 +34,15 @@ sphinx = { version = "^7.0.0", optional = true }
 superintervals = "0.2.10"
 
 [tool.poetry.dev-dependencies]
-pytest = "^7.0.0"
+pytest = "^8.1.0"
 mypy = "^1.5.0"
 flake8 = "^5.0.0"
 black = "^23.0.0"
 isort = "^5.13.0"
+pytest-benchmark = "^5.1.0"
 pytest-cov = "^4.0.0"
+requests = "^2.32.5"
+types-requests = "*"
 
 [tool.poetry.extras]
 docs = ["sphinx"]
