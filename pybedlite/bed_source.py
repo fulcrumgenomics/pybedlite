@@ -73,9 +73,9 @@ class BedSource(ContextManager, Iterable[BedRecord]):
 
     def __exit__(
         self,
-        __exc_type: Type[BaseException] | None,
-        __exc_value: BaseException | None,
-        __traceback: TracebackType | None,
+        __exc_type: Optional[Type[BaseException]],
+        __exc_value: Optional[BaseException],
+        __traceback: Optional[TracebackType],
     ) -> None:
         """Exit this context manager, closing the file."""
         self.close()

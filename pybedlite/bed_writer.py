@@ -60,7 +60,7 @@ class BedWriter(ContextManager):
             self._path = None
             self._file_handle = path
             self._file_is_open = not self._file_handle.closed
-        self.num_fields: int | None = num_fields
+        self.num_fields: Optional[int] = num_fields
 
     def __enter__(self) -> "BedWriter":
         """Enter this context manager, opening the file."""
@@ -68,9 +68,9 @@ class BedWriter(ContextManager):
 
     def __exit__(
         self,
-        __exc_type: Type[BaseException] | None,
-        __exc_value: BaseException | None,
-        __traceback: TracebackType | None,
+        __exc_type: Optional[Type[BaseException]],
+        __exc_value: Optional[BaseException],
+        __traceback: Optional[TracebackType],
     ) -> None:
         """Exit this context manager, closing the file."""
         self.close()
