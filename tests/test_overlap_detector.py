@@ -1,4 +1,4 @@
-"""Tests for :py:mod:`~pybedlite.overlap_detector`"""
+"""Tests for :py:mod:`~pybedlite.overlap_detector`."""
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -163,7 +163,6 @@ def test_conversion_to_interval(bed_records: List[BedRecord]) -> None:
     """
     Test that we can convert a BedRecord to an Interval.
     """
-
     # I don't think pytest.mark.parametrize can accept a fixture and expand over its values.
     # For loop it is.
     for record in bed_records:
@@ -180,7 +179,6 @@ def test_construction_from_interval(bed_records: List[BedRecord]) -> None:
     """
     Test that we can convert a BedRecord to an Interval and back.
     """
-
     # I don't think pytest.mark.parametrize can accept a fixture and expand over its values.
     # For loop it is.
     for record in bed_records:
@@ -268,7 +266,7 @@ def test_arbitrary_interval_types() -> None:
 
         @property
         def negative(self) -> bool:
-            """True if the interval is on the negative strand, False otherwise"""
+            """True if the interval is on the negative strand, False otherwise."""
             return False
 
     @dataclass(eq=True, frozen=True)

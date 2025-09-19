@@ -3,13 +3,10 @@ build:
   tools:
     python: "3.9"
 version: 2
-submodules:
-  include: all
 sphinx:
   configuration: docs/conf.py
 python:
   install:
     - method: pip
       path: .
-      extra_requirements:
-        - docs
+

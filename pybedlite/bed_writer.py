@@ -1,5 +1,5 @@
 """
-Writer class for outputting BedRecords to a file
+Writer class for outputting BedRecords to a file.
 ------------------------------------------------
 
 Module Contents
@@ -10,9 +10,9 @@ The module contains the following public classes:
     - :class:`~pybedtools.bed_source.BedWriter` -- Writer class for writing BED files
 """
 
+from io import TextIOWrapper
 from pathlib import Path
 from types import TracebackType
-from typing import IO
 from typing import ContextManager
 from typing import Iterable
 from typing import Optional
@@ -20,14 +20,14 @@ from typing import Type
 
 from pybedlite.bed_record import BedRecord
 from pybedlite.bed_source import BedPath
-from pybedlite.bed_source import _IOClasses
 
 """Maximum BED fields that can be present in a well formed BED file written to specification"""
 MAX_BED_FIELDS: int = 12
 
 
 class BedWriter(ContextManager):
-    """Writer class for writing BED records to a file.
+    """
+    Writer class for writing BED records to a file.
 
     Attributes:
         num_fields: The number of BED fields to report. Must be between 3 and 12.
@@ -38,44 +38,47 @@ class BedWriter(ContextManager):
         path: BedPath,
         num_fields: Optional[int] = None,
     ) -> None:
-        """Instantiates a BedWriter.
+        """
+        Instantiates a BedWriter.
 
         Args:
-            outfile: Path specifying where to write the BED file output by this class
+            path: Path specifying where to write the BED file output by this class
             num_fields: Number of BED columns to write in BED file
         """
-        assert num_fields is None or (
-            num_fields >= 3 and num_fields <= MAX_BED_FIELDS
-        ), "BED files must contain between 3 and 12 columns"
+        assert num_fields is None or (num_fields >= 3 and num_fields <= MAX_BED_FIELDS), (
+            "BED files must contain between 3 and 12 columns"
+        )
 
         self._path: Optional[Path]
-        self._file_handle: Optional[IO]
+        self._file_handle: Optional[TextIOWrapper]
         self._file_is_open: bool
         if isinstance(path, (str, Path)):
             self._path = Path(path)
             self._file_handle = None
             self._file_is_open = False
-        elif isinstance(path, _IOClasses):
+        elif isinstance(path, TextIOWrapper):
             self._path = None
             self._file_handle = path
             self._file_is_open = not self._file_handle.closed
-        self.num_fields: int = num_fields
+        self.num_fields: int | None = num_fields
 
     def __enter__(self) -> "BedWriter":
+        """Enter this context manager, opening the file."""
         return self.open()
 
     def __exit__(
         self,
-        __exc_type: Type[BaseException],
-        __exc_value: BaseException,
-        __traceback: TracebackType,
+        __exc_type: Type[BaseException] | None,
+        __exc_value: BaseException | None,
+        __traceback: TracebackType | None,
     ) -> None:
+        """Exit this context manager, closing the file."""
         self.close()
 
     def open(self) -> "BedWriter":
         """Opens the BedWriter's file handle."""
-
         if self._file_handle is None or (not self._file_is_open and self._path is not None):
+            assert self._path is not None, "Assertion present to satisfy mypy"
             self._file_handle = self._path.open("w")
             self._file_is_open = True
         else:
@@ -83,16 +86,18 @@ class BedWriter(ContextManager):
         return self
 
     def close(self) -> None:
-        """Closes the BedWriter file. Should be called after all records to write have been
+        """
+        Closes the BedWriter file. Should be called after all records to write have been
         added.
         """
-
         assert self._file_is_open, f"Cannot close file {self._path} if it is not already open!"
         self._file_is_open = False
-        self._file_handle.close()
+        if self._file_handle is not None:
+            self._file_handle.close()
 
     def write(self, record: BedRecord, truncate: bool = False, add_missing: bool = False) -> None:
-        """Writes a single BedRecord to the file.
+        """
+        Writes a single BedRecord to the file.
 
         Args:
             record: the BED record to write to the file.
@@ -104,6 +109,7 @@ class BedWriter(ContextManager):
                 in a padded fashion, with '.' output for the missing fields up to the number of
                 fields written by this writer.
         """
+        assert self._file_handle is not None, "File must be opened before writing to it!"
         if self.num_fields is None:
             self.num_fields = record.bed_field_num
 
@@ -127,7 +133,8 @@ class BedWriter(ContextManager):
     def write_all(
         self, records: Iterable[BedRecord], truncate: bool = False, add_missing: bool = False
     ) -> None:
-        """Writes multiple BedRecords to a file
+        """
+        Writes multiple BedRecords to a file.
 
         Arguments:
             records: the BED records to write to the file (must be iterable)

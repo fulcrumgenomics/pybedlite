@@ -1,52 +1,214 @@
-[tool.poetry]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
 name = "pybedlite"
 version = "1.0.1-dev"
-description = "Python classes for interfacing with bed intervals"
+description = "Lightweight Python interfaces for reading, writing, and querying genomic regions (BED)"
+readme = "README.md"
 authors = [
-	"Nils Homer <nils@fulcrumgenomics.com>",
-	"Tim Fennell <tim@fulcrumgenomics.com>",
-	"John Didion <john@fulcrumgenomics.com>",
+    { name = "Nils Homer", email = "nils@fulcrumgenomics.com"},
+    { name = "Tim Fennell", email = "tim@fulcrumgenomics.com"},
+    { name = "John Didion", email = "john@fulcrumgenomics.com"},
 ]
 license = "MIT"
-readme = "README.md"
-homepage = "https://github.com/fulcrumgenomics/pybedlite"
-repository = "https://github.com/fulcrumgenomics/pybedlite"
-keywords = ["bioinformatics"]
-classifiers = [
-	"Development Status :: 3 - Alpha",
-	"Environment :: Console",
-	"Intended Audience :: Developers",
-	"Intended Audience :: Science/Research",
-	"License :: OSI Approved :: MIT License",
-	"Operating System :: OS Independent",
-	"Programming Language :: Python :: 3",
-	"Topic :: Scientific/Engineering :: Bio-Informatics",
-	"Topic :: Software Development :: Documentation",
-	"Topic :: Software Development :: Libraries :: Python Modules",
-]
 include = ["LICENSE"]
-packages = [{ include = "pybedlite" }]
+requires-python = ">=3.9,<4.0"
+dependencies = [
+    "attrs~=23.0",
+    "superintervals~=0.2.10",
+]
 
-[tool.poetry.dependencies]
-python = "^3.9.0"
-attrs = "^23.0.0"
-sphinx = { version = "^7.0.0", optional = true }
-superintervals = "0.2.10"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Typing :: Typed",
+]
 
-[tool.poetry.dev-dependencies]
-pytest = "^8.1.0"
-mypy = "^1.5.0"
-flake8 = "^5.0.0"
-black = "^23.0.0"
-isort = "^5.13.0"
-pytest-benchmark = "^5.1.0"
-pytest-cov = "^4.0.0"
-requests = "^2.32.5"
-types-requests = "*"
+[project.urls]
+"Bug Tracker" = "https://github.com/fulcrumgenomics/pybedlite/issues"
+"Documentation" = "https://pybedlite.readthedocs.io"
+"Homepage" = "https://github.com/fulcrumgenomics/pybedlite"
+"Repository" = "https://github.com/fulcrumgenomics/pybedlite"
 
-[tool.poetry.extras]
-docs = ["sphinx"]
+[dependency-groups]
+dev = [
+    "ruff ==0.12.3",
+    "mypy ==1.17.0",
+    "poethepoet ~=0.36",
+    "pytest ~=8.4",
+    "pytest-benchmark ~=5.1.0",
+    "pytest-cov ~=4.0",
+    "requests ~=2.32",
+    "sphinx ~=7.0",
+    "types-requests >=2.32.4.20250913",
+]
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+
+[tool.poe.tasks]
+fix-format = "ruff format"
+fix-lint = "ruff check --fix"
+
+fix-all.ignore_fail = "return_non_zero"
+fix-all.sequence = [
+    "fix-format",
+    "fix-lint",
+]
+
+check-lock = "uv lock --check"
+check-format = "ruff format --check --diff"
+check-lint = "ruff check"
+check-tests = "pytest"
+check-typing = "mypy"
+
+check-all.ignore_fail = "return_non_zero"
+check-all.sequence = [
+    "check-lock",
+    "check-format",
+    "check-lint",
+    "check-typing",
+    "check-tests",
+]
+
+fix-and-check-all.ignore_fail = "return_non_zero"
+fix-and-check-all.sequence = [
+    "check-lock",
+    "fix-format",
+    "fix-lint",
+    "check-typing",
+    "check-tests",
+]
+
+[tool.mypy]
+files = ["./"]
+strict_optional = true
+strict_equality = true
+check_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_no_return = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+warn_unused_configs = true
+warn_unused_ignores = true
+enable_error_code = [
+    "ignore-without-code",
+    "possibly-undefined",
+    "exhaustive-match",
+]
+exclude = [
+    "docs/",
+    "site/",
+]
+
+[[tool.mypy.overrides]]
+module = "pytest_benchmark.fixture"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "superintervals"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "7.4"
+addopts = [
+    "--color=yes",
+    "--import-mode=importlib",
+    "--cov"
+]
+markers = ["benchmark: marks tests as benchmarking tests (deselect with '-m \"not benchmark\"')"]
+
+[tool.ruff]
+line-length = 99
+target-version = "py39"
+output-format = "full"
+preview = true
+
+[tool.ruff.lint]
+select = [
+    "A",      # Builtin shadowing
+    "ARG",    # Unused arguments
+    "C901",   # McCabe complexity
+    "B",      # bugbear
+    "D",      # pydocstyle (docstrings. We have the "google" convention enabled)
+    "D204",   # Blank line between class docstring and first (__init__) method
+    "D213",   # Summary line should be located on the line after opening quotes
+    "E",      # pycodestyle errors
+    "LOG",    # flake8-logging
+    "LOG015", # (preview rule) Prohibit calls to the root logger
+    "F",      # pyflakes
+    "I",      # isort
+    "N",      # PEP8 naming
+    "W",      # pycodestyle warnings
+    "Q",      # flake8-quotes
+]
+ignore = [
+    "E203",
+    "E701",
+    "D103",  # missing docstring in public class
+    "D212",  # summary line should be located on the same line as opening quotes
+    "D100",  # missing docstring in public module
+    "D104",  # missing docstring in public package
+    "D200",  # one-line docstring should fit on one line
+    "D205",  # 1 blank line required between summary line and description
+]
+unfixable = ["B"]
+# NB: only preview rules explicitly selected above (e.g. LOG015) will be enforced
+preview = true
+explicit-preview-rules = true
+
+[tool.ruff.lint.isort]
+force-single-line = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.git-cliff.changelog]
+header = "# Changelog"
+body = """
+{% for group, commits in commits | group_by(attribute="group") %}
+    ## {{ group | upper_first }}
+    {% for commit in commits %}
+        - {{ commit.message | upper_first }} ({{ commit.id | truncate(length=8, end="") }})\
+    {% endfor %}
+{% endfor %}\n
+"""
+trim = true
+
+[tool.git-cliff.git]
+# Optionally support conventional commits
+# https://www.conventionalcommits.org
+conventional_commits = true
+# Patterns for parsing and grouping commits
+commit_parsers = [
+    { message = "^.+!:*", group = "Breaking"},
+    { message = "^feat*", group = "Features"},
+    { message = "^fix*", group = "Bug Fixes"},
+    { message = "^docs*", group = "Documentation"},
+    { message = "^perf*", group = "Performance"},
+    { message = "^refactor*", group = "Refactor"},
+    { message = "^style*", group = "Styling"},
+    { message = "^test*", group = "Testing"},
+    { message = "^chore\\(release\\):*", skip = true},
+    { message = "^chore*", group = "Miscellaneous Tasks"},
+    { body = ".*security", group = "Security"}
+]
+# Filter out the commits that are not matched by commit parsers
+filter_commits = false
+# Regex pattern for matching git tags
+tag_pattern = "^[0-9]+\\.[0-9]+\\.[0-9]+$"
