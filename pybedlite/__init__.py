@@ -1,5 +1,5 @@
 """
-Lightweight interfaces for reading and writing BED records
+Lightweight interfaces for reading and writing BED records.
 ----------------------------------------------------------
 
 Examples of Parsing BED files
@@ -61,7 +61,8 @@ from pybedlite.bed_writer import BedWriter
 
 
 def reader(path: BedPath) -> "BedSource":
-    """Returns BED file for reading. File handle will need to be opened with the
+    """
+    Returns BED file for reading. File handle will need to be opened with the.
 
     Args:
         path: a file handle or path to the Bed to read.
@@ -73,7 +74,8 @@ def writer(
     path: BedPath,
     num_fields: Optional[int] = None,
 ) -> "BedWriter":
-    """Returns a BED file for writing.
+    """
+    Returns a BED file for writing.
 
     Args:
         path: a file handle or path to the BED to write.

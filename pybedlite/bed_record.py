@@ -1,5 +1,5 @@
 """
-Lightweight interface for reading and writing BED records
+Lightweight interface for reading and writing BED records.
 ---------------------------------------------------------
 
 Module Contents
@@ -33,6 +33,8 @@ MAX_BED_FIELDS: int = 12
 
 @enum.unique
 class BedStrand(enum.Enum):
+    """Enumerations of strands for BED records."""
+
     Positive = "+"
     Negative = "-"
 
@@ -44,7 +46,8 @@ class BedStrand(enum.Enum):
 
 @attr.s(frozen=True, auto_attribs=True, kw_only=True, slots=True)
 class BedRecord:
-    """Lightweight class for storing BED records. A more comprehensive description of BED format
+    """
+    Lightweight class for storing BED records. A more comprehensive description of BED format
     can be found at https://genome.ucsc.edu/FAQ/FAQformat.html#format1. Only `chrom`, `start`, and
     `end` are required.
 
@@ -87,45 +90,46 @@ class BedRecord:
     ##############
 
     @start.validator
-    def _validate_start(self, attribute: str, value: Optional[int]) -> None:
+    def _validate_start(self, _attribute: str, value: int) -> None:
         assert self.end > value, (
             "End of interval must be greater than start of interval."
             + f" start: {value}, end: {self.end}"
         )
 
     @thick_start.validator
-    def _validate_thick_definitions(self, attribute: str, value: Optional[int]) -> None:
+    def _validate_thick_definitions(self, _attribute: str, value: Optional[int]) -> None:
         if value is None:
             assert self.thick_end is None, "Thick end cannot be defined if thick start is not"
         else:
             assert self.thick_end is not None, "Thick start cannot be defined if thick end is not"
 
     @block_count.validator
-    def _validate_block_counts(self, attribute: str, value: Optional[int]) -> None:
+    def _validate_block_counts(self, _attribute: str, value: Optional[int]) -> None:
         if value is None:
-            assert (
-                self.block_sizes is None
-            ), "Block count must be defined if block sizes is defined"
-            assert (
-                self.block_starts is None
-            ), "Block count must be defined if block starts is defined"
+            assert self.block_sizes is None, (
+                "Block count must be defined if block sizes is defined"
+            )
+            assert self.block_starts is None, (
+                "Block count must be defined if block starts is defined"
+            )
         else:
-            assert (
-                self.block_sizes is not None
-            ), "Block sizes cannot be undefined if block count is defined"
-            assert (
-                self.block_starts is not None
-            ), "Block starts cannot be undefined if block count is defined"
-            assert (
-                len(self.block_sizes) == value
-            ), "Number of items in block_sizes must match block_counts"
-            assert (
-                len(self.block_starts) == value
-            ), "Number of items in block_starts must match block_counts"
+            assert self.block_sizes is not None, (
+                "Block sizes cannot be undefined if block count is defined"
+            )
+            assert self.block_starts is not None, (
+                "Block starts cannot be undefined if block count is defined"
+            )
+            assert len(self.block_sizes) == value, (
+                "Number of items in block_sizes must match block_counts"
+            )
+            assert len(self.block_starts) == value, (
+                "Number of items in block_starts must match block_counts"
+            )
 
     @block_starts.validator
-    def _validate_bounds(self, attribute: str, value: Optional[List[int]]) -> None:
-        if value is not None:
+    def _validate_bounds(self, _attribute: str, value: Optional[List[int]]) -> None:
+        """Validate the bounds of the blocks in this BED record."""
+        if value is not None and self.block_sizes is not None:
             assert 0 == value[0], "Block start at first position should be zero"
             assert self.end == self.start + value[-1] + self.block_sizes[-1], (
                 "overall interval end should be equal to the last defined block's end. "
@@ -135,6 +139,7 @@ class BedRecord:
 
     @property
     def bed_field_num(self) -> int:
+        """The number of BED fields that are defined in this record."""
         if self.block_starts is not None:
             return 12
         elif self.item_rgb is not None:
@@ -153,7 +158,7 @@ class BedRecord:
     @property
     def bed_fields(self) -> List[str]:
         """
-        Converts a BED record to a list of it's BED field string equivalents
+        Converts a BED record to a list of it's BED field string equivalents.
         """
         return [
             self.chrom,
@@ -204,10 +209,9 @@ class BedRecord:
             number_of_output_fields: the number of fields that should be output in the bed line.
                 i.e. if you'd like a BED6 line, this should be set to 6. Etc.
         """
-
-        assert (
-            number_of_output_fields is None or 3 <= number_of_output_fields <= MAX_BED_FIELDS
-        ), "BED records can only contain between 3 and 12 fields"
+        assert number_of_output_fields is None or 3 <= number_of_output_fields <= MAX_BED_FIELDS, (
+            "BED records can only contain between 3 and 12 fields"
+        )
 
         number_of_output_fields = (
             self.bed_field_num if number_of_output_fields is None else number_of_output_fields
@@ -221,8 +225,8 @@ class BedRecord:
         Construct a `BedRecord` from a `Interval` instance.
 
         **Note that `Interval` cannot represent a `BedRecord` with a missing strand.**
-        Converting a record with no strand to `Interval` and then back to `BedRecord` will result in
-        a record with **positive strand**.
+        Converting a record with no strand to `Interval` and then back to `BedRecord` will result
+        in a record with **positive strand**.
 
         Args:
             interval: The `Interval` instance to convert.
@@ -230,7 +234,6 @@ class BedRecord:
         Returns:
             A `BedRecord` corresponding to the same region specified in the interval.
         """
-
         return BedRecord(
             chrom=interval.refname,
             start=interval.start,

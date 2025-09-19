@@ -1,4 +1,4 @@
-"""Tests for :py:mod:`~pybedlite.__init__.py`"""
+"""Tests for :py:mod:`~pybedlite.__init__.py`."""
 
 from pathlib import Path
 from typing import List
@@ -29,9 +29,9 @@ def compare_bed_records(
     num_fields: int = MAX_BED_FIELDS,
 ) -> None:
     assert record1.chrom == record2.chrom, f"Chromosome didn't match in record {record_number}"
-    assert (
-        record1.start == record2.start
-    ), f"Start coordinate didn't match in record {record_number}"
+    assert record1.start == record2.start, (
+        f"Start coordinate didn't match in record {record_number}"
+    )
     assert record1.end == record2.end, f"End coordinate didn't match in record {record_number}"
     if num_fields >= 4:
         assert record1.name == record2.name, f"Name didn't match in record {record_number}"
@@ -40,30 +40,30 @@ def compare_bed_records(
     if num_fields >= 6:
         assert record1.strand == record2.strand, f"Strand didn't match in record {record_number}"
     if num_fields >= 7:
-        assert (
-            record1.thick_start == record2.thick_start
-        ), f"Thick start didn't match in record {record_number}"
-        assert (
-            record1.thick_end == record2.thick_end
-        ), f"Thick end didn't match in record {record_number}"
+        assert record1.thick_start == record2.thick_start, (
+            f"Thick start didn't match in record {record_number}"
+        )
+        assert record1.thick_end == record2.thick_end, (
+            f"Thick end didn't match in record {record_number}"
+        )
     if num_fields >= 9:
-        assert (
-            record1.item_rgb == record2.item_rgb
-        ), f"Item RGB didn't match in record {record_number}"
+        assert record1.item_rgb == record2.item_rgb, (
+            f"Item RGB didn't match in record {record_number}"
+        )
     if num_fields >= 10:
-        assert (
-            record1.block_count == record2.block_count
-        ), f"Block count didn't match in record {record_number}"
-        assert (
-            record1.block_sizes == record2.block_sizes
-        ), f"Block sizes didn't match in record {record_number}"
-        assert (
-            record1.block_starts == record2.block_starts
-        ), f"Block starts didn't match in record {record_number}"
+        assert record1.block_count == record2.block_count, (
+            f"Block count didn't match in record {record_number}"
+        )
+        assert record1.block_sizes == record2.block_sizes, (
+            f"Block sizes didn't match in record {record_number}"
+        )
+        assert record1.block_starts == record2.block_starts, (
+            f"Block starts didn't match in record {record_number}"
+        )
 
-    assert record1.as_bed_line(num_fields) == record2.as_bed_line(
-        num_fields
-    ), f"Derived bed lines differed from expectation in record {record_number}"
+    assert record1.as_bed_line(num_fields) == record2.as_bed_line(num_fields), (
+        f"Derived bed lines differed from expectation in record {record_number}"
+    )
 
 
 @pytest.mark.parametrize(
@@ -150,9 +150,10 @@ def test_bed_writing(tmp_path: Path, bed_field_number: int, bed_records: List[Be
     with test_premade_bed.open("w") as premade_out:
         premade_out.write(SNIPPET_BED)
 
-    with BedSource(test_written_bed) as test_written_in, BedSource(
-        test_premade_bed
-    ) as test_premade_in:
+    with (
+        BedSource(test_written_bed) as test_written_in,
+        BedSource(test_premade_bed) as test_premade_in,
+    ):
         for i, (parsed_record, expected_record) in enumerate(
             zip(test_written_in, test_premade_in)
         ):
@@ -193,9 +194,10 @@ def test_preopened_bed_writing(
     with test_premade_bed.open("w") as premade_out:
         premade_out.write(SNIPPET_BED)
 
-    with BedSource(test_written_bed) as test_written_in, BedSource(
-        test_premade_bed
-    ) as test_premade_in:
+    with (
+        BedSource(test_written_bed) as test_written_in,
+        BedSource(test_premade_bed) as test_premade_in,
+    ):
         for i, (parsed_record, expected_record) in enumerate(
             zip(test_written_in, test_premade_in)
         ):
@@ -209,7 +211,6 @@ def test_preopened_bed_writing(
 
 def test_bedstrand_opposite() -> None:
     """Test that we can reverse a BedStrand."""
-
     assert BedStrand.Positive.opposite is BedStrand.Negative
     assert BedStrand.Negative.opposite is BedStrand.Positive
 

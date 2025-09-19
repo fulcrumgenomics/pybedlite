@@ -1,3 +1,7 @@
+import os
+import sys
+from pathlib import Path
+
 # -*- coding: utf-8 -*-
 #
 # pybedlite documentation build configuration file
@@ -10,12 +14,10 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os, glob
-
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#_libdir = "../build/lib.%s-%s-%s.%s" % (os.uname()[0].lower(), os.uname()[4],
+# _libdir = "../build/lib.%s-%s-%s.%s" % (os.uname()[0].lower(), os.uname()[4],
 #                                        sys.version_info[0], sys.version_info[1])
 _libdir = "../build/lib"
 if os.path.exists(_libdir):
@@ -25,37 +27,39 @@ if os.path.exists(_libdir):
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc',
-              'sphinx.ext.autosummary',
-              'sphinx.ext.todo', 
-              'sphinx.ext.ifconfig',
-              'sphinx.ext.intersphinx',
-              'sphinx.ext.napoleon']
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.todo",
+    "sphinx.ext.ifconfig",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.napoleon",
+]
 
-intersphinx_mapping = {'python': ('http://docs.python.org/3.9', None)}
+intersphinx_mapping = {"python": ("http://docs.python.org/3.9", None)}
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = ".rst"
 
 # The encoding of source files.
-#source_encoding = 'utf-8'
+# source_encoding = 'utf-8'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # General information about the project.
-project = u'pybedlite'
-copyright = u'2021, Fulcrum Genomics'
+project = "pybedlite"
+copyright = "2021, Fulcrum Genomics"  # noqa: A001
 
 # Included at the end of each rst file
-rst_epilog = '''
+rst_epilog = """
 .. _pybedlite: https://github.com/fulcrumgenomics/pybedlite
 .. _python: http://python.org/
 .. _conda: https://conda.io/docs/
-'''
+"""
 
 autosummary_generate = True
 
@@ -63,9 +67,8 @@ autosummary_generate = True
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-from pathlib import Path
-import os
-toml_path = Path(os.path.realpath(__file__)).parent.parent / 'pyproject.toml'
+
+toml_path = Path(os.path.realpath(__file__)).parent.parent / "pyproject.toml"
 with toml_path.open("r") as reader:
     for line in reader:
         if line.startswith("version"):
@@ -91,7 +94,7 @@ release = version
 
 # List of directories, relative to source directory, that shouldn't be searched
 # for source files.
-exclude_trees = ['_build']
+exclude_trees = ["_build"]
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 # default_role = None
@@ -108,17 +111,17 @@ exclude_trees = ['_build']
 # show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # A list of ignored prefixes for module index sorting.
-#modindex_common_prefix = []
+# modindex_common_prefix = []
 
 
 # -- Options for HTML output ---------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  Major themes that come with
 # Sphinx are currently 'default' and 'sphinxdoc'.
-html_theme = 'default'
+html_theme = "default"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -185,7 +188,7 @@ html_static_path = []
 # html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'pybedlitedoc'
+htmlhelp_basename = "pybedlitedoc"
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -199,7 +202,7 @@ htmlhelp_basename = 'pybedlitedoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', 'pybedlite.tex', u'pybedlite documentation', u'Fulcrum Genomics', 'manual'),
+    ("index", "pybedlite.tex", "pybedlite documentation", "Fulcrum Genomics", "manual"),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
