@@ -363,11 +363,10 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
                 self._refname_to_indexed[interval.refname] = True
             ref_intervals: List[SpanType] = self._refname_to_intervals[interval.refname]
             # IntervalSet uses closed intervals whereas we are using half-open intervals, so add 1
-            # to start. Also IntervalSet yields indices in reverse insertion order, so yield
-            # intervals in reverse of indices list.
+            # to start.
             overlaps = [
                 ref_intervals[index]
-                for index in reversed(tree.find_overlaps(interval.start + 1, interval.end))
+                for index in tree.find_overlaps(interval.start + 1, interval.end)
             ]
             return sorted(
                 set(overlaps),
