@@ -299,8 +299,9 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
         interval_idx: int = len(self._refname_to_intervals[interval.refname])
         self._refname_to_intervals[interval.refname].append(interval)
 
-        # Add the interval to the tree. Note that IntervalSet uses closed intervals whereas we are
-        # using half-open intervals, so add 1 to start
+        # Add the interval to the tree.
+        # IntervalSet uses 1-based closed intervals whereas SpanType is 0-based half-open
+        # Add add 1 to start to convert coordinate systems
         tree = self._refname_to_tree[interval.refname]
         tree.add(interval.start + 1, interval.end, interval_idx)
 
@@ -334,8 +335,8 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
             if not self._refname_to_indexed[interval.refname]:
                 tree.index()
                 self._refname_to_indexed[interval.refname] = True
-            # IntervalSet uses closed intervals whereas we are using half-open intervals, so add 1
-            # to start
+            # IntervalSet uses 1-based closed intervals whereas SpanType is 0-based half-open
+            # Add add 1 to start to convert coordinate systems
             return tree.any_overlaps(interval.start + 1, interval.end)
 
     def get_overlaps(self, interval: Span) -> List[SpanType]:
