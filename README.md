@@ -1,13 +1,13 @@
 # pybedlite
 
-[![PyPI Release](https://badge.fury.io/py/pybedlite.svg)](https://badge.fury.io/py/pybedlite)
-[![Install with Bioconda](https://img.shields.io/badge/Install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/recipes/pybedlite/README.html)
 [![CI](https://github.com/fulcrumgenomics/pybedlite/actions/workflows/python_package.yml/badge.svg?branch=main)](https://github.com/fulcrumgenomics/pybedlite/actions/workflows/python_package.yml?query=branch%3Amain)
 [![Python Versions](https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12_|_3.13-blue)](https://github.com/fulcrumgenomics/pybedlite)
 [![MyPy Checked](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://docs.astral.sh/ruff/)
 
+[![PyPI Release](https://badge.fury.io/py/pybedlite.svg)](https://badge.fury.io/py/pybedlite)
+[![Install with Bioconda](https://img.shields.io/badge/Install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/recipes/pybedlite/README.html)
 [![PyPI download total](https://img.shields.io/pypi/dm/pybedlite)](https://pypi.python.org/pypi/pybedlite)
 [![DOI](https://zenodo.org/badge/442541029.svg)](https://doi.org/10.5281/zenodo.11223166)
 
