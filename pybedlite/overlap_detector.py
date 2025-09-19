@@ -281,7 +281,7 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
 
     def __len__(self) -> int:
         """Returns the number of intervals in the overlap detector."""
-        return sum(len(spans) for _, spans in self._refname_to_intervals.items())
+        return sum(map(len, self._refname_to_intervals.values()))
 
     def add(self, interval: SpanType) -> None:
         """Adds an interval to this detector.
