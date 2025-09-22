@@ -82,7 +82,10 @@ class BedSource(ContextManager, Iterable[BedRecord]):
 
     def open(self) -> "BedSource":
         """
-        Opens the BedSources file for reading. Must be called before iterating over the file.
+        Opens the BedSource for reading.
+
+        Must be called before iterating over the file.
+
         Make sure to close when done.
         """
         if self._in_fh is None or (not self._file_is_open and self._path is not None):

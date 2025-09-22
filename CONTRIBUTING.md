@@ -109,23 +109,11 @@ uv run pytest --benchmark
 
 1. Clone the repository recursively, ensure you are on the main branch, and that the working directory is clean.
 2. Check out a new branch to prepare the library for release.
-3. Bump the version of the library to the desired SemVer using [`uv run hatch version`](https://hatch.pypa.io/latest/version/#updating).
-
-    `hatch version` supports updating to a specific version number.
-    For example, to update the project version to `0.2.0`:
-    ```console
-    uv run hatch version "0.2.0"
-
-    ```
-    `hatch version` also supports incrementing the major, minor, or patch segment.
-    For example, to bump the minor version segment:
-    ```console
-    uv run hatch version minor
-    ```
-5. Commit the version bump changes with a Git commit message like `chore(release): bump to #.#.#`.
-6. Push the commit, open a PR, ensure tests pass, and seek reviews.
-7. Squash merge the PR into the `main` branch.
-8. Tag the new commit on the main branch with the bumped version number.
+3. Bump the version of the library to the desired SemVer using [`uv version`](https://docs.astral.sh/uv/reference/cli/#uv-version).
+4. Commit the version bump changes with a Git commit message like `chore(release): bump to #.#.#`.
+5. Push the commit, open a PR, ensure tests pass, and seek reviews.
+6. Squash merge the PR into the `main` branch.
+7. Tag the new commit on the main branch with the bumped version number.
 
 > [!WARNING]
 > The tag **must** be a valid SemVer version number and **must** match the version set by `uv run hatch version` in (3). The [publishing GitHub Action](.github/workflows/publish_pybedlite) is activated by a new tag on the `main` branch containing a valid SemVer version.

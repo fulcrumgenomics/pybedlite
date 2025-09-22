@@ -8,6 +8,7 @@ version = "1.0.1-dev"
 description = "Lightweight Python interfaces for reading, writing, and querying genomic regions (BED)"
 readme = "README.md"
 authors = [
+    { name = "Clint Valentine", email = "clint@fulcrumgenomics.com"},
     { name = "Nils Homer", email = "nils@fulcrumgenomics.com"},
     { name = "Tim Fennell", email = "tim@fulcrumgenomics.com"},
     { name = "John Didion", email = "john@fulcrumgenomics.com"},
@@ -44,8 +45,8 @@ classifiers = [
 
 [dependency-groups]
 dev = [
-    "ruff ==0.12.3",
-    "mypy ==1.17.0",
+    "ruff ==0.13.1",
+    "mypy ==1.18.2",
     "poethepoet ~=0.36",
     "pytest ~=8.4",
     "pytest-benchmark ~=5.1.0",

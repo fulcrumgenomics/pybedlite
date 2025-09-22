@@ -47,9 +47,11 @@ class BedStrand(enum.Enum):
 @attr.s(frozen=True, auto_attribs=True, kw_only=True, slots=True)
 class BedRecord:
     """
-    Lightweight class for storing BED records. A more comprehensive description of BED format
-    can be found at https://genome.ucsc.edu/FAQ/FAQformat.html#format1. Only `chrom`, `start`, and
-    `end` are required.
+    Lightweight class for storing BED records.
+
+    A more comprehensive description of BED format can be found at
+    https://genome.ucsc.edu/FAQ/FAQformat.html#format1. Only `chrom`, `start`, and `end` are
+    required.
 
     Attributes:
         chrom: the reference name of the interval described by the record
@@ -158,7 +160,7 @@ class BedRecord:
     @property
     def bed_fields(self) -> List[str]:
         """
-        Converts a BED record to a list of it's BED field string equivalents.
+        Converts a BED record to a list of its BED field string equivalents.
         """
         return [
             self.chrom,
