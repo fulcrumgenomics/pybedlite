@@ -37,9 +37,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          pushd docs
-          uv run make html
-          popd
+          uv run --directory docs --group docs make html
 
       - name: Upload code coverage
         uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7  # v5.5.1

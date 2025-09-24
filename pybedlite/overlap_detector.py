@@ -1,6 +1,6 @@
 """
 Utility Classes for Querying Overlaps with Genomic Regions.
-----------------------------------------------------------
+-----------------------------------------------------------
 
 The :class:`~pybedlite.overlap_detector.OverlapDetector` class detects and returns overlaps between
 a set of regions and another region on a reference.

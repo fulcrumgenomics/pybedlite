@@ -1,6 +1,6 @@
 """
 Lightweight interfaces for reading and writing BED records.
-----------------------------------------------------------
+-----------------------------------------------------------
 
 Examples of Parsing BED files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

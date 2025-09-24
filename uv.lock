@@ -568,8 +568,10 @@ dev = [
     { name = "pytest-cov" },
     { name = "requests" },
     { name = "ruff" },
-    { name = "sphinx" },
     { name = "types-requests" },
+]
+docs = [
+    { name = "sphinx" },
 ]
 
 [package.metadata]
@@ -587,9 +589,9 @@ dev = [
     { name = "pytest-cov", specifier = "~=4.0" },
     { name = "requests", specifier = "~=2.32" },
     { name = "ruff", specifier = "==0.13.1" },
-    { name = "sphinx", specifier = "~=7.0" },
     { name = "types-requests", specifier = ">=2.32.4.20250913" },
 ]
+docs = [{ name = "sphinx", specifier = "~=7.0" }]
 
 [[package]]
 name = "pygments"

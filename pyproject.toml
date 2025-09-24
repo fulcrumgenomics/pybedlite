@@ -11,7 +11,6 @@ authors = [
     { name = "Clint Valentine", email = "clint@fulcrumgenomics.com"},
     { name = "Nils Homer", email = "nils@fulcrumgenomics.com"},
     { name = "Tim Fennell", email = "tim@fulcrumgenomics.com"},
-    { name = "John Didion", email = "john@fulcrumgenomics.com"},
 ]
 license = "MIT"
 include = ["LICENSE"]
@@ -22,7 +21,7 @@ dependencies = [
 ]
 
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
@@ -52,9 +51,9 @@ dev = [
     "pytest-benchmark ~=5.1.0",
     "pytest-cov ~=4.0",
     "requests ~=2.32",
-    "sphinx ~=7.0",
     "types-requests >=2.32.4.20250913",
 ]
+docs = ["sphinx ~=7.0"]
 
 [tool.poe.tasks]
 fix-format = "ruff format"

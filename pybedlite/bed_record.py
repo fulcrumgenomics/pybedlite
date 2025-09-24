@@ -1,6 +1,6 @@
 """
 Lightweight interface for reading and writing BED records.
----------------------------------------------------------
+----------------------------------------------------------
 
 Module Contents
 ~~~~~~~~~~~~~~~
