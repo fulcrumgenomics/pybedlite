@@ -1,10 +1,12 @@
 """
-Utility Classes for Querying Overlaps with Genomic Regions
-----------------------------------------------------------
+Utility Classes for Querying Overlaps with Genomic Regions.
+-----------------------------------------------------------
 
 The :class:`~pybedlite.overlap_detector.OverlapDetector` class detects and returns overlaps between
-a set of regions and another region on a reference. The overlap detector may contain a collection
-of interval-like Python objects that have the following properties:
+a set of regions and another region on a reference.
+
+The overlap detector may contain a collection of interval-like Python objects that have the
+following properties:
 
   * `refname` (str): The reference sequence name
   * `start` (int): A 0-based start position
@@ -52,9 +54,9 @@ Module Contents
 The module contains the following public classes:
 
     - :class:`~pybedlite.overlap_detector.Interval` -- Represents a region mapping to a reference
-        sequence that is 0-based and open-ended
+        sequence that is 0-based and open-ended.
     - :class:`~pybedlite.overlap_detector.OverlapDetector` -- Detects and returns overlaps between
-        a set of regions and another region on a reference
+        a set of regions and another region on a reference.
 """
 
 import itertools
@@ -71,6 +73,7 @@ from typing import Sized
 from typing import Type
 from typing import TypeVar
 from typing import Union
+from typing import cast
 
 import attr
 from superintervals import IntervalSet
@@ -114,7 +117,8 @@ class StrandedSpan(Span, Protocol):
 
 @attr.s(frozen=True, auto_attribs=True)
 class Interval:
-    """A region mapping to a reference sequence that is 0-based and open-ended
+    """
+    A region mapping to a reference sequence that is 0-based and open-ended.
 
     Attributes:
         refname (str): the refname (or chromosome)
@@ -132,7 +136,8 @@ class Interval:
     name: Optional[str] = None
 
     def __attrs_post_init__(self) -> None:
-        """Performs simple validation.
+        """
+        Performs simple validation.
 
         Checks:
             - 0 <= start
@@ -144,7 +149,8 @@ class Interval:
             raise ValueError(f"end <= start: {self.end} <= {self.start}")
 
     def overlap(self, other: "Interval") -> int:
-        """Returns the overlap between this interval and the other, or zero if there is none.
+        """
+        Returns the overlap between this interval and the other, or zero if there is none.
 
         Args:
             other (Interval): the other interval to find the overlap with
@@ -203,7 +209,7 @@ class Interval:
             * When in this format, the assumption is that the coordinate is **1-start,
               fully-closed.**
 
-        https://genome-blog.gi.ucsc.edu/blog/2016/12/12/the-ucsc-genome-browser-coordinate-counting-systems/  # noqa: E501
+        https://genome-blog.gi.ucsc.edu/blog/2016/12/12/the-ucsc-genome-browser-coordinate-counting-systems/
 
         Note that when the string does not have a specified strand, the `Interval`'s negative
         attribute is set to `False`. This mimics the behavior of `OverlapDetector.from_bed()` when
@@ -219,7 +225,7 @@ class Interval:
 
         Raises:
             ValueError: If the string is not a valid UCSC position-formatted string.
-        """
+        """  # noqa: E501
         try:
             if string[-1] == ")":
                 interval, strand = string.rstrip(")").rsplit("(", 1)
@@ -245,7 +251,8 @@ contained within the :class:`~pybedlite.overlap_detector.OverlapDetector`.
 
 
 class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
-    """Detects and returns overlaps between a set of regions and another region on a reference.
+    """
+    Detects and returns overlaps between a set of regions and another region on a reference.
 
     The overlap detector may contain a collection of interval-like Python objects that have the
     following properties:
@@ -268,6 +275,7 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
     """
 
     def __init__(self, intervals: Optional[Iterable[SpanType]] = None) -> None:
+        """Initialize an overlap detector for the given intervals."""
         # A mapping from the contig/chromosome name to the associated interval tree
         self._refname_to_tree: Dict[str, IntervalSet] = {}
         self._refname_to_indexed: Dict[str, bool] = {}
@@ -284,7 +292,8 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
         return sum(map(len, self._refname_to_intervals.values()))
 
     def add(self, interval: SpanType) -> None:
-        """Adds an interval to this detector.
+        """
+        Adds an interval to this detector.
 
         Args:
             interval: the interval to add to this detector
@@ -310,7 +319,8 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
         self._refname_to_indexed[interval.refname] = False
 
     def add_all(self, intervals: Iterable[SpanType]) -> None:
-        """Adds one or more intervals to this detector.
+        """
+        Adds one or more intervals to this detector.
 
         Args:
             intervals: the intervals to add to this detector
@@ -319,7 +329,8 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
             self.add(interval)
 
     def overlaps_any(self, interval: Span) -> bool:
-        """Determines whether the given interval overlaps any interval in this detector.
+        """
+        Determines whether the given interval overlaps any interval in this detector.
 
         Args:
             interval: the interval to check
@@ -337,10 +348,11 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
                 self._refname_to_indexed[interval.refname] = True
             # IntervalSet uses 1-based closed intervals whereas SpanType is 0-based half-open
             # Add add 1 to start to convert coordinate systems
-            return tree.any_overlaps(interval.start + 1, interval.end)
+            return cast(bool, tree.any_overlaps(interval.start + 1, interval.end))
 
     def get_overlaps(self, interval: Span) -> List[SpanType]:
-        """Returns any intervals in this detector that overlap the given interval.
+        """
+        Returns any intervals in this detector that overlap the given interval.
 
         Args:
             interval: the interval to check
@@ -388,7 +400,8 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
         return getattr(interval, "negative", False)
 
     def get_enclosing_intervals(self, interval: Span) -> List[SpanType]:
-        """Returns the set of intervals in this detector that wholly enclose the query interval.
+        """
+        Returns the set of intervals in this detector that wholly enclose the query interval.
         i.e. `query.start >= target.start` and `query.end <= target.end`.
 
         Args:
@@ -407,7 +420,8 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
         return [i for i in results if interval.start >= i.start and interval.end <= i.end]
 
     def get_enclosed(self, interval: Span) -> List[SpanType]:
-        """Returns the set of intervals in this detector that are enclosed by the query
+        """
+        Returns the set of intervals in this detector that are enclosed by the query
         interval.  I.e. target.start >= query.start and target.end <= query.end.
 
         Args:
@@ -427,7 +441,9 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
 
     @classmethod
     def from_bed(cls, path: Path) -> "OverlapDetector[BedRecord]":
-        """Builds a :class:`~pybedlite.overlap_detector.OverlapDetector` from a BED file.
+        """
+        Builds a :class:`~pybedlite.overlap_detector.OverlapDetector` from a BED file.
+
         Args:
             path: the path to the BED file
         Returns:

@@ -1,112 +1,65 @@
-
-[![Language][language-badge]][language-link]
-[![Code Style][code-style-badge]][code-style-link]
-[![Type Checked][type-checking-badge]][type-checking-link]
-[![PEP8][pep-8-badge]][pep-8-link]
-[![Code Coverage][code-coverage-badge]][code-coverage-link]
-[![License][license-badge]][license-link]
-
----
-
-[![Python package][python-package-badge]][python-package-link]
-[![PyPI version][pypi-badge]][pypi-link]
-[![PyPI download total][pypi-downloads-badge]][pypi-downloads-link]
-[![DOI][zenodo-badge]][zenodo-link]
-
----
-
-[language-badge]:       http://img.shields.io/badge/language-python-brightgreen.svg
-[language-link]:        http://www.python.org/
-[code-style-badge]:     https://img.shields.io/badge/code%20style-black-000000.svg
-[code-style-link]:      https://black.readthedocs.io/en/stable/ 
-[type-checking-badge]:  http://www.mypy-lang.org/static/mypy_badge.svg
-[type-checking-link]:   http://mypy-lang.org/
-[pep-8-badge]:          https://img.shields.io/badge/code%20style-pep8-brightgreen.svg
-[pep-8-link]:           https://www.python.org/dev/peps/pep-0008/
-[code-coverage-badge]:  https://codecov.io/gh/fulcrumgenomics/pybedlite/branch/main/graph/badge.svg
-[code-coverage-link]:   https://codecov.io/gh/fulcrumgenomics/pybedlite
-[license-badge]:        http://img.shields.io/badge/license-MIT-blue.svg
-[license-link]:         https://github.com/fulcrumgenomics/pybedlite/blob/main/LICENSE
-[python-package-badge]: https://github.com/fulcrumgenomics/pybedlite/workflows/Python%20package/badge.svg
-[python-package-link]:  https://github.com/fulcrumgenomics/pybedlite/actions?query=workflow%3A%22Python+package%22
-[pypi-badge]:           https://badge.fury.io/py/pybedlite.svg
-[pypi-link]:            https://pypi.python.org/pypi/pybedlite
-[pypi-downloads-badge]: https://img.shields.io/pypi/dm/pybedlite
-[pypi-downloads-link]:  https://pypi.python.org/pypi/pybedlite
-[zenodo-badge]:         https://zenodo.org/badge/442541029.svg
-[zenodo-link]:          https://doi.org/10.5281/zenodo.11223166
-
 # pybedlite
 
-Lightweight Python interfaces for reading, writing, and querying Genomic Regions (BED).
+[![CI][ci-img]][ci-link]
+[![Python Versions][py-img]][py-link]
+[![MyPy Checked][mypy-img]][mypy-link]
+[![uv][uv-img]][uv-link]
+[![Ruff][ruff-img]][ruff-link]
 
-<p>
-<a href="https://fulcrumgenomics.com"><img src=".github/logos/fulcrumgenomics.svg" alt="Fulcrum Genomics" height="100"/></a>
-</p>
+[![PyPI Release][pypi-img]][pypi-link]
+[![Install with Bioconda][bioconda-img]][bioconda-link]
+[![PyPI download total][downloads-img]][downloads-link]
+[![DOI][doi-img]][doi-link]
 
-[Visit us at Fulcrum Genomics](https://www.fulcrumgenomics.com) to learn more about how we can power your Bioinformatics with pybedlite and beyond.
+[ci-img]: https://github.com/fulcrumgenomics/pybedlite/actions/workflows/python_package.yml/badge.svg?branch=main
+[ci-link]: https://github.com/fulcrumgenomics/pybedlite/actions/workflows/python_package.yml?query=branch%3Amain
+[py-img]: https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12_|_3.13-blue
+[py-link]: https://www.python.org/
+[mypy-img]: http://www.mypy-lang.org/static/mypy_badge.svg
+[mypy-link]: http://mypy-lang.org/
+[uv-img]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json
+[uv-link]: https://docs.astral.sh/uv/
+[ruff-img]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
+[ruff-link]: https://docs.astral.sh/ruff/
 
-<a href="mailto:contact@fulcrumgenomics.com?subject=[GitHub inquiry]"><img src="https://img.shields.io/badge/Email_us-brightgreen.svg?&style=for-the-badge&logo=gmail&logoColor=white"/></a>
-<a href="https://www.fulcrumgenomics.com"><img src="https://img.shields.io/badge/Visit_Us-blue.svg?&style=for-the-badge&logo=wordpress&logoColor=white"/></a>
+[pypi-img]: https://badge.fury.io/py/pybedlite.svg
+[pypi-link]: https://badge.fury.io/py/pybedlite
+[bioconda-img]: https://img.shields.io/badge/Install%20with-bioconda-brightgreen.svg
+[bioconda-link]: http://bioconda.github.io/recipes/pybedlite/README.html
+[downloads-img]: https://img.shields.io/pypi/dm/pybedlite
+[downloads-link]: https://pypi.python.org/pypi/pybedlite
+[doi-img]: https://zenodo.org/badge/442541029.svg
+[doi-link]: https://doi.org/10.5281/zenodo.11223166
 
-See documentation on [pybedlite.readthedocs.org][rtd-link].
+Lightweight Python interfaces for reading, writing, and querying genomic regions (BED).
 
-```
+See documentation on [pybedlite.readthedocs.org](http://pybedlite.readthedocs.org/en/stable).
+
+## Installation
+
+```console
 pip install pybedlite
 ```
-OR
-```
-conda install -c bioconda pybedlite
-```
-OR
-```
-conda create -n pybedlite pybedlite
-conda activate pybedlite
-```
 
-[rtd-link]:    http://pybedlite.readthedocs.org/en/stable
+## Development and Testing
 
-**Requires python 3.9+** 
+See the [contributing guide](./CONTRIBUTING.md) for more information.
 
-# Getting Setup for Development Work
+## Built by Fulcrum
 
-Clone the repository to your local machine.
-```
-git clone https://github.com/fulcrumgenomics/pybedlite.git
-```
+<p>
+  <a href="https://fulcrumgenomics.com">
+    <img src=".github/logos/fulcrumgenomics.svg" alt="Fulcrum Genomics" height="100"/>
+  </a>
+</p>
 
-[Poetry][poetry-link] is used to manage the python development environment.
+[Visit us at Fulcrum Genomics][fulcrum-link] to learn more about how we can power your Bioinformatics with `pybedlite` and beyond.
 
-A simple way to create an environment with the desired version of python and poetry is to use [conda][conda-link].  E.g.:
+<a href="mailto:contact@fulcrumgenomics.com?subject=[GitHub inquiry]">
+  <img src="https://img.shields.io/badge/Email_us-brightgreen.svg?&style=for-the-badge&logo=gmail&logoColor=white"/>
+</a>
+<a href="https://www.fulcrumgenomics.com">
+  <img src="https://img.shields.io/badge/Visit_Us-blue.svg?&style=for-the-badge&logo=wordpress&logoColor=white"/>
+</a>
 
-```bash
-conda create -n pybedlite python=3.9 poetry
-conda activate pybedlite
-poetry install
-```
-
-If the methods listed above do not work try the following:
-```bash
-mamba create -n pybedlite -c conda-forge "python=3.9.16" "poetry=1.6.1"
-mamba activate pybedlite
-poetry install
-```
-
-[poetry-link]: https://github.com/python-poetry/poetry
-[conda-link]:  https://docs.conda.io/en/latest/miniconda.html
-
-## Checking the Build
-### Run all checks with:
-```bash
-./ci/check.sh
-```
-
-### Running the exome benchmark
-
-A benchmark is included which loads all known genes from hg38 into the `OverlapDetector`.
-Each gene is then tested against the detector.
-To run the benchmark:
-
-```bash
-poetry run pytest benchmarks --benchmark-only
-```
+[fulcrum-link]: https://www.fulcrumgenomics.com

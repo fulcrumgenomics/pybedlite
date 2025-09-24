@@ -1,6 +1,6 @@
 """
-Reader class for BED files producing BedRecords
------------------------------------------------
+Reader class for BED files producing BedRecords.
+------------------------------------------------
 
 Module Contents
 ~~~~~~~~~~~~~~~
@@ -11,10 +11,9 @@ The module contains the following public classes:
         over their contained records
 """
 
-import io
+from io import TextIOWrapper
 from pathlib import Path
 from types import TracebackType
-from typing import IO
 from typing import Any
 from typing import Callable
 from typing import ContextManager
@@ -31,17 +30,15 @@ from typing import Union
 from pybedlite.bed_record import BedRecord
 from pybedlite.bed_record import BedStrand
 
-"""The classes that should be treated as file-like classes"""
-_IOClasses = (io.TextIOBase, io.BufferedIOBase, io.RawIOBase, io.IOBase)
-
 """The valid base classes for opening a BED file."""
-BedPath = Union[Path, str, IO[Any]]
+BedPath = Union[Path, str, TextIOWrapper]
 
 T = TypeVar("T")
 
 
 class BedSource(ContextManager, Iterable[BedRecord]):
-    """Reader for BED records stored in a BED file
+    """
+    Reader for BED records stored in a BED file.
 
     Attributes:
         num_fields: the number of BED fields present for records in this file. This will be set to
@@ -52,15 +49,16 @@ class BedSource(ContextManager, Iterable[BedRecord]):
     """
 
     def __init__(self, path: BedPath) -> None:
+        """Initializes a BedSource from a path."""
         self._path: Optional[Path]
-        self._in_fh: Optional[IO]
+        self._in_fh: Optional[TextIOWrapper]
         self._file_is_open: bool
 
         if isinstance(path, (str, Path)):
             self._path = Path(path)
             self._in_fh = None
             self._file_is_open = False
-        elif isinstance(path, _IOClasses):
+        elif isinstance(path, TextIOWrapper):
             self._path = None
             self._in_fh = path
             self._file_is_open = not self._in_fh.closed
@@ -70,21 +68,28 @@ class BedSource(ContextManager, Iterable[BedRecord]):
         self.num_fields: Optional[int] = None
 
     def __enter__(self) -> "BedSource":
+        """Enter this context manager, opening the file."""
         return self.open()
 
     def __exit__(
         self,
-        __exc_type: Type[BaseException],
-        __exc_value: BaseException,
-        __traceback: TracebackType,
+        __exc_type: Optional[Type[BaseException]],
+        __exc_value: Optional[BaseException],
+        __traceback: Optional[TracebackType],
     ) -> None:
+        """Exit this context manager, closing the file."""
         self.close()
 
     def open(self) -> "BedSource":
-        """Opens the BedSources file for reading. Must be called before iterating over the file.
+        """
+        Opens the BedSource for reading.
+
+        Must be called before iterating over the file.
+
         Make sure to close when done.
         """
         if self._in_fh is None or (not self._file_is_open and self._path is not None):
+            assert self._path is not None, "Assertion present to satisfy mypy"
             self._in_fh = self._path.open("r")
             self._file_is_open = True
         else:
@@ -95,21 +100,24 @@ class BedSource(ContextManager, Iterable[BedRecord]):
         """Closes the BedSources file. Should be called after iterating over the file."""
         assert self._file_is_open, f"Cannot close file {self._path} if it is not already open!"
         self._file_is_open = False
-        self._in_fh.close()
+        if self._in_fh is not None:
+            self._in_fh.close()
 
-    def __iter__(self) -> Iterator[BedRecord]:
+    def __iter__(self) -> Iterator[BedRecord]:  # noqa: C901  # method too complex
+        """Iterate over the BED records in the file."""
+
         def helper(fields: List[str], index: int, present_fn: Callable[[str], T]) -> Optional[T]:
             if len(fields) <= index or fields[index] == BedRecord.MissingValue:
                 return None
             return present_fn(fields[index])
 
-        def parse_rgb(x: str) -> Tuple[int, int, int]:
+        def parse_rgb(rgb: str) -> Tuple[int, int, int]:
             # This is fairly verbose for what it's doing, but it makes mypy happy because
             # if converted to a tuple directly there's no bounds on its size.
-            rgb_split = [int(x) for x in fields[8].split(",")]
-            assert (
-                len(rgb_split) == 3
-            ), "item_rgb, if defined, must contain 3 comma separated integers"
+            rgb_split = [int(x) for x in rgb.split(",")]
+            assert len(rgb_split) == 3, (
+                "item_rgb, if defined, must contain 3 comma separated integers"
+            )
             r, g, b = rgb_split
             return (r, g, b)
 
@@ -118,6 +126,10 @@ class BedSource(ContextManager, Iterable[BedRecord]):
             context_managed_by_iterator = True
             self.open()
             self._file_is_open = True
+
+        assert self._file_is_open and self._in_fh is not None, (
+            "File must be opened before iterating over it!"
+        )
 
         for i, line in enumerate(self._in_fh):
             # Skip header lines
