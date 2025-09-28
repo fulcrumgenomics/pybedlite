@@ -75,7 +75,7 @@ from typing import TypeVar
 from typing import Union
 from typing import cast
 
-import attr
+from dataclass import dataclass
 from superintervals import IntervalSet
 
 from pybedlite.bed_record import BedRecord
@@ -115,7 +115,7 @@ class StrandedSpan(Span, Protocol):
         """
 
 
-@attr.s(frozen=True, auto_attribs=True)
+@dataclass(frozen=True)
 class Interval:
     """
     A region mapping to a reference sequence that is 0-based and open-ended.
@@ -129,13 +129,13 @@ class Interval:
         name (Optional[str]): an optional name assigned to the interval
     """
 
-    refname: str = attr.ib()
-    start: int = attr.ib()
-    end: int = attr.ib()
+    refname: str
+    start: int
+    end: int
     negative: bool = False
     name: Optional[str] = None
 
-    def __attrs_post_init__(self) -> None:
+    def __post_init__(self) -> None:
         """
         Performs simple validation.
 
