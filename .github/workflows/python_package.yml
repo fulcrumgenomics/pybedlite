@@ -2,7 +2,9 @@ name: Code checks
 
 on:
   push:
+  pull_request:
   workflow_call:
+  workflow_dispatch:
 
 env:
   UV_VERSION: 0.7.21
