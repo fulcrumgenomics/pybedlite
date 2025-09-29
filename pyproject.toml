@@ -16,7 +16,6 @@ license = "MIT"
 include = ["LICENSE"]
 requires-python = ">=3.9,<4.0"
 dependencies = [
-    "attrs~=23.0",
     "superintervals~=0.2.10",
 ]
 
