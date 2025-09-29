@@ -90,6 +90,7 @@ class BedRecord:
     # Validators #
     ##############
     def __post_init__(self) -> None:
+        """Validate BED record constraints."""
         assert self.end > self.start, (
             "End of interval must be greater than start of interval."
             + f" start: {self.start}, end: {self.end}"
