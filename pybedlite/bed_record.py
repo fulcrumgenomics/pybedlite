@@ -15,14 +15,13 @@ The module contains the following public classes:
 from __future__ import annotations
 
 import enum
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from typing import ClassVar
 from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Type
-
-import attr
 
 if TYPE_CHECKING:
     from pybedlite.overlap_detector import Interval
@@ -44,7 +43,7 @@ class BedStrand(enum.Enum):
         return BedStrand.Positive if self is BedStrand.Negative else BedStrand.Negative
 
 
-@attr.s(frozen=True, auto_attribs=True, kw_only=True, slots=True)
+@dataclass(frozen=True, kw_only=True, slots=True)
 class BedRecord:
     """
     Lightweight class for storing BED records.
@@ -73,41 +72,35 @@ class BedRecord:
     """
 
     chrom: str
-    start: int = attr.ib()
+    start: int
     end: int
     name: Optional[str] = None
     score: Optional[int] = None
     strand: Optional[BedStrand] = None
-    thick_start: Optional[int] = attr.ib(default=None)
+    thick_start: Optional[int] = None
     thick_end: Optional[int] = None
     item_rgb: Optional[Tuple[int, int, int]] = None
-    block_count: Optional[int] = attr.ib(default=None)
+    block_count: Optional[int] = None
     block_sizes: Optional[List[int]] = None
-    block_starts: Optional[List[int]] = attr.ib(default=None)
+    block_starts: Optional[List[int]] = None
 
     MissingValue: ClassVar[str] = "."
 
     ##############
     # Validators #
     ##############
-
-    @start.validator
-    def _validate_start(self, _attribute: str, value: int) -> None:
-        assert self.end > value, (
+    def __post_init__(self) -> None:
+        assert self.end > self.start, (
             "End of interval must be greater than start of interval."
-            + f" start: {value}, end: {self.end}"
+            + f" start: {self.start}, end: {self.end}"
         )
 
-    @thick_start.validator
-    def _validate_thick_definitions(self, _attribute: str, value: Optional[int]) -> None:
-        if value is None:
+        if self.thick_start is None:
             assert self.thick_end is None, "Thick end cannot be defined if thick start is not"
         else:
             assert self.thick_end is not None, "Thick start cannot be defined if thick end is not"
 
-    @block_count.validator
-    def _validate_block_counts(self, _attribute: str, value: Optional[int]) -> None:
-        if value is None:
+        if self.block_count is None:
             assert self.block_sizes is None, (
                 "Block count must be defined if block sizes is defined"
             )
@@ -121,21 +114,18 @@ class BedRecord:
             assert self.block_starts is not None, (
                 "Block starts cannot be undefined if block count is defined"
             )
-            assert len(self.block_sizes) == value, (
+            assert len(self.block_sizes) == self.block_count, (
                 "Number of items in block_sizes must match block_counts"
             )
-            assert len(self.block_starts) == value, (
+            assert len(self.block_starts) == self.block_count, (
                 "Number of items in block_starts must match block_counts"
             )
 
-    @block_starts.validator
-    def _validate_bounds(self, _attribute: str, value: Optional[List[int]]) -> None:
-        """Validate the bounds of the blocks in this BED record."""
-        if value is not None and self.block_sizes is not None:
-            assert 0 == value[0], "Block start at first position should be zero"
-            assert self.end == self.start + value[-1] + self.block_sizes[-1], (
+        if self.block_starts is not None and self.block_sizes is not None:
+            assert 0 == self.block_starts[0], "Block start at first position should be zero"
+            assert self.end == self.start + self.block_starts[-1] + self.block_sizes[-1], (
                 "overall interval end should be equal to the last defined block's end. "
-                + f"Last block end: {self.start + value[-1] + self.block_sizes[-1]}, "
+                + f"Last block end: {self.start + self.block_starts[-1] + self.block_sizes[-1]}, "
                 + f"Interval end: {self.end}"
             )
 

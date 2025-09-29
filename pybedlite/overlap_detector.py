@@ -60,6 +60,7 @@ The module contains the following public classes:
 """
 
 import itertools
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict
 from typing import Generic
@@ -75,7 +76,6 @@ from typing import TypeVar
 from typing import Union
 from typing import cast
 
-from dataclass import dataclass
 from superintervals import IntervalSet
 
 from pybedlite.bed_record import BedRecord
