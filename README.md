@@ -13,7 +13,7 @@
 
 [ci-img]: https://github.com/fulcrumgenomics/pybedlite/actions/workflows/python_package.yml/badge.svg?branch=main
 [ci-link]: https://github.com/fulcrumgenomics/pybedlite/actions/workflows/python_package.yml?query=branch%3Amain
-[py-img]: https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12_|_3.13-blue
+[py-img]: https://img.shields.io/badge/python-3.10_|_3.11_|_3.12_|_3.13-blue
 [py-link]: https://www.python.org/
 [mypy-img]: http://www.mypy-lang.org/static/mypy_badge.svg
 [mypy-link]: http://mypy-lang.org/
