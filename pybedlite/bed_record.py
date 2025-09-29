@@ -43,7 +43,7 @@ class BedStrand(enum.Enum):
         return BedStrand.Positive if self is BedStrand.Negative else BedStrand.Negative
 
 
-@dataclass(frozen=True, kw_only=True, slots=True)
+@dataclass(frozen=True, slots=True)
 class BedRecord:
     """
     Lightweight class for storing BED records.
