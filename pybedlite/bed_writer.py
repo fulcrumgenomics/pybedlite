@@ -1,6 +1,6 @@
 """
 Writer class for outputting BedRecords to a file.
---------------------------------------------------
+-------------------------------------------------
 
 Module Contents
 ~~~~~~~~~~~~~~~
@@ -130,7 +130,8 @@ class BedWriter(ContextManager):
                 + f"number of fields observed: {record.bed_field_num}"
             )
 
-        assert self._file_handle is not None, "File must be opened before writing!"
+        if self._file_handle is None:
+            raise ValueError("File must be opened before writing!")
         self._file_handle.write(f"{record.as_bed_line(number_of_output_fields=self.num_fields)}\n")
 
     def write_all(

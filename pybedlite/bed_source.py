@@ -138,7 +138,8 @@ class BedSource(ContextManager, Iterable[BedRecord]):
             self.open()
             self._file_is_open = True
 
-        assert self._in_fh is not None, "File must be opened before iterating over it!"
+        if self._in_fh is None:
+            raise ValueError("File must be opened before iterating over it!")
         for i, line in enumerate(self._in_fh):
             # Skip header lines
             if line.startswith("#") or line.startswith("browser") or line.startswith("track"):
