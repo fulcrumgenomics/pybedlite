@@ -27,7 +27,8 @@ MAX_BED_FIELDS: int = 12
 
 
 class BedWriter(ContextManager):
-    """Writer class for writing BED records to a file.
+    """
+    Writer class for writing BED records to a file.
 
     Attributes:
         num_fields: The number of BED fields to report. Must be between 3 and 12.
@@ -38,7 +39,8 @@ class BedWriter(ContextManager):
         path: BedPath,
         num_fields: Optional[int] = None,
     ) -> None:
-        """Instantiates a BedWriter.
+        """
+        Instantiate a BedWriter.
 
         Args:
             path: Path specifying where to write the BED file output by this class
@@ -61,6 +63,7 @@ class BedWriter(ContextManager):
         self.num_fields: Optional[int] = num_fields
 
     def __enter__(self) -> "BedWriter":
+        """Enter context manager and open the file."""
         return self.open()
 
     def __exit__(
@@ -69,10 +72,11 @@ class BedWriter(ContextManager):
         __exc_value: Optional[BaseException],
         __traceback: Optional[TracebackType],
     ) -> None:
+        """Exit context manager and close the file."""
         self.close()
 
     def open(self) -> "BedWriter":
-        """Opens the BedWriter's file handle."""
+        """Open the BedWriter's file handle."""
         if self._file_handle is None or (not self._file_is_open and self._path is not None):
             assert self._path is not None, "Assertion present to satisfy mypy"
             self._file_handle = self._path.open("w")
@@ -83,8 +87,10 @@ class BedWriter(ContextManager):
         return self
 
     def close(self) -> None:
-        """Closes the BedWriter file. Should be called after all records to write have been
-        added.
+        """
+        Close the BedWriter file.
+
+        Should be called after all records to write have been added.
         """
         if not self._file_is_open:
             raise ValueError(f"Cannot close file {self._path} if it is not already open!")
@@ -93,7 +99,8 @@ class BedWriter(ContextManager):
             self._file_handle.close()
 
     def write(self, record: BedRecord, truncate: bool = False, add_missing: bool = False) -> None:
-        """Writes a single BedRecord to the file.
+        """
+        Write a single BedRecord to the file.
 
         Args:
             record: the BED record to write to the file.
@@ -129,9 +136,10 @@ class BedWriter(ContextManager):
     def write_all(
         self, records: Iterable[BedRecord], truncate: bool = False, add_missing: bool = False
     ) -> None:
-        """Writes multiple BedRecords to a file
+        """
+        Write multiple BedRecords to a file.
 
-        Arguments:
+        Args:
             records: the BED records to write to the file (must be iterable)
             truncate: if false and a BED record is passed with more fields than the writer is set
                 to output a `ValueError` will be raised. If true such records will be written in a
