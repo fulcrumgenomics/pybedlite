@@ -225,3 +225,275 @@ def test_bedrecord_negative() -> None:
     assert not BedRecord(chrom="chr1", start=1, end=2, strand=None).negative
     assert not BedRecord(chrom="chr1", start=1, end=2, strand=BedStrand.Positive).negative
     assert BedRecord(chrom="chr1", start=1, end=2, strand=BedStrand.Negative).negative
+
+    """Test that BedRecord validates start < end."""
+    # Test start == end
+    with pytest.raises(ValueError, match="End of interval must be greater than start"):
+        BedRecord(chrom="chr1", start=100, end=100)
+
+    # Test start > end
+    with pytest.raises(ValueError, match="End of interval must be greater than start"):
+        BedRecord(chrom="chr1", start=100, end=50)
+
+
+def test_bedrecord_validation_thick_start_end_mismatch() -> None:
+    """Test that BedRecord validates thick_start and thick_end are both defined or both None."""
+    # thick_end without thick_start
+    with pytest.raises(ValueError, match="Thick end cannot be defined if thick start is not"):
+        BedRecord(chrom="chr1", start=100, end=200, thick_start=None, thick_end=150)
+
+    # thick_start without thick_end
+    with pytest.raises(ValueError, match="Thick start cannot be defined if thick end is not"):
+        BedRecord(chrom="chr1", start=100, end=200, thick_start=120, thick_end=None)
+
+
+def test_bedrecord_validation_block_count_without_sizes() -> None:
+    """Test that BedRecord validates block_sizes is defined when block_count is."""
+    with pytest.raises(ValueError, match="Block sizes cannot be undefined if block count"):
+        BedRecord(
+            chrom="chr1",
+            start=100,
+            end=200,
+            block_count=2,
+            block_sizes=None,
+            block_starts=[0, 50],
+        )
+
+
+def test_bedrecord_validation_block_count_without_starts() -> None:
+    """Test that BedRecord validates block_starts is defined when block_count is."""
+    with pytest.raises(ValueError, match="Block starts cannot be undefined if block count"):
+        BedRecord(
+            chrom="chr1",
+            start=100,
+            end=200,
+            block_count=2,
+            block_sizes=[30, 40],
+            block_starts=None,
+        )
+
+
+def test_bedrecord_validation_block_sizes_without_count() -> None:
+    """Test that BedRecord validates block_count is defined when block_sizes is."""
+    with pytest.raises(ValueError, match="Block count must be defined if block sizes"):
+        BedRecord(
+            chrom="chr1",
+            start=100,
+            end=200,
+            block_count=None,
+            block_sizes=[30, 40],
+            block_starts=[0, 60],
+        )
+
+
+def test_bedrecord_validation_block_starts_without_count() -> None:
+    """Test that BedRecord validates block_count is defined when block_starts is."""
+    with pytest.raises(ValueError, match="Block count must be defined if block starts"):
+        BedRecord(
+            chrom="chr1",
+            start=100,
+            end=200,
+            block_count=None,
+            block_sizes=None,
+            block_starts=[0, 60],
+        )
+
+
+def test_bedrecord_validation_block_sizes_length_mismatch() -> None:
+    """Test that BedRecord validates block_sizes length matches block_count."""
+    with pytest.raises(
+        ValueError, match="Number of items in block_sizes .* must match block_count"
+    ):
+        BedRecord(
+            chrom="chr1",
+            start=100,
+            end=200,
+            block_count=2,
+            block_sizes=[30, 40, 30],
+            block_starts=[0, 60],
+        )
+
+
+def test_bedrecord_validation_block_starts_length_mismatch() -> None:
+    """Test that BedRecord validates block_starts length matches block_count."""
+    with pytest.raises(
+        ValueError, match="Number of items in block_starts .* must match block_count"
+    ):
+        BedRecord(
+            chrom="chr1",
+            start=100,
+            end=200,
+            block_count=2,
+            block_sizes=[30, 40],
+            block_starts=[0, 60, 90],
+        )
+
+
+def test_bedrecord_validation_block_starts_first_nonzero() -> None:
+    """Test that BedRecord validates first block_start is zero."""
+    with pytest.raises(ValueError, match="Block start at first position should be zero"):
+        BedRecord(
+            chrom="chr1",
+            start=100,
+            end=200,
+            block_count=2,
+            block_sizes=[30, 40],
+            block_starts=[10, 60],
+        )
+
+
+def test_bedrecord_validation_block_end_mismatch() -> None:
+    """Test that BedRecord validates last block end matches interval end."""
+    with pytest.raises(
+        ValueError, match="Overall interval end should be equal to the last defined block's end"
+    ):
+        BedRecord(
+            chrom="chr1",
+            start=100,
+            end=200,
+            block_count=2,
+            block_sizes=[30, 40],
+            block_starts=[0, 50],
+        )
+
+
+def test_bedrecord_as_bed_line_invalid_field_count() -> None:
+    """Test that as_bed_line raises ValueError for invalid field counts."""
+    record = BedRecord(chrom="chr1", start=100, end=200)
+
+    # Test field count < 3
+    with pytest.raises(ValueError, match="BED records can only contain between 3 and 12 fields"):
+        record.as_bed_line(number_of_output_fields=2)
+
+    # Test field count > 12
+    with pytest.raises(ValueError, match="BED records can only contain between 3 and 12 fields"):
+        record.as_bed_line(number_of_output_fields=13)
+
+
+def test_bedsource_close_unopened_file(tmp_path: Path) -> None:
+    """Test that BedSource raises ValueError when closing an unopened file."""
+    test_bed = tmp_path / "test.bed"
+    test_bed.write_text("chr1\t100\t200\n")
+
+    source = BedSource(test_bed)
+    with pytest.raises(ValueError, match="Cannot close file .* if it is not already open"):
+        source.close()
+
+
+def test_bedsource_invalid_rgb(tmp_path: Path) -> None:
+    """Test that BedSource raises ValueError for invalid RGB values."""
+    test_bed = tmp_path / "test.bed"
+    # RGB should have 3 components, but we provide 2
+    test_bed.write_text("chr1\t100\t200\tname\t100\t+\t100\t200\t255,255\n")
+
+    with pytest.raises(ValueError, match="item_rgb.* must contain 3 comma separated integers"):
+        with BedSource(test_bed) as source:
+            list(source)
+
+
+def test_bedsource_too_few_fields(tmp_path: Path) -> None:
+    """Test that BedSource raises ValueError for BED records with fewer than 3 fields."""
+    test_bed = tmp_path / "test.bed"
+    # Only 2 fields provided
+    test_bed.write_text("chr1\t100\n")
+
+    with pytest.raises(
+        ValueError, match="BED records must conform to specifications.* at least 3 input fields"
+    ):
+        with BedSource(test_bed) as source:
+            list(source)
+
+
+def test_bedwriter_invalid_num_fields_too_small(tmp_path: Path) -> None:
+    """Test that BedWriter raises ValueError for num_fields < 3."""
+    test_bed = tmp_path / "test.bed"
+
+    with pytest.raises(ValueError, match="BED files must contain between 3 and 12 columns"):
+        BedWriter(test_bed, num_fields=2)
+
+
+def test_bedwriter_invalid_num_fields_too_large(tmp_path: Path) -> None:
+    """Test that BedWriter raises ValueError for num_fields > 12."""
+    test_bed = tmp_path / "test.bed"
+
+    with pytest.raises(ValueError, match="BED files must contain between 3 and 12 columns"):
+        BedWriter(test_bed, num_fields=13)
+
+
+def test_bedwriter_close_unopened_file(tmp_path: Path) -> None:
+    """Test that BedWriter raises ValueError when closing an unopened file."""
+    test_bed = tmp_path / "test.bed"
+
+    writer = BedWriter(test_bed)
+    with pytest.raises(ValueError, match="Cannot close file .* if it is not already open"):
+        writer.close()
+
+
+def test_bedrecord_bed_field_num_coverage() -> None:
+    """Test bed_field_num property for various field counts."""
+    # BED3
+    assert BedRecord(chrom="chr1", start=100, end=200).bed_field_num == 3
+
+    # BED4
+    assert BedRecord(chrom="chr1", start=100, end=200, name="test").bed_field_num == 4
+
+    # BED5
+    assert BedRecord(chrom="chr1", start=100, end=200, name="test", score=100).bed_field_num == 5
+
+    # BED6
+    assert (
+        BedRecord(
+            chrom="chr1", start=100, end=200, name="test", score=100, strand=BedStrand.Positive
+        ).bed_field_num
+        == 6
+    )
+
+    # BED8
+    assert (
+        BedRecord(
+            chrom="chr1",
+            start=100,
+            end=200,
+            name="test",
+            score=100,
+            strand=BedStrand.Positive,
+            thick_start=110,
+            thick_end=190,
+        ).bed_field_num
+        == 8
+    )
+
+    # BED9
+    assert (
+        BedRecord(
+            chrom="chr1",
+            start=100,
+            end=200,
+            name="test",
+            score=100,
+            strand=BedStrand.Positive,
+            thick_start=110,
+            thick_end=190,
+            item_rgb=(255, 0, 0),
+        ).bed_field_num
+        == 9
+    )
+
+    # BED12
+    assert (
+        BedRecord(
+            chrom="chr1",
+            start=100,
+            end=200,
+            name="test",
+            score=100,
+            strand=BedStrand.Positive,
+            thick_start=110,
+            thick_end=190,
+            item_rgb=(255, 0, 0),
+            block_count=2,
+            block_sizes=[50, 50],
+            block_starts=[0, 50],
+        ).bed_field_num
+        == 12
+    )
