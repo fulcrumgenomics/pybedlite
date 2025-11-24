@@ -27,8 +27,7 @@ MAX_BED_FIELDS: int = 12
 
 
 class BedWriter(ContextManager):
-    """
-    Writer class for writing BED records to a file.
+    """Writer class for writing BED records to a file.
 
     Attributes:
         num_fields: The number of BED fields to report. Must be between 3 and 12.
@@ -39,13 +38,11 @@ class BedWriter(ContextManager):
         path: BedPath,
         num_fields: Optional[int] = None,
     ) -> None:
-        """
-        Instantiates a BedWriter.
+        """Instantiates a BedWriter.
 
         Args:
             path: Path specifying where to write the BED file output by this class
-            num_fields: Number of BED columns to write in BED file (3-12). If None, determined
-                from the first record written
+            num_fields: Number of BED columns to write in BED file
         """
         if num_fields is not None and (num_fields < 3 or num_fields > MAX_BED_FIELDS):
             raise ValueError(f"BED files must contain between 3 and 12 columns, got {num_fields}")
@@ -64,7 +61,6 @@ class BedWriter(ContextManager):
         self.num_fields: Optional[int] = num_fields
 
     def __enter__(self) -> "BedWriter":
-        """Enter context manager."""
         return self.open()
 
     def __exit__(
@@ -73,16 +69,10 @@ class BedWriter(ContextManager):
         __exc_value: Optional[BaseException],
         __traceback: Optional[TracebackType],
     ) -> None:
-        """Exit context manager."""
         self.close()
 
     def open(self) -> "BedWriter":
-        """
-        Opens the BedWriter's file handle.
-
-        Returns:
-            Self for method chaining
-        """
+        """Opens the BedWriter's file handle."""
         if self._file_handle is None or (not self._file_is_open and self._path is not None):
             assert self._path is not None, "Assertion present to satisfy mypy"
             self._file_handle = self._path.open("w")
@@ -93,23 +83,17 @@ class BedWriter(ContextManager):
         return self
 
     def close(self) -> None:
-        """
-        Closes the BedWriter file.
-
-        Should be called after all records to write have been added.
-
-        Raises:
-            ValueError: If file is not open
+        """Closes the BedWriter file. Should be called after all records to write have been
+        added.
         """
         if not self._file_is_open:
             raise ValueError(f"Cannot close file {self._path} if it is not already open!")
-        assert self._file_handle is not None, "Assertion present to satisfy mypy"
         self._file_is_open = False
-        self._file_handle.close()
+        if self._file_handle is not None:
+            self._file_handle.close()
 
     def write(self, record: BedRecord, truncate: bool = False, add_missing: bool = False) -> None:
-        """
-        Writes a single BedRecord to the file.
+        """Writes a single BedRecord to the file.
 
         Args:
             record: the BED record to write to the file.
@@ -139,14 +123,13 @@ class BedWriter(ContextManager):
                 + f"number of fields observed: {record.bed_field_num}"
             )
 
-        assert self._file_handle is not None, "Assertion present to satisfy mypy"
+        assert self._file_handle is not None, "File must be opened before writing!"
         self._file_handle.write(f"{record.as_bed_line(number_of_output_fields=self.num_fields)}\n")
 
     def write_all(
         self, records: Iterable[BedRecord], truncate: bool = False, add_missing: bool = False
     ) -> None:
-        """
-        Writes multiple BedRecords to a file.
+        """Writes multiple BedRecords to a file
 
         Arguments:
             records: the BED records to write to the file (must be iterable)

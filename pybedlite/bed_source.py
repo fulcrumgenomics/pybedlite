@@ -1,6 +1,6 @@
 """
 Reader class for BED files producing BedRecords.
--------------------------------------------------
+------------------------------------------------
 
 Module Contents
 ~~~~~~~~~~~~~~~
@@ -41,8 +41,7 @@ T = TypeVar("T")
 
 
 class BedSource(ContextManager, Iterable[BedRecord]):
-    """
-    Reader for BED records stored in a BED file.
+    """Reader for BED records stored in a BED file
 
     Attributes:
         num_fields: the number of BED fields present for records in this file. This will be set to
@@ -53,7 +52,6 @@ class BedSource(ContextManager, Iterable[BedRecord]):
     """
 
     def __init__(self, path: BedPath) -> None:
-        """Initialize BedSource with a file path or file handle."""
         self._path: Optional[Path]
         self._in_fh: Optional[IO]
         self._file_is_open: bool
@@ -72,7 +70,6 @@ class BedSource(ContextManager, Iterable[BedRecord]):
         self.num_fields: Optional[int] = None
 
     def __enter__(self) -> "BedSource":
-        """Enter context manager."""
         return self.open()
 
     def __exit__(
@@ -81,17 +78,11 @@ class BedSource(ContextManager, Iterable[BedRecord]):
         __exc_value: Optional[BaseException],
         __traceback: Optional[TracebackType],
     ) -> None:
-        """Exit context manager."""
         self.close()
 
     def open(self) -> "BedSource":
-        """
-        Opens the BedSource file for reading.
-
-        Must be called before iterating over the file. Make sure to close when done.
-
-        Returns:
-            Self for method chaining
+        """Opens the BedSource file for reading. Must be called before iterating over the file.
+        Make sure to close when done.
         """
         if self._in_fh is None or (not self._file_is_open and self._path is not None):
             assert self._path is not None, "Assertion present to satisfy mypy"
@@ -103,23 +94,14 @@ class BedSource(ContextManager, Iterable[BedRecord]):
         return self
 
     def close(self) -> None:
-        """
-        Closes the BedSource file.
-
-        Should be called after iterating over the file.
-
-        Raises:
-            ValueError: If file is not open
-        """
+        """Closes the BedSource file. Should be called after iterating over the file."""
         if not self._file_is_open:
             raise ValueError(f"Cannot close file {self._path} if it is not already open!")
-        assert self._in_fh is not None, "Assertion present to satisfy mypy"
         self._file_is_open = False
-        self._in_fh.close()
+        if self._in_fh is not None:
+            self._in_fh.close()
 
     def __iter__(self) -> Iterator[BedRecord]:  # noqa: C901
-        """Iterate over BED records in the file."""
-
         def helper(fields: List[str], index: int, present_fn: Callable[[str], T]) -> Optional[T]:
             if len(fields) <= index or fields[index] == BedRecord.MissingValue:
                 return None
@@ -143,7 +125,7 @@ class BedSource(ContextManager, Iterable[BedRecord]):
             self.open()
             self._file_is_open = True
 
-        assert self._in_fh is not None, "Assertion present to satisfy mypy"
+        assert self._in_fh is not None, "File must be opened before iterating over it!"
         for i, line in enumerate(self._in_fh):
             # Skip header lines
             if line.startswith("#") or line.startswith("browser") or line.startswith("track"):
