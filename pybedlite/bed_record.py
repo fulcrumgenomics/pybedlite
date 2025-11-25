@@ -89,46 +89,56 @@ class BedRecord:
     ##############
     # Validators #
     ##############
-    def __post_init__(self) -> None:
-        """Validate BED record constraints."""
-        assert self.end > self.start, (
-            "End of interval must be greater than start of interval."
-            + f" start: {self.start}, end: {self.end}"
-        )
+    def __post_init__(self) -> None:  # noqa: C901
+        """
+        Validate BED record constraints.
 
-        if self.thick_start is None:
-            assert self.thick_end is None, "Thick end cannot be defined if thick start is not"
-        else:
-            assert self.thick_end is not None, "Thick start cannot be defined if thick end is not"
+        Raises:
+            ValueError: If any validation checks fail
+        """
+        if self.end <= self.start:
+            raise ValueError(
+                f"End of interval must be greater than start of interval. "
+                f"start: {self.start}, end: {self.end}"
+            )
+
+        if self.thick_start is None and self.thick_end is not None:
+            raise ValueError("Thick end cannot be defined if thick start is not")
+        if self.thick_start is not None and self.thick_end is None:
+            raise ValueError("Thick start cannot be defined if thick end is not")
 
         if self.block_count is None:
-            assert self.block_sizes is None, (
-                "Block count must be defined if block sizes is defined"
-            )
-            assert self.block_starts is None, (
-                "Block count must be defined if block starts is defined"
-            )
+            if self.block_sizes is not None:
+                raise ValueError("Block count must be defined if block sizes is defined")
+            if self.block_starts is not None:
+                raise ValueError("Block count must be defined if block starts is defined")
         else:
-            assert self.block_sizes is not None, (
-                "Block sizes cannot be undefined if block count is defined"
-            )
-            assert self.block_starts is not None, (
-                "Block starts cannot be undefined if block count is defined"
-            )
-            assert len(self.block_sizes) == self.block_count, (
-                "Number of items in block_sizes must match block_counts"
-            )
-            assert len(self.block_starts) == self.block_count, (
-                "Number of items in block_starts must match block_counts"
-            )
+            if self.block_sizes is None:
+                raise ValueError("Block sizes cannot be undefined if block count is defined")
+            if self.block_starts is None:
+                raise ValueError("Block starts cannot be undefined if block count is defined")
+            if len(self.block_sizes) != self.block_count:
+                raise ValueError(
+                    f"Number of items in block_sizes ({len(self.block_sizes)}) "
+                    f"must match block_count ({self.block_count})"
+                )
+            if len(self.block_starts) != self.block_count:
+                raise ValueError(
+                    f"Number of items in block_starts ({len(self.block_starts)}) "
+                    f"must match block_count ({self.block_count})"
+                )
 
         if self.block_starts is not None and self.block_sizes is not None:
-            assert 0 == self.block_starts[0], "Block start at first position should be zero"
-            assert self.end == self.start + self.block_starts[-1] + self.block_sizes[-1], (
-                "overall interval end should be equal to the last defined block's end. "
-                + f"Last block end: {self.start + self.block_starts[-1] + self.block_sizes[-1]}, "
-                + f"Interval end: {self.end}"
-            )
+            if self.block_starts[0] != 0:
+                raise ValueError(
+                    f"Block start at first position should be zero, got {self.block_starts[0]}"
+                )
+            expected_end = self.start + self.block_starts[-1] + self.block_sizes[-1]
+            if self.end != expected_end:
+                raise ValueError(
+                    f"Overall interval end should be equal to the last defined block's end. "
+                    f"Last block end: {expected_end}, Interval end: {self.end}"
+                )
 
     @property
     def bed_field_num(self) -> int:
@@ -201,10 +211,17 @@ class BedRecord:
         Args:
             number_of_output_fields: the number of fields that should be output in the bed line.
                 i.e. if you'd like a BED6 line, this should be set to 6. Etc.
+
+        Raises:
+            ValueError: If number_of_output_fields is not between 3 and 12
         """
-        assert number_of_output_fields is None or 3 <= number_of_output_fields <= MAX_BED_FIELDS, (
-            "BED records can only contain between 3 and 12 fields"
-        )
+        if number_of_output_fields is not None and (
+            number_of_output_fields < 3 or number_of_output_fields > MAX_BED_FIELDS
+        ):
+            raise ValueError(
+                f"BED records can only contain between 3 and 12 fields, "
+                f"got {number_of_output_fields}"
+            )
 
         number_of_output_fields = (
             self.bed_field_num if number_of_output_fields is None else number_of_output_fields

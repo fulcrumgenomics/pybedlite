@@ -8,12 +8,13 @@ Module Contents
 The module contains the following public classes:
 
     - :class:`~pybedtools.bed_source.BedSource` -- Reader class for parsing BED files and iterate
-        over their contained records
+        over their contained records.
 """
 
-from io import TextIOWrapper
+import io
 from pathlib import Path
 from types import TracebackType
+from typing import IO
 from typing import Any
 from typing import Callable
 from typing import ContextManager
@@ -30,8 +31,11 @@ from typing import Union
 from pybedlite.bed_record import BedRecord
 from pybedlite.bed_record import BedStrand
 
+"""The classes that should be treated as file-like classes"""
+_IOClasses = (io.TextIOBase, io.BufferedIOBase, io.RawIOBase, io.IOBase)
+
 """The valid base classes for opening a BED file."""
-BedPath = Union[Path, str, TextIOWrapper]
+BedPath = Union[Path, str, IO[Any]]
 
 T = TypeVar("T")
 
@@ -49,16 +53,21 @@ class BedSource(ContextManager, Iterable[BedRecord]):
     """
 
     def __init__(self, path: BedPath) -> None:
-        """Initializes a BedSource from a path."""
+        """
+        Initialize a BedSource.
+
+        Args:
+            path: Path to the BED file or a file handle.
+        """
         self._path: Optional[Path]
-        self._in_fh: Optional[TextIOWrapper]
+        self._in_fh: Optional[IO]
         self._file_is_open: bool
 
         if isinstance(path, (str, Path)):
             self._path = Path(path)
             self._in_fh = None
             self._file_is_open = False
-        elif isinstance(path, TextIOWrapper):
+        elif isinstance(path, _IOClasses):
             self._path = None
             self._in_fh = path
             self._file_is_open = not self._in_fh.closed
@@ -68,7 +77,7 @@ class BedSource(ContextManager, Iterable[BedRecord]):
         self.num_fields: Optional[int] = None
 
     def __enter__(self) -> "BedSource":
-        """Enter this context manager, opening the file."""
+        """Enter context manager and open the file."""
         return self.open()
 
     def __exit__(
@@ -77,47 +86,49 @@ class BedSource(ContextManager, Iterable[BedRecord]):
         __exc_value: Optional[BaseException],
         __traceback: Optional[TracebackType],
     ) -> None:
-        """Exit this context manager, closing the file."""
+        """Exit context manager and close the file."""
         self.close()
 
     def open(self) -> "BedSource":
         """
-        Opens the BedSource for reading.
+        Open the BedSource file for reading.
 
-        Must be called before iterating over the file.
-
-        Make sure to close when done.
+        Must be called before iterating over the file. Make sure to close when done.
         """
         if self._in_fh is None or (not self._file_is_open and self._path is not None):
             assert self._path is not None, "Assertion present to satisfy mypy"
             self._in_fh = self._path.open("r")
             self._file_is_open = True
         else:
-            assert self._file_is_open, "File must be pre-opened if filehandle specified"
+            if not self._file_is_open:
+                raise ValueError("File must be pre-opened if filehandle specified")
         return self
 
     def close(self) -> None:
-        """Closes the BedSources file. Should be called after iterating over the file."""
-        assert self._file_is_open, f"Cannot close file {self._path} if it is not already open!"
+        """Closes the BedSource file. Should be called after iterating over the file."""
+        if not self._file_is_open:
+            raise ValueError(f"Cannot close file {self._path} if it is not already open!")
         self._file_is_open = False
         if self._in_fh is not None:
             self._in_fh.close()
 
-    def __iter__(self) -> Iterator[BedRecord]:  # noqa: C901  # method too complex
-        """Iterate over the BED records in the file."""
+    def __iter__(self) -> Iterator[BedRecord]:  # noqa: C901
+        """Iterate over BED records in the file."""
 
         def helper(fields: List[str], index: int, present_fn: Callable[[str], T]) -> Optional[T]:
             if len(fields) <= index or fields[index] == BedRecord.MissingValue:
                 return None
             return present_fn(fields[index])
 
-        def parse_rgb(rgb: str) -> Tuple[int, int, int]:
+        def parse_rgb(x: str) -> Tuple[int, int, int]:
             # This is fairly verbose for what it's doing, but it makes mypy happy because
             # if converted to a tuple directly there's no bounds on its size.
-            rgb_split = [int(x) for x in rgb.split(",")]
-            assert len(rgb_split) == 3, (
-                "item_rgb, if defined, must contain 3 comma separated integers"
-            )
+            rgb_split = [int(val) for val in x.split(",")]
+            if len(rgb_split) != 3:
+                raise ValueError(
+                    f"item_rgb, if defined, must contain 3 comma separated integers, "
+                    f"got {len(rgb_split)}"
+                )
             r, g, b = rgb_split
             return (r, g, b)
 
@@ -127,10 +138,8 @@ class BedSource(ContextManager, Iterable[BedRecord]):
             self.open()
             self._file_is_open = True
 
-        assert self._file_is_open and self._in_fh is not None, (
-            "File must be opened before iterating over it!"
-        )
-
+        if self._in_fh is None:
+            raise ValueError("File must be opened before iterating over it!")
         for i, line in enumerate(self._in_fh):
             # Skip header lines
             if line.startswith("#") or line.startswith("browser") or line.startswith("track"):
@@ -138,10 +147,11 @@ class BedSource(ContextManager, Iterable[BedRecord]):
             if line.strip() == "":
                 continue
             fields = line.strip().split("\t")
-            assert len(fields) >= 3, (
-                "BED records must conform to specifications, which requires at least 3 input "
-                + f"fields. On line {i} in {self._path} had only {len(fields)} fields"
-            )
+            if len(fields) < 3:
+                raise ValueError(
+                    f"BED records must conform to specifications, which requires at least 3 input "
+                    f"fields. On line {i} in {self._path} had only {len(fields)} fields"
+                )
 
             num_fields = len(fields)
 
