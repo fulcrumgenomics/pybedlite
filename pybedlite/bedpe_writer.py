@@ -12,9 +12,9 @@ The module contains the following public classes:
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from pathlib import Path
 from types import TracebackType
-from collections.abc import Iterable
 from typing import IO
 from typing import ContextManager
 

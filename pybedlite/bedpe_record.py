@@ -137,7 +137,8 @@ class BedPeRecord:
         Args:
             number_of_output_fields: the number of fields that should be output. Must be between
                 6 and 10. If None, the number of fields is inferred from the record. If less than
-                :attr:`bedpe_field_num`, trailing fields are silently truncated; no error is raised.
+                :attr:`bedpe_field_num`, trailing fields are silently truncated.
+                No error is raised.
 
         Returns:
             A tab-delimited string representation of this record with the specified number of

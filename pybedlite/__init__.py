@@ -143,7 +143,8 @@ def bedpe_writer(
     Args:
         path: a file handle or path to the BEDPE file to write.
         num_fields: the number of BEDPE fields to write for each record. If `None` this value will
-            be set to the number of fields present in the first BEDPE record written by this object.
+            be set to the number of fields present in the first BEDPE record written by this
+            object.
     """
     return BedPeWriter(path=path, num_fields=num_fields)
 

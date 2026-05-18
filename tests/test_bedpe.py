@@ -2,6 +2,7 @@
 
 import logging
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -133,10 +134,8 @@ def test_preopened_bedpe_parsing(
 
 
 @pytest.mark.parametrize("num_fields", [6, 7, 8, 9, 10])
-def test_bedpe_writing(
-    tmp_path: Path, num_fields: int, bedpe_records: list[BedPeRecord]
-) -> None:
-    """Write records to a file and compare against a pre-made BEDPE snippet across all field counts."""
+def test_bedpe_writing(tmp_path: Path, num_fields: int, bedpe_records: list[BedPeRecord]) -> None:
+    """Write records to a file and compare against a pre-made BEDPE snippet."""
     test_written = tmp_path / "test_written.bedpe"
     test_premade = tmp_path / "test_premade.bedpe"
 
@@ -164,7 +163,7 @@ def test_bedpe_writing(
 def test_preopened_bedpe_writing(
     tmp_path: Path, num_fields: int, bedpe_records: list[BedPeRecord]
 ) -> None:
-    """Write via a pre-opened file handle using the module-level bedpe_writer and compare against a pre-made snippet."""
+    """Write via a pre-opened file handle and compare against a pre-made snippet."""
     test_written = tmp_path / "test_written.bedpe"
     test_premade = tmp_path / "test_premade.bedpe"
 
@@ -194,27 +193,51 @@ def test_preopened_bedpe_writing(
         (dict(chrom1="chr1", start1=1, end1=2, chrom2="chr2", start2=3, end2=4), 6),
         (dict(chrom1="chr1", start1=1, end1=2, chrom2="chr2", start2=3, end2=4, name="sv_001"), 7),
         (
-            dict(chrom1="chr1", start1=1, end1=2, chrom2="chr2", start2=3, end2=4, name="sv_001", score=10),
+            dict(
+                chrom1="chr1",
+                start1=1,
+                end1=2,
+                chrom2="chr2",
+                start2=3,
+                end2=4,
+                name="sv_001",
+                score=10,
+            ),
             8,
         ),
         (
             dict(
-                chrom1="chr1", start1=1, end1=2, chrom2="chr2", start2=3, end2=4,
-                name="sv_001", score=10, strand1=BedStrand.Positive,
+                chrom1="chr1",
+                start1=1,
+                end1=2,
+                chrom2="chr2",
+                start2=3,
+                end2=4,
+                name="sv_001",
+                score=10,
+                strand1=BedStrand.Positive,
             ),
             9,
         ),
         (
             dict(
-                chrom1="chr1", start1=1, end1=2, chrom2="chr2", start2=3, end2=4,
-                name="sv_001", score=10, strand1=BedStrand.Positive, strand2=BedStrand.Negative,
+                chrom1="chr1",
+                start1=1,
+                end1=2,
+                chrom2="chr2",
+                start2=3,
+                end2=4,
+                name="sv_001",
+                score=10,
+                strand1=BedStrand.Positive,
+                strand2=BedStrand.Negative,
             ),
             10,
         ),
     ],
 )
-def test_bedpe_record_field_num(kwargs: dict[str, object], expected_fields: int) -> None:
-    """bedpe_field_num returns the count of populated optional fields plus the six required fields."""
+def test_bedpe_record_field_num(kwargs: dict[str, Any], expected_fields: int) -> None:
+    """bedpe_field_num returns the count of populated optional fields and 6 required fields."""
     assert BedPeRecord(**kwargs).bedpe_field_num == expected_fields
 
 
@@ -250,7 +273,7 @@ def test_bedpe_record_as_bedpe_line_invalid_field_count(num_fields: int) -> None
         ),
     ],
 )
-def test_bedpe_record_validation_end_le_start(kwargs: dict[str, object], match: str) -> None:
+def test_bedpe_record_validation_end_le_start(kwargs: dict[str, Any], match: str) -> None:
     """BedPeRecord raises ValueError when end1 <= start1 or end2 <= start2."""
     with pytest.raises(ValueError, match=match):
         BedPeRecord(**kwargs)
@@ -272,7 +295,8 @@ def test_bedpe_source_too_few_fields(tmp_path: Path) -> None:
     test_bedpe.write_text("chr1\t1\t2\tchr2\t3\n")
 
     with pytest.raises(
-        ValueError, match=f"BEDPE records must conform to specifications.*{MIN_BEDPE_FIELDS} input fields"  # noqa: E501
+        ValueError,
+        match=f"BEDPE records must conform to specifications.*{MIN_BEDPE_FIELDS} input fields",  # noqa: E501
     ):
         with BedPeSource(test_bedpe) as source:
             list(source)
@@ -281,9 +305,7 @@ def test_bedpe_source_too_few_fields(tmp_path: Path) -> None:
 def test_bedpe_source_skips_header_lines(tmp_path: Path) -> None:
     """BedPeSource skips comment, browser, and track lines and yields only data records."""
     test_bedpe = tmp_path / "test.bedpe"
-    test_bedpe.write_text(
-        "# comment\nbrowser foo\ntrack name=test\nchr1\t1\t2\tchr2\t3\t4\n"
-    )
+    test_bedpe.write_text("# comment\nbrowser foo\ntrack name=test\nchr1\t1\t2\tchr2\t3\t4\n")
 
     with BedPeSource(test_bedpe) as source:
         records = list(source)
@@ -310,7 +332,7 @@ def test_bedpe_writer_close_unopened_file(tmp_path: Path) -> None:
 
 
 def test_bedpe_writer_truncate_raises_without_flag(tmp_path: Path) -> None:
-    """Writing a record with more fields than the writer allows raises ValueError unless truncate=True."""
+    """Writing a rec with more fields than allowed raises unless truncate=True."""
     record = BedPeRecord(
         chrom1="chr1",
         start1=1,
@@ -329,7 +351,7 @@ def test_bedpe_writer_truncate_raises_without_flag(tmp_path: Path) -> None:
 
 
 def test_bedpe_writer_add_missing_raises_without_flag(tmp_path: Path) -> None:
-    """Writing a record with fewer fields than the writer expects raises ValueError unless add_missing=True."""
+    """Writing a rec with fewer fields than expected raises unless add_missing=True."""
     record = BedPeRecord(chrom1="chr1", start1=1, end1=2, chrom2="chr2", start2=3, end2=4)
     with BedPeWriter(tmp_path / "test.bedpe", num_fields=10) as writer:
         with pytest.raises(ValueError, match="add_missing must be set to True"):
@@ -420,7 +442,7 @@ def test_bedpe_writer_write_after_close(tmp_path: Path) -> None:
 
 
 def test_bedpe_writer_num_fields_auto_inferred(tmp_path: Path) -> None:
-    """When num_fields is not set at construction, BedPeWriter infers it from the first record written."""
+    """When num_fields is not set, BedPeWriter infers it from the first record written."""
     record = BedPeRecord(
         chrom1="chr1",
         start1=1,
@@ -451,7 +473,7 @@ def test_bedpe_record_zero_start_is_valid() -> None:
 
 
 def test_bedpe_record_score_zero_field_num() -> None:
-    """score=0 is treated as a defined field, not a missing value, so bedpe_field_num reflects it."""
+    """score=0 is treated as a defined field, so bedpe_field_num reflects it."""
     record = BedPeRecord(
         chrom1="chr1", start1=1, end1=2, chrom2="chr2", start2=3, end2=4, name="sv_001", score=0
     )
@@ -489,7 +511,7 @@ def test_bedpe_source_yields_no_records(tmp_path: Path, content: str) -> None:
         ),
     ],
 )
-def test_bedpe_record_validation_negative_start(kwargs: dict[str, object], match: str) -> None:
+def test_bedpe_record_validation_negative_start(kwargs: dict[str, Any], match: str) -> None:
     """BedPeRecord raises ValueError when start1 or start2 is negative."""
     with pytest.raises(ValueError, match=match):
         BedPeRecord(**kwargs)
