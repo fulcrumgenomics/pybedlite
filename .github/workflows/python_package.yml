@@ -7,14 +7,14 @@ on:
   workflow_dispatch:
 
 env:
-  UV_VERSION: 0.7.21
+  UV_VERSION: 0.10.0
 
 jobs:
   Tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        PYTHON_VERSION: ["3.10", "3.11", "3.12", "3.13"]
+        PYTHON_VERSION: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
