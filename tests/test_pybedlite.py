@@ -155,7 +155,7 @@ def test_bed_writing(tmp_path: Path, bed_field_number: int, bed_records: List[Be
         BedSource(test_premade_bed) as test_premade_in,
     ):
         for i, (parsed_record, expected_record) in enumerate(
-            zip(test_written_in, test_premade_in)
+            zip(test_written_in, test_premade_in, strict=True)
         ):
             compare_bed_records(
                 record1=parsed_record,
@@ -199,7 +199,7 @@ def test_preopened_bed_writing(
         BedSource(test_premade_bed) as test_premade_in,
     ):
         for i, (parsed_record, expected_record) in enumerate(
-            zip(test_written_in, test_premade_in)
+            zip(test_written_in, test_premade_in, strict=True)
         ):
             compare_bed_records(
                 record1=parsed_record,

@@ -133,7 +133,7 @@ markers = ["benchmark: marks tests as benchmarking tests (deselect with '-m \"no
 
 [tool.ruff]
 line-length = 99
-target-version = "py39"
+target-version = "py310"
 output-format = "full"
 preview = true
 
