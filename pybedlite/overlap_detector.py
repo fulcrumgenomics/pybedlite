@@ -76,8 +76,7 @@ from typing import TypeVar
 from typing import Union
 from typing import cast
 
-from superintervals import IntervalSet
-
+from pybedlite._superintervals import IntervalSet
 from pybedlite.bed_record import BedRecord
 from pybedlite.bed_record import BedStrand
 from pybedlite.bed_source import BedSource
