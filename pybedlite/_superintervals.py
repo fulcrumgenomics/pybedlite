@@ -9,6 +9,10 @@ fails with ``undefined symbol: _ZTVN10__cxxabiv117__class_type_infoE``. Loading
 
 Import ``IntervalSet`` from here rather than from ``superintervals`` directly so
 this preload always runs first.
+
+This is a workaround; the upstream fix is tracked in
+https://github.com/kcleal/superintervals/pull/4. Once that is released and
+required here, this shim can be removed.
 """
 
 import ctypes
