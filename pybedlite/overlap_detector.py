@@ -71,12 +71,12 @@ from typing import List
 from typing import Optional
 from typing import Protocol
 from typing import Sized
+from typing import Tuple
 from typing import Type
 from typing import TypeVar
 from typing import Union
-from typing import cast
 
-from superintervals import IntervalSet
+from superintervals import IntervalMap
 
 from pybedlite.bed_record import BedRecord
 from pybedlite.bed_record import BedStrand
@@ -277,7 +277,7 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
     def __init__(self, intervals: Optional[Iterable[SpanType]] = None) -> None:
         """Initialize an overlap detector for the given intervals."""
         # A mapping from the contig/chromosome name to the associated interval tree
-        self._refname_to_tree: Dict[str, IntervalSet] = {}
+        self._refname_to_tree: Dict[str, IntervalMap] = {}
         self._refname_to_indexed: Dict[str, bool] = {}
         self._refname_to_intervals: Dict[str, List[SpanType]] = {}
         if intervals is not None:
@@ -299,20 +299,14 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
             interval: the interval to add to this detector
         """
         if interval.refname not in self._refname_to_tree:
-            self._refname_to_tree[interval.refname] = IntervalSet()
+            self._refname_to_tree[interval.refname] = IntervalMap()
             self._refname_to_indexed[interval.refname] = False
             self._refname_to_intervals[interval.refname] = []
 
-        # Append the interval to the list of intervals for this tree, keeping the index
-        # of where it was inserted
-        interval_idx: int = len(self._refname_to_intervals[interval.refname])
         self._refname_to_intervals[interval.refname].append(interval)
 
-        # Add the interval to the tree.
-        # IntervalSet uses 1-based closed intervals whereas SpanType is 0-based half-open
-        # Add add 1 to start to convert coordinate systems
         tree = self._refname_to_tree[interval.refname]
-        tree.add(interval.start + 1, interval.end, interval_idx)
+        tree.add(*self._to_closed(interval), interval)
 
         # Flag this tree as needing to be indexed after adding a new interval, but defer
         # indexing
@@ -344,11 +338,9 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
             return False
         else:
             if not self._refname_to_indexed[interval.refname]:
-                tree.index()
+                tree.build()
                 self._refname_to_indexed[interval.refname] = True
-            # IntervalSet uses 1-based closed intervals whereas SpanType is 0-based half-open
-            # Add add 1 to start to convert coordinate systems
-            return cast(bool, tree.any_overlaps(interval.start + 1, interval.end))
+            return tree.has_overlaps(*self._to_closed(interval))
 
     def get_overlaps(self, interval: Span) -> List[SpanType]:
         """
@@ -372,15 +364,9 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
             return []
         else:
             if not self._refname_to_indexed[interval.refname]:
-                tree.index()
+                tree.build()
                 self._refname_to_indexed[interval.refname] = True
-            ref_intervals: List[SpanType] = self._refname_to_intervals[interval.refname]
-            # IntervalSet uses closed intervals whereas we are using half-open intervals, so add 1
-            # to start.
-            overlaps = [
-                ref_intervals[index]
-                for index in tree.find_overlaps(interval.start + 1, interval.end)
-            ]
+            overlaps: List[SpanType] = tree.search_values(*self._to_closed(interval))
             return sorted(
                 set(overlaps),
                 key=lambda intv: (
@@ -390,6 +376,11 @@ class OverlapDetector(Generic[SpanType], Iterable[SpanType], Sized):
                     intv.refname,
                 ),
             )
+
+    @staticmethod
+    def _to_closed(interval: Span) -> Tuple[int, int]:
+        """Converts a 0-based half-open span to the 1-based closed coordinates of IntervalMap."""
+        return interval.start + 1, interval.end
 
     @staticmethod
     def _negative(interval: Span) -> bool:

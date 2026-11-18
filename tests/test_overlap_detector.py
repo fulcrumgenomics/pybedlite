@@ -396,3 +396,26 @@ def test_alternating_query_and_adding_intervals() -> None:
     target2 = Interval("1", 11, 101, name="target2")
     detector.add(target2)
     assert detector.get_overlaps(query) == [target1, target2]
+
+
+def test_get_overlaps_after_adding_an_interval_that_sorts_first() -> None:
+    """Adding an interval that sorts before already-indexed intervals must trigger a rebuild."""
+    a = Interval("1", 49, 60, name="a")
+    b = Interval("1", 9, 20, name="b")
+    c = Interval("1", 29, 40, name="c")
+    d = Interval("1", 4, 100, name="d")
+    query = Interval("1", 14, 15)
+    detector: OverlapDetector[Interval] = OverlapDetector([a, b, c])
+    assert detector.get_overlaps(query) == [b]
+    detector.add(d)
+    assert detector.get_overlaps(query) == [d, b]
+
+
+def test_overlaps_any_after_adding_an_interval_that_sorts_first() -> None:
+    """overlaps_any() must see intervals added after the tree was first indexed."""
+    query = Interval("1", 14, 15)
+    detector: OverlapDetector[Interval] = OverlapDetector()
+    detector.add_all([Interval("1", 49, 60), Interval("1", 29, 40)])
+    assert not detector.overlaps_any(query)
+    detector.add(Interval("1", 4, 20))
+    assert detector.overlaps_any(query)

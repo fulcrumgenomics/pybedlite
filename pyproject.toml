@@ -16,7 +16,7 @@ license = "MIT"
 include = ["LICENSE"]
 requires-python = ">=3.10,<4.0"
 dependencies = [
-    "superintervals~=0.2.10",
+    "superintervals>=1.0.2,<2",
 ]
 
 classifiers = [
@@ -116,10 +116,6 @@ exclude = [
 
 [[tool.mypy.overrides]]
 module = "pytest_benchmark.fixture"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "superintervals"
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
