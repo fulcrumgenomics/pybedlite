@@ -506,7 +506,7 @@ docs = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "superintervals", specifier = ">=1.0.2,<2" }]
+requires-dist = [{ name = "superintervals", specifier = ">=1.0.3,<2" }]
 
 [package.metadata.requires-dev]
 dev = [
