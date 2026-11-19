@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10, <4.0"
 
 [[package]]
@@ -506,7 +506,7 @@ docs = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "superintervals", specifier = "~=0.2.10" }]
+requires-dist = [{ name = "superintervals", specifier = ">=1.0.3,<2" }]
 
 [package.metadata.requires-dev]
 dev = [
@@ -752,12 +752,56 @@ wheels = [
 
 [[package]]
 name = "superintervals"
-version = "0.2.10"
+version = "1.0.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cython" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ea/cf/cc80c7011f5d59378daed497258fadd7baa9bc45390fe1924862c0eef9c3/superintervals-0.2.10.tar.gz", hash = "sha256:a34e3bdfa999c34d912f78a6d4b0842331e809ccbf97554e98480d631e7ce0bf", size = 58897, upload-time = "2025-03-04T16:03:29.029Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/2b/20/e07e4f9b7894de8ef2b7f4cefe611a0cf7d1f73eb430510f0dcf1581c718/superintervals-1.0.3.tar.gz", hash = "sha256:92a4a7c066eb749f606cc859923a17df91bae8cb5bd453712969e05b37fef27a", size = 277685, upload-time = "2026-10-12T15:10:07.05Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/61/ba/fe0bd34a9adf7d9582213a7b5ba67cefa6900c69310bacbd44c3ece948d5/superintervals-1.0.3-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:87000390044c852acc52225c74650e8c0bce3364ac637f0a03e139d265ae7ed3", size = 454776, upload-time = "2026-10-12T15:07:46.058Z" },
+    { url = "https://files.pythonhosted.org/packages/90/09/da30b869bc3f5f0f463acd2706f3fac513b2750d2f02139007aa76166096/superintervals-1.0.3-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:bb6c399512c531a1796be0dca8d9ab15aeabcd29c1e21a204b7eed2793b8c197", size = 446571, upload-time = "2026-10-12T15:07:47.615Z" },
+    { url = "https://files.pythonhosted.org/packages/64/6f/4f11f84f8dcd2ea1991939a853984dc77ef51b9f596840a5846e0fba1e61/superintervals-1.0.3-cp310-cp310-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:7fde20384c4dceba998a5090236d05932310f974ba550e574208137e8af8713f", size = 1572311, upload-time = "2026-10-12T15:07:50.214Z" },
+    { url = "https://files.pythonhosted.org/packages/38/f6/1d2a88c79f2d0a5510c908dbb1f7659afad5d689a3f7fb11ba035ddddc26/superintervals-1.0.3-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:5cb2a4f3fcd47382d439cf4a97bb433d8be537cc14596f55bca9d4eba21fc7e8", size = 1588189, upload-time = "2026-10-12T15:07:53.687Z" },
+    { url = "https://files.pythonhosted.org/packages/8b/62/ff239ed791a287c3d2ae20cf562b27987803ddea286cf7abfcb980cd0ecd/superintervals-1.0.3-cp310-cp310-musllinux_1_2_aarch64.whl", hash = "sha256:a791452e3ca4c8169e6e8d4ed2c565090a72efff4b281cf68d9425eb3c82f4d6", size = 2504390, upload-time = "2026-10-12T15:07:57.915Z" },
+    { url = "https://files.pythonhosted.org/packages/78/a2/40d55ee4070e35394eca32958332685107e8121377a4466a4d8a678cbd16/superintervals-1.0.3-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:8e2be49b341e319eae6831ad68ccb7d49fe92e751c52f2aa3ed379e36aff8631", size = 2581673, upload-time = "2026-10-12T15:08:01.558Z" },
+    { url = "https://files.pythonhosted.org/packages/e1/e4/b7792df298b5e8868884f4b33d5374bea57d29923a157246d8da0656701d/superintervals-1.0.3-cp310-cp310-win_amd64.whl", hash = "sha256:383eb929849c0b08c4058009006aabcea88b329a51b753129d56c33fc16af543", size = 603685, upload-time = "2026-10-12T15:08:03.347Z" },
+    { url = "https://files.pythonhosted.org/packages/b5/99/b4d948dbb2d6ad3d52261538cf45e3201412034428501f53f36a80a10e88/superintervals-1.0.3-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:30fafbd0a94ac8e462e044dd8306dbefd8735dc9f562c070d6177a34d359717e", size = 454688, upload-time = "2026-10-12T15:08:04.784Z" },
+    { url = "https://files.pythonhosted.org/packages/91/cc/9345bec9f5e6f01800427082cf48f5fe0b087215a66e1212d2adbff83eaa/superintervals-1.0.3-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:21754636dd1ba86a2d03a178b73f9d02d38b76160a66c7d39eb3d84bc532f7ae", size = 446002, upload-time = "2026-10-12T15:08:06.424Z" },
+    { url = "https://files.pythonhosted.org/packages/3e/3b/b279bf4fdd73042a6265a6b76475663b7a344d52b0dcf2a0974b184855a3/superintervals-1.0.3-cp311-cp311-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:0d59e745c980894a032ca53c860149f4542b7702e8629595486dec6ba94a1c94", size = 1642022, upload-time = "2026-10-12T15:08:08.511Z" },
+    { url = "https://files.pythonhosted.org/packages/09/24/a224ed6d2441bc7ad44a417d482f059662647879cf362da0ede945028b72/superintervals-1.0.3-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:f37979f5322419d4cfb850aaaa164da6bee8adf532139d0ad606902ed1aeb233", size = 1650318, upload-time = "2026-10-12T15:08:11.678Z" },
+    { url = "https://files.pythonhosted.org/packages/2b/09/e7345ac44f773de0adee76840c5d6c16a4bfa2739f9628123475031e01ce/superintervals-1.0.3-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:2dded5a01a700ce0c54c12fb3bfc6f409a957f662cba807c8ba7146aea8d332b", size = 2566250, upload-time = "2026-10-12T15:08:16.061Z" },
+    { url = "https://files.pythonhosted.org/packages/e7/b2/f39a90ad09aeeb2f6e2c80271b7c8d9f4d04f54d2cf599fc1767cb800824/superintervals-1.0.3-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:15ec0331760786022ade5a88aefb2085022ce47608ce1bf9ea684f4880a58f0d", size = 2641009, upload-time = "2026-10-12T15:08:19.831Z" },
+    { url = "https://files.pythonhosted.org/packages/ea/85/a1dbfaa91e64a96376d4b1a37a2d7eee9c867c506cfa74e6d340147575c4/superintervals-1.0.3-cp311-cp311-win_amd64.whl", hash = "sha256:4c162203af28bed1bc8f4faa0956070eaa64965c3d064e9a87c34f85df539dfb", size = 603502, upload-time = "2026-10-12T15:08:21.697Z" },
+    { url = "https://files.pythonhosted.org/packages/03/f5/c23e2f382279af05e6235718699ecaafd1cc512d29ae1c1b0f6acdc791a5/superintervals-1.0.3-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:2f2743601e3663038819e9433b510b452840c2642bd37092f1e09659d59c8708", size = 447350, upload-time = "2026-10-12T15:08:23.202Z" },
+    { url = "https://files.pythonhosted.org/packages/2d/cf/a255b806f7a072bb926d6e41ba6df1498bce81aa7d45b5ac049d9d7d060e/superintervals-1.0.3-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:c876c1f4b9bd6c452f3de31908a8ea51ded7a0b3b4e75bed8dcf3bbff3df1004", size = 440677, upload-time = "2026-10-12T15:08:25.09Z" },
+    { url = "https://files.pythonhosted.org/packages/d1/db/22eb8ba45c72fd7ee349d4dfea6f951f7da280356031402bcb76bac596a3/superintervals-1.0.3-cp312-cp312-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:6597f9e1ea6c7d7681e301745ac35b4952d93dc71514561f74833a3171c067ec", size = 1581126, upload-time = "2026-10-12T15:08:28.035Z" },
+    { url = "https://files.pythonhosted.org/packages/4a/4b/bf77054fd094483d0cab181d316add0c60a006fd00df4011d5d649090d76/superintervals-1.0.3-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:df150fa311af18cfe85933d892c2cce99606ee5f87d61acde83c054ef99e16f3", size = 1604338, upload-time = "2026-10-12T15:08:30.973Z" },
+    { url = "https://files.pythonhosted.org/packages/dc/8f/e1472dbfa80f5ef5a128b0e56e3b8af05a4120e858758560bf7b9b87fdcf/superintervals-1.0.3-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:60ee63efc6ba3d2e87225bb746c56bc2ba5e6b04ac007b0b9ab305630b28fc5c", size = 2502252, upload-time = "2026-10-12T15:08:35.2Z" },
+    { url = "https://files.pythonhosted.org/packages/1b/f3/7af71b4435b8622cc67e1a0f5e6b3d420a731d89f2603d70e08e224086f8/superintervals-1.0.3-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:c76a256101cf46760b396b061dc0462077930cc68986522cee9e797a03cf9a3e", size = 2589612, upload-time = "2026-10-12T15:08:37.693Z" },
+    { url = "https://files.pythonhosted.org/packages/2c/35/205add14920514f04a68d6128e8e85d43ba58fefaccb10e5a789d04f48b2/superintervals-1.0.3-cp312-cp312-win_amd64.whl", hash = "sha256:e4fab862fa62cd5ba5b79585a74cab6229868f55cc3892248f9108f238c5951f", size = 601204, upload-time = "2026-10-12T15:08:39.293Z" },
+    { url = "https://files.pythonhosted.org/packages/4c/00/9487f6ea40bffc1800f693bf0c7bea5acf19fcd8bcb29e9642b0e05c7c73/superintervals-1.0.3-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:4709a9e8ae7209b7cf71931c0724cafd72fd88fd5107b21051c2b77701b00139", size = 452962, upload-time = "2026-10-12T15:08:41.371Z" },
+    { url = "https://files.pythonhosted.org/packages/0e/e8/a05b8e95f2bfbdfc02998f71de65c8d96d6bf28e7d1ed3b4f00515716002/superintervals-1.0.3-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:1ce79cf60ca7357d09c2113e498785fd70f10f51cc325030b20c5171d94ec4c4", size = 443209, upload-time = "2026-10-12T15:08:43.079Z" },
+    { url = "https://files.pythonhosted.org/packages/37/b9/c92cff673e988499528396e71514d9b225830e29d96a7f61cb0aa2454993/superintervals-1.0.3-cp313-cp313-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:5d5589e0ac754a9c8b05c9111aa54fa754fbcafe997851ae77f85d281a282642", size = 1575429, upload-time = "2026-10-12T15:08:45.618Z" },
+    { url = "https://files.pythonhosted.org/packages/3f/73/956e51f22e90bc470e8fb71a409443f4014bc07395c8425108e882e1de3d/superintervals-1.0.3-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:598b52cf4f17c9aa53961c983a05b9b6276a6d11a7a6f5cce27e61aa9f88bdd3", size = 1601365, upload-time = "2026-10-12T15:08:48.129Z" },
+    { url = "https://files.pythonhosted.org/packages/46/a3/a1512b0872ad2e74a27150314cb8054ccc052b7b08881e2cee0318beef14/superintervals-1.0.3-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:aab4842a213f7e0a2347aec3151801f10b8b907e5aefd1df50d35a842f4a86de", size = 2501302, upload-time = "2026-10-12T15:08:51.286Z" },
+    { url = "https://files.pythonhosted.org/packages/e8/5c/a1e86a7eeb39a1cb22bc74e6d91bb55649f83e4c123144baa24eccc8a1cd/superintervals-1.0.3-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:5cbe145d27fa6951771fd41a0a8013283c12e4fd11f422c4d063eed4f22756f9", size = 2587636, upload-time = "2026-10-12T15:08:55.717Z" },
+    { url = "https://files.pythonhosted.org/packages/31/73/52e08b7e69439cc438c3661cbfd6f6bfbb59d226485a65b41e316089ab12/superintervals-1.0.3-cp313-cp313-win_amd64.whl", hash = "sha256:6f76c1e4fb5cffa1723c21c64f27335d69df25d6b6596a2b39d1791ef3049d12", size = 600763, upload-time = "2026-10-12T15:08:57.88Z" },
+    { url = "https://files.pythonhosted.org/packages/18/96/c468ad54300cb8e5378c3a2fa1aba42dd499e0e76e556e664dc3b79f448c/superintervals-1.0.3-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:9a23e05eb7e8ee53d49b0903107692bbcfa468c2c57f8c32830c72f2b5d236dc", size = 459962, upload-time = "2026-10-12T15:08:59.681Z" },
+    { url = "https://files.pythonhosted.org/packages/6e/15/a2cd4080fb54c9c2a29b8552be017dd30841aed82fb1413e37b4c04276ec/superintervals-1.0.3-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:dc222a80ace8e2fb8b1f78eb9fb6c344c0fe5859b0ebe6c08a71ec4d64277fc5", size = 450154, upload-time = "2026-10-12T15:09:01.327Z" },
+    { url = "https://files.pythonhosted.org/packages/4c/05/77b3f052ae5b258edbbbf818eb40129a7dba49fde46a81a3b38300105d72/superintervals-1.0.3-cp314-cp314-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:825fcaa743b1c4d750907530c15e92a51664bb025054ac965d24798ed2149110", size = 1581959, upload-time = "2026-10-12T15:09:04.28Z" },
+    { url = "https://files.pythonhosted.org/packages/9e/89/01037dc1223c84ffc79e967b87f3c21d7b064564c766a63eaa7bc0524f49/superintervals-1.0.3-cp314-cp314-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:6028101d5c32b6b16cd2eb0ea87a065eb4c4d169aa0f52447bb99e2bd24703c6", size = 1597479, upload-time = "2026-10-12T15:09:08.293Z" },
+    { url = "https://files.pythonhosted.org/packages/2f/d2/94901b535ca21c1b0890f979bc43d7a9821e0c6f97560c196c19c5ca0d82/superintervals-1.0.3-cp314-cp314-musllinux_1_2_aarch64.whl", hash = "sha256:339cc1b92bdd34955fb14f1b726263c59371581efc4fd9ea77acf2a510afe42b", size = 2508800, upload-time = "2026-10-12T15:09:12.408Z" },
+    { url = "https://files.pythonhosted.org/packages/05/48/36b2e99bc6c9939cddcf54669f095ce19605fc3e3e2a60d2e9767b1b162f/superintervals-1.0.3-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:e398f087c02f3c2fa46ec73d34d1381eaae2218efc6f24d49a09e7e68d76af1a", size = 2582367, upload-time = "2026-10-12T15:09:16.738Z" },
+    { url = "https://files.pythonhosted.org/packages/68/88/83c4c2ef7684c8aa83b062eb07e6c230f77c2a8c7bebc4687913cef8352b/superintervals-1.0.3-cp314-cp314-win_amd64.whl", hash = "sha256:d6814115ddf22be4b44a2aa137b057f8f1e611988a75cc22560a57ac0ed25ff6", size = 614372, upload-time = "2026-10-12T15:09:18.685Z" },
+    { url = "https://files.pythonhosted.org/packages/5f/db/9c9e700ce197f5d424390cbd4bb5e2fd7e401d4f0b4a3d26537ca25c55ec/superintervals-1.0.3-cp315-cp315-macosx_10_15_x86_64.whl", hash = "sha256:261a242f831f3e009ea327967bd0096ebc00e0ee1fb0e88cc923abe1441735e5", size = 459846, upload-time = "2026-10-12T15:09:20.73Z" },
+    { url = "https://files.pythonhosted.org/packages/65/10/ec5df2d18e6a9ed50162859ba679a76eb44b02753946149bf82c8fb96fd4/superintervals-1.0.3-cp315-cp315-macosx_11_0_arm64.whl", hash = "sha256:426aa8e0376ec8bbd56bb855237f80bb90e60de014ced09469673dc4fbd8f002", size = 449827, upload-time = "2026-10-12T15:09:22.779Z" },
+    { url = "https://files.pythonhosted.org/packages/54/ca/13bef330ff13568e051b3002164e5e3d54a2dfe40651dc69d7f34ff31277/superintervals-1.0.3-cp315-cp315-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:1a6e63da4cd4d1511a6247626d3e1eedf101c1b21f4ad173dbbdfc1e90edd6bd", size = 1579370, upload-time = "2026-10-12T15:09:26.146Z" },
+    { url = "https://files.pythonhosted.org/packages/e4/f1/d0ed01e6b56e148457eeaedef17defaca79d44be610259cdba5680adcf72/superintervals-1.0.3-cp315-cp315-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:d9fd8f9df18d2174cc158dd22b85e5958effe6be291e378e4dd23a6820df2f76", size = 1601239, upload-time = "2026-10-12T15:09:29.118Z" },
+    { url = "https://files.pythonhosted.org/packages/c6/1f/93114e96fff0388e135449a0212b32427e7ea17a3d3336c3df656dac3d2f/superintervals-1.0.3-cp315-cp315-musllinux_1_2_aarch64.whl", hash = "sha256:d0fae28d01ecb4f3e5c897b809c999501fc300999b813ccfedb6ce1b212005d8", size = 2505088, upload-time = "2026-10-12T15:09:31.815Z" },
+    { url = "https://files.pythonhosted.org/packages/9c/f0/12ec08635d0f009c72259fe50dc3a779ea076d628d70b54378b2441e932f/superintervals-1.0.3-cp315-cp315-musllinux_1_2_x86_64.whl", hash = "sha256:97da9282c86989e562b557c235a58e23c3811f726d5d873fff494f7ce828df45", size = 2587651, upload-time = "2026-10-12T15:09:39.569Z" },
+    { url = "https://files.pythonhosted.org/packages/a9/4c/5147d3ac8e28334e3cbd514a892eb71e8cd518f3e6a35fe0613a1b0bdc5b/superintervals-1.0.3-cp315-cp315-win_amd64.whl", hash = "sha256:f40767cc6b49a3ee2d5e2165bdb41823504cd906bd5dc6c924393697170595d1", size = 614154, upload-time = "2026-10-12T15:09:41.597Z" },
+]
 
 [[package]]
 name = "tomli"
