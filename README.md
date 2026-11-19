@@ -31,7 +31,7 @@
 [doi-img]: https://zenodo.org/badge/442541029.svg
 [doi-link]: https://doi.org/10.5281/zenodo.11223166
 
-Lightweight Python interfaces for reading, writing, and querying genomic regions (BED).
+Lightweight Python interfaces for reading, writing, and querying genomic regions (BED and BEDPE).
 
 See documentation on [pybedlite.readthedocs.org](http://pybedlite.readthedocs.org/en/stable).
 
