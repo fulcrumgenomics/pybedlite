@@ -116,13 +116,26 @@ uv run pytest --benchmark
 7. Tag the new commit on the main branch with the bumped version number.
 
 > [!WARNING]
-> The tag **must** be a valid SemVer version number and **must** match the version set by `uv run hatch version` in (3). The [publishing GitHub Action](.github/workflows/publish_pybedlite) is activated by a new tag on the `main` branch containing a valid SemVer version.
+> The tag **must** be a valid SemVer version number (`X.Y.Z`, no `v` prefix), **must** match the version set by `uv version` in (3), and **must** point to a commit on `main`. The [publishing GitHub Action](.github/workflows/publish_pybedlite.yml) runs when such a tag is pushed, and fails (rather than skipping) when the tag is not on `main` or does not match the package version. It can also be started manually to retry a release (see below).
 
 GitHub Actions will take care of the remainder of the deployment and release process:
 
-1. Unit tests will be re-run.
-2. A source distribution will be built.
-3. A multi-arch multi-Python wheel (binary) distributions will be built.
-4. Assets will be deployed to PyPi with the new version.
-5. A [Conventional Commit](https://www.conventionalcommits.org/en/v1.0.0/)-aware changelog will be drafted.
-6. A GitHub release will be created with the new version tag and the drafted changelog.
+1. The tag will be validated against `main` and the package version.
+2. Unit tests will be re-run.
+3. A source distribution will be built.
+4. A multi-arch multi-Python wheel (binary) distributions will be built.
+5. Assets will be deployed to PyPi with the new version.
+6. A [Conventional Commit](https://www.conventionalcommits.org/en/v1.0.0/)-aware changelog will be drafted.
+7. A GitHub release will be created with the new version tag and the drafted changelog.
+
+### Retrying a release after a workflow fix
+
+Merge the workflow fix into `main`, then run the `publish` workflow from `main` with the existing release tag:
+
+```console
+gh workflow run publish_pybedlite.yml --ref main -f tag=<X.Y.Z>
+```
+
+The workflow validates that the tag is on `main` and matches the package version, then tests and builds the tagged source using the workflow definitions (Python matrix, tool versions, docs build) from `main`. The tag and package version are not changed. Because `main`'s CI runs against the tagged code, retries are intended for recent releases whose code still passes `main`'s checks.
+
+Existing PyPI files are skipped, so a partially published release can be retried. If a GitHub release for the tag already exists, its notes are replaced with a freshly generated changelog. Only the newest release tag is marked as the repository's latest GitHub release, so retrying an older tag does not demote a newer one.
