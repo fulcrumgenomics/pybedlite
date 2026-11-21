@@ -4,52 +4,94 @@ on:
   push:
     tags:
       - '[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to publish (for example, 1.2.0)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
 
 env:
-  UV_VERSION: 0.7.21
+  # Keep in sync with UV_VERSION in python_package.yml.
+  UV_VERSION: 0.10.0
 
 jobs:
-  on-main-branch-check:
+  validate-release:
     runs-on: ubuntu-latest
     outputs:
-      on_main: "${{ steps.contains_tag.outputs.retval }}"
+      tag: "${{ steps.release.outputs.tag }}"
+      sha: "${{ steps.release.outputs.sha }}"
+      latest: "${{ steps.release.outputs.latest }}"
     steps:
-      # TODO: remove this and the `git branch -a` when the following PR
-      # is merged and released:
-      #   https://github.com/rickstaa/action-contains-tag/pull/18
-      - name: git config --global remote.origin.followRemoteHEAD never
-        run: git config --global remote.origin.followRemoteHEAD never
-
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           fetch-depth: 0
 
-      - uses: rickstaa/action-contains-tag@a9ff27d505ba2bf074a2ebb48b208e76d35ff308  # v1.2.10
-        id: contains_tag
-        with:
-          reference: "main"
-          tag: "${{ github.ref_name }}"
+      - name: Validate release tag and version
+        id: release
+        env:
+          RELEASE_TAG: "${{ inputs.tag || github.ref_name }}"
+        shell: bash
+        run: |
+          set -euo pipefail
+          fail() { printf '%s\n' "$*" >&2; exit 1; }
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" && "$GITHUB_REF" != "refs/heads/main" ]]; then
+            fail "Manual publication must run from main, not ${GITHUB_REF}; re-run with --ref main."
+          fi
+          if [[ ! "$RELEASE_TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            fail "Release tag $(printf '%q' "$RELEASE_TAG") must have the form X.Y.Z (no 'v' prefix)."
+          fi
+          sha=$(git rev-parse --verify --quiet "refs/tags/${RELEASE_TAG}^{commit}") \
+            || fail "Release tag ${RELEASE_TAG} does not exist."
+          git merge-base --is-ancestor "$sha" origin/main \
+            || fail "Release tag ${RELEASE_TAG} (${sha}) is not on main."
+          version=$(git show "${sha}:pyproject.toml" \
+            | python3 -c 'import sys, tomllib; print(tomllib.load(sys.stdin.buffer).get("project", {}).get("version", ""))') \
+            || fail "Could not read the package version from pyproject.toml at ${RELEASE_TAG}."
+          if [[ "$version" != "$RELEASE_TAG" ]]; then
+            fail "pyproject.toml version '${version}' does not match release tag ${RELEASE_TAG}."
+          fi
+          # Only the newest release tag on main may take GitHub's "Latest" badge, so
+          # retrying an older tag cannot demote a newer release.
+          newest=$(git tag --list --merged origin/main | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
+          if [[ "$RELEASE_TAG" == "$newest" ]]; then latest=true; else latest=false; fi
+          {
+            echo "tag=$RELEASE_TAG"
+            echo "sha=$sha"
+            echo "latest=$latest"
+          } >> "$GITHUB_OUTPUT"
 
   tests:
     name: tests
-    needs: on-main-branch-check
-    if: "${{ needs.on-main-branch-check.outputs.on_main == 'true' }}"
+    needs: validate-release
     uses: "./.github/workflows/python_package.yml"
+    with:
+      checkout-ref: "${{ needs.validate-release.outputs.sha }}"
 
   build-wheels:
     name: build wheels
-    needs: tests
+    needs: [validate-release, tests]
     uses: "./.github/workflows/wheels.yml"
+    with:
+      checkout-ref: "${{ needs.validate-release.outputs.sha }}"
 
   build-sdist:
     name: build source distribution
-    needs: tests
+    needs: [validate-release, tests]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           fetch-depth: 0
+          ref: "${{ needs.validate-release.outputs.sha }}"
 
       - name: Install uv
         uses: astral-sh/setup-uv@bd01e18f51369d5a26f1651c3cb451d3417e3bba  # v6.3.1
@@ -84,7 +126,7 @@ jobs:
           pattern: 'pybedlite-*'
           merge-multiple: true
 
-      - uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc  # v1.12.4
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086  # v1.14.3
         with:
           packages-dir: packages/
           skip-existing: true
@@ -92,7 +134,7 @@ jobs:
 
   make-changelog:
     runs-on: ubuntu-latest
-    needs: publish-to-pypi
+    needs: [validate-release, publish-to-pypi]
     outputs:
       release_body: "${{ steps.git-cliff.outputs.content }}"
     steps:
@@ -100,14 +142,14 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           fetch-depth: 0
-          ref: "${{ github.ref_name }}"
+          ref: "${{ needs.validate-release.outputs.sha }}"
 
       - name: Generate a Changelog
         uses: orhun/git-cliff-action@4a4a951bc43fafe41cd2348d181853f52356bee7  # v4.4.2
         id: git-cliff
         with:
           config: pyproject.toml
-          args: --latest --verbose
+          args: --current --verbose
         env:
           GITHUB_REPO: "${{ github.repository }}"
 
@@ -117,7 +159,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: read
-    needs: make-changelog
+    needs: [validate-release, make-changelog]
     steps:
       - name: Download the sdist
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
@@ -125,7 +167,9 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8  # v2.3.2
         with:
-          name: '${{ github.ref_name }}'
+          tag_name: "${{ needs.validate-release.outputs.tag }}"
+          name: "${{ needs.validate-release.outputs.tag }}"
           body: '${{ needs.make-changelog.outputs.release_body }}'
           draft: false
           prerelease: false
+          make_latest: "${{ needs.validate-release.outputs.latest }}"
